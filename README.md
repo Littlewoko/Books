@@ -6,9 +6,13 @@ Compilation of collected books and their read status
 
 | Title | Author | Genre |Finished Date |
 | --- | --- | --- | --- |
+| The Phantom of the Opera and Other Gothic Tales | Gaston Leroux | Macacbre | In Progress | 
 | Desgining Data Intensive Applications | Martin Kleppmann | Software Engineering | In Progress |
 | A History of Wales | John Davis | History | In Progress |
 | The Raven and Other Tales of Horror | Edgar Allen Poe | Macabre | 25/08/2024 |
+| ~~The Atlas Complex (3/3)~~ | Olivie Blake | Modern Fantasy | |
+| The Atlas Paradox (2/3) | Olivie Blake | Modern Fantasy | 20/08/2024 |
+| The Atlas Six (1/3) | Olivie Blake | Modern Fantasy | 11/08/2024 |
 | ~~Anno Dracula: Daikaiju (6/6)~~ | Kim Newman | Vampire | |
 | ~~Anno Dracula: One Thousand Monsters (5/6)~~ | Kim Newman | Vampire | |
 | ~~Anno Dracula: Johnny Alucard (4/6)~~ | Kim Newman | Vampire | |
