@@ -32,6 +32,17 @@ Compilation of collected books and their read status
 | Mistborn: The Hero of Ages (3/3) | Brandon Sanderson | High Fantasy | 2021 |
 | Mistborn: The Well of Ascension (2/3)| Brandon Sanderson | High Fantasy | 2021 |
 | Mistborn: The Final Empire (1/3) | Brandon Sanderson | High Fantasy | 2021 |
+| ~~The Completionist Chronicles: Thunderplump (11/11)~~ | Dakota Krout | Isekai | |
+| ~~The Completionist Chronicles: Thesaurize (10/11)~~ | Dakota Krout | Isekai | |
+| ~~The Completionist Chronicles: Tenacity (9/11)~~ | Dakota Krout | Isekai | |
+| ~~The Completionist Chronicles: Implode (8/11)~~ | Dakota Krout | Isekai | |
+| ~~The Completionist Chronicles: Invent (7/11)~~ | Dakota Krout | Isekai | |
+| ~~The Completionist Chronicles: Inflame (6/11)~~ | Dakota Krout | Isekai | |
+| The Completionist Chronicles: Ruthless (5/11) | Dakota Krout | Isekai | 2020 |
+| The Completionist Chronicles: Raze (4/11) | Dakota Krout | Isekai | 2020 |
+| The Completionist Chronicles: Rexus Side Quest (3/11) | Dakota Krout | Isekai | 2020 |
+| The Completionist Chronicles: Regicide (2/11) | Dakota Krout | Isekai | 2020 |
+| The Completionist Chronicles: Ritualist (1/11) | Dakota Krout | Isekai | 2020 |
 | Sweet Water | Cara Reinard | Thriller | 2020 |
 | The Stand | Stephen King | Dark Fantasy | |
 | Pen Semetery | Stephen King | Horror | 2020 | 
