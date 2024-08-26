@@ -6,7 +6,18 @@ Compilation of collected books and their read status
 
 | Title | Author | Genre |Finished Date |
 | --- | --- | --- | --- |
+| Desgining Data Intensive Applications | Martin Kleppmann | Software Engineering | In Progress |
+| A History of Wales | John Davis | History | In Progress |
 | The Raven and Other Tales of Horror | Edgar Allen Poe | Macabre | 25/08/2024 |
+| ~~Anno Dracula: Daikaiju (6/6)~~ | Kim Newman | Vampire | |
+| ~~Anno Dracula: One Thousand Monsters (5/6)~~ | Kim Newman | Vampire | |
+| ~~Anno Dracula: Johnny Alucard (4/6)~~ | Kim Newman | Vampire | |
+| ~~Anno Dracula: Dracula Cha Cha Cha (3/6)~~ | Kim Newman | Vampire | |
+| Anno Dracula: The Bloody Red Baron (2/6) | Kim Newman | WW1 Vampire | In Progress |
+| Anno Dracula | Kim Newman (1/6) | Industrial Vampire | 15/06/2024 |
+| Modern Software Engineering | David Farley | Software Engineering | 01/06/2024 |
+| The Clean Coder | Robert C. Martin | Software Engineering | 22/05/2024 | 
+| Clean Code | Robert C. Martin | Software Engineering | 15/05/2024 |
 | VTM: Nosferatu (13/13) | Gherbod Fleming | Vampire | 08/05/2024 |
 | VTM: Tremere (12/13) | Eric Griffin | Vampire | 01/05/2024 |
 | VTM: Brujah (11/13) | Gherbod Fleming | Vampire | 22/04/2024 |
@@ -20,7 +31,7 @@ Compilation of collected books and their read status
 | VTM: Gangrel (3/13) | Gherbod Fleming | Vampire | 22/02/2024 |
 | VTM: Tzimice (2/13) | Eric Griffin | Vampire | 15/02/2024 |
 | VTM: Toreador (1/13) | Stewart Wieck | Vampire | 08/02/2024 |
-| The Pragmatic Programmer | David Thomas, Andrew Hunt | Programming | 01/02/2024 |
+| The Pragmatic Programmer | David Thomas, Andrew Hunt | Software Engineering | 01/02/2024 |
 | The Vampyre and Other Tales of the Macabre | John Polidori | Vampire / Macabre | 15/01/2024 |
 | Carmilla | J. Sheridan Le Fanu | Vampire Macabre | 01/01/2024 |
 | Dracula | Bram Stoker | Vampire Horror | 21/12/2023 |
