@@ -3,6 +3,7 @@ Compilation of collected books and their read status
 
 - Title ~~dashed through~~ is not owned
 - No date is unread
+- 2024 Books Read: 23...
 
 | Title | Author | Genre |Finished Date |
 | --- | --- | --- | --- |
@@ -107,4 +108,3 @@ Compilation of collected books and their read status
 | HP: The Sorceror's Stone (1/7) | J.K. Rowling | Fantasy | 2017 |
 | HUNGER (2/9) | Michael Grant | Apocolypse |  2016 |
 | GONE (1/9) | Michael Grant | Apocolypse | 2016 |
-
