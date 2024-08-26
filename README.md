@@ -8,6 +8,23 @@ Compilation of collected books and their read status
 | --- | --- | --- | --- |
 | The Raven and Other Tales of Horror | Edgar Allen Poe | Macabre | 25/08/2024 |
 | Dracula | Bram Stoker | Horror / Vampire | 01/01/2024 |
+| ~~The Dresden Files: Battle Ground (17/17)~~ | Jim Butcher | Detective Fantasy | |
+| ~~The Dresden Files: Peace Talks (16/17)~~ | Jim Butcher | Detective Fantasy | |
+| The Dresden Files: Skin Game (15/17) | Jim Butcher | Detective Fantasy |2021 |
+| The Dresden Files: Cold Days (14/17) | Jim Butcher | Detective Fantasy |2021 |
+| The Dresden Files: Ghost Story (13/17) | Jim Butcher | Detective Fantasy |2021 |
+| The Dresden Files: Changes (12/17) | Jim Butcher | Detective Fantasy |2021 |
+| The Dresden Files: Turn Coat (11/17) | Jim Butcher | Detective Fantasy |2021 |
+| The Dresden Files: Small Favor (10/17) | Jim Butcher | Detective Fantasy |2021 |
+| The Dresden Files: White Night (9/17) | Jim Butcher | Detective Fantasy |2021 |
+| The Dresden Files: Proven Guilty (8/17) | Jim Butcher | Detective Fantasy |2021 |
+| The Dresden Files: Dead Beat (7/17) | Jim Butcher | Detective Fantasy |2021 |
+| The Dresden Files: Blood Rites (6/17) | Jim Butcher | Detective Fantasy |2021 |
+| The Dresden Files: Death Masks (5/17) | Jim Butcher | Detective Fantasy |2021 |
+| The Dresden Files: Summer Knight (4/17) | Jim Butcher | Detective Fantasy |2021 |
+| The Dresden Files: Grave Peril (3/17) | Jim Butcher | Detective Fantasy |2021 |
+| The Dresden Files: Fool Moon (2/17) | Jim Butcher | Detective Fantasy |2021 |
+| The Dresden Files: Storm Front (1/17) | Jim Butcher | Detective Fantasy |2021 |
 | A Mistborn Novel: The Lost Metal (4/4) | Brandon Sanderson | Industrial Fantasy | |
 | A Mistborn Novel: The Bands of Moruning (3/4) | Brandon Sanderson | Industrial Fantasy | |
 | A Mistborn Novel: Shadows of Self (2/4) | Brandon Sanderson | Industrial Fantasy | |
