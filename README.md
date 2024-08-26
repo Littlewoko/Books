@@ -7,7 +7,23 @@ Compilation of collected books and their read status
 | Title | Author | Genre |Finished Date |
 | --- | --- | --- | --- |
 | The Raven and Other Tales of Horror | Edgar Allen Poe | Macabre | 25/08/2024 |
-| Dracula | Bram Stoker | Horror / Vampire | 01/01/2024 |
+| VTM: Nosferatu (13/13) | Gherbod Fleming | Vampire | 08/05/2024 |
+| VTM: Tremere (12/13) | Eric Griffin | Vampire | 01/05/2024 |
+| VTM: Brujah (11/13) | Gherbod Fleming | Vampire | 22/04/2024 |
+| VTM: Giovanni (10/13) | Justin Achilli | Vampire | 15/04/2024 |
+| VTM: Malkavian (9/13) | Justin Achilli | Vampire | 08/04/2024 |
+| VTM: Ravnos (8/13) | Kethleen Ryan | Vampire | 01/04/2024 |
+| VTM: Assamite (7/13) | Gherbod Fleming | Vampire | 22/03/2024 |
+| VTM: Lasombra (6/13) | Richard E. Dansky | Vampire | 15/03/2024 |
+| VTM: Ventrue (5/13) | Gherbod Fleming | Vampire | 08/03/2024 |
+| VTM: Setite (4/13) | Kathleen Ryan | Vampire | 01/03/2024 |
+| VTM: Gangrel (3/13) | Gherbod Fleming | Vampire | 22/02/2024 |
+| VTM: Tzimice (2/13) | Eric Griffin | Vampire | 15/02/2024 |
+| VTM: Toreador (1/13) | Stewart Wieck | Vampire | 08/02/2024 |
+| The Pragmatic Programmer | David Thomas, Andrew Hunt | Programming | 01/02/2024 |
+| The Vampyre and Other Tales of the Macabre | John Polidori | Vampire / Macabre | 15/01/2024 |
+| Carmilla | J. Sheridan Le Fanu | Vampire Macabre | 01/01/2024 |
+| Dracula | Bram Stoker | Vampire Horror | 21/12/2023 |
 | ~~The Dresden Files: Battle Ground (17/17)~~ | Jim Butcher | Detective Fantasy | |
 | ~~The Dresden Files: Peace Talks (16/17)~~ | Jim Butcher | Detective Fantasy | |
 | The Dresden Files: Skin Game (15/17) | Jim Butcher | Detective Fantasy |2021 |
