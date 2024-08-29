@@ -85,7 +85,20 @@ Compilation of collected books and their read status
 | VTM: Toreador (1/13) | Stewart Wieck | Vampire | 08/02/2024 |
 | The Pragmatic Programmer | David Thomas, Andrew Hunt | Software Engineering | 01/02/2024 |
 | The Vampyre and Other Tales of the Macabre | John Polidori | Vampire / Macabre | 15/01/2024 |
-| Carmilla | J. Sheridan Le Fanu | Vampire Macabre | 01/01/2024 |
+| Sir Guy Eveling's Dream (Other tale of the Macabre) | Horace Smith | Macabre | Read |
+| Confessions of a Reformed Ribbonman (Other tale of the Macabre) | William Carleton | Macabre | Read |
+| Monos and Daimonos (Other tale of the Macabre) | Edward Bulwer | Macabre | Read |
+| The Master of Logan (Other tale of the Macabre) | Allan Cunningham | Macabre | Read |
+| The Victim (Other tale of the Macabre) | Anonymous | Macabre | Read |
+| Some Terrible Letters from Scotland (Other tale of the Macabre) | James Hogg | Macabre | Read |
+| The Curse (Other tale of the Macabre) | Anonymous | Macabre | |
+| Life in Death (Other tale of the Macabre) | Anonymous | Macabre | |
+| My Hobby, - Rather (Other tale of the Macabre) | N.P. Willis | Macabre | |
+| The Red Man (Other tale of the Macabre) | Catherine Gore | Macabre | |
+| Post Mortem Recollections of a Medical Lecturer (Other tale of the Macabre) | Charles Lever | Macabre | |
+| The Bride of Lindorf (Other tale of the Macabre) | Leititia E. Landon | Macabre | |
+| Passage in the Secret Hisroty of an Irish Countess (Other tale of the Macabre) | Joseph Sheridan Le Fanu | Macabre | |
+| Carmilla | J. Sheridan Le Fanu | Vampire | 01/01/2024 |
 | Dracula | Bram Stoker | Vampire Horror | 21/12/2023 |
 | ~~The Dresden Files: Battle Ground (17/17)~~ | Jim Butcher | Detective Fantasy | |
 | ~~The Dresden Files: Peace Talks (16/17)~~ | Jim Butcher | Detective Fantasy | |
