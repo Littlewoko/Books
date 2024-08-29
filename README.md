@@ -17,9 +17,9 @@ Compilation of collected books and their read status
 | Rapaccini's Daughter (Other gothic tale) | Edgar Allen Poe | Tragic Love | Read |
 | Carmilla (Other gothic tale) |J. Sheridan Le Fanu | Vampire | Read |
 | Olalla (Other gothic tale) | Robert Louis Stevenson | Macabre Vampireish | Read |
-| The Withered Arm (Other gothic tale) | Thomas Hardy |  | |
-| The Abbot's Ghost, or, Maurice Treherne's Temptation (Other gothic tale) | Louisa May Alcott | | |
-| The Dead Smile (Other gothic tale) | F. Marion Crawford | | |
+| The Withered Arm (Other gothic tale) | Thomas Hardy | Macabre | Read |
+| The Abbot's Ghost, or, Maurice Treherne's Temptation (Other gothic tale) | Louisa May Alcott | Christmas Macabre | Read |
+| The Dead Smile (Other gothic tale) | F. Marion Crawford | Macabre | Read |
 | The De Grabrooke Monument (Other gothic tale) | Mrs.J.H. Riddel | Ghost Macabre | Read |
 | The Family of a Vourdalak (Other gothic tale) | Aleksey Tolsoy | Vampire | Read |
 | The Spider (Other gothic tale) | Hanns Heinz Ewers | | |
