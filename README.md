@@ -35,6 +35,29 @@ Compilation of collected books and their read status
 | Desgining Data Intensive Applications | Martin Kleppmann | Software Engineering | In Progress |
 | A History of Wales | John Davis | History | In Progress |
 | The Raven and Other Tales of Horror | Edgar Allen Poe | Macabre | 25/08/2024 |
+| The Murders in the Rue Morgue (Other Tale of Horror) | Edgar Allen Poe | Macabre | Read |
+| MS. Found in a Bottle (Other Tale of Horror) | Edgar Allen Poe | Macabre | Read |
+| The Oval Portrait (Other Tale of Horror) | Edgar Allen Poe | Macabre | Read |
+| The Purloined Letter (Other Tale of Horror) | Edgar Allen Poe | Macabre | Read |
+| A Descent into the Maelstrom (Other Tale of Horror) | Edgar Allen Poe | Macabre | Read |
+| The Black Cat (Other Tale of Horror) | Edgar Allen Poe | Macabre | Read |
+| The Fall of the House of Usher (Other Tale of Horror) | Edgar Allen Poe | Macabre | Read |
+| The Masque of the Red Death (Other Tale of Horror) | Edgar Allen Poe | Macabre | Read |
+| The Casque of Amontillado (Other Tale of Horror) | Edgar Allen Poe | Macabre | Read |
+| The Imp of the Perverse (Other Tale of Horror) | Edgar Allen Poe | Macabre | Read |
+| The Assignation (Other Tale of Horror) | Edgar Allen Poe | Macabre | Read |
+| The Pit and the Pendulum (Other Tale of Horror) | Edgar Allen Poe | Macabre | Read |
+| The Premature Burial (Other Tale of Horror) | Edgar Allen Poe | Macabre | Read |
+| The Mystery of Marie Roget (Other Tale of Horror) | Edgar Allen Poe | Macabre | Read |
+| The Tell-Tale Heart (Other Tale of Horror) | Edgar Allen Poe | Macabre | Read |
+| Berenice (Other Tale of Horror) | Edgar Allen Poe | Macabre | Read |
+| Eleonora (Other Tale of Horror) | Edgar Allen Poe | Macabre | Read |
+| Ligeia (Other Tale of Horror) | Edgar Allen Poe | Macabre | Read |
+| The Oblong Box (Other Tale of Horror) | Edgar Allen Poe | Macabre | Read |
+| The Man that was Used Up (Other Tale of Horror) | Edgar Allen Poe | Macabre | Read |
+| Hop-Frog (Other Tale of Horror) | Edgar Allen Poe | Macabre | Read |
+| The Man of the Crowd (Other Tale of Horror) | Edgar Allen Poe | Macabre | Read |
+| The Raven | Edgar Allen Poe | Macabre | Read |
 | ~~The Atlas Complex (3/3)~~ | Olivie Blake | Modern Fantasy | |
 | The Atlas Paradox (2/3) | Olivie Blake | Modern Fantasy | 20/08/2024 |
 | The Atlas Six (1/3) | Olivie Blake | Modern Fantasy | 11/08/2024 |
