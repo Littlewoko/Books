@@ -5,9 +5,33 @@ Compilation of collected books and their read status
 - No date is unread
 - 2024 Books Read: 23...
 
-| Title | Author | Genre |Finished Date |
+| Title | Author | Genre | Finished Date |
 | --- | --- | --- | --- |
-| The Phantom of the Opera and Other Gothic Tales | Gaston Leroux | Macacbre | In Progress | 
+| The Phantom of the Opera and Other Gothic Tales | Various | Various | In Progress |
+| The Vampyre (Other gothic tale) | John Pilodori | Vampire | Read |
+| The Transformation (Other gothic tale) | Mary Shelley | Macabre | Read |
+| The Sandman (Other gothic tale) | E.T.A. Hoffman | Macabre | Read |
+| Somnambulism: A Fragment (Other gothic tale) | Charles Brockden Brown | Macabre | Read |
+| The Catle of Otranto: A Gothic Story (Other gothic tale) | Horace Wapole | Macabre | Read |
+| Metzengerstein (Other gothic tale) | Edgar Allen Poe | Macabre | Read |
+| Rapaccini's Daughter (Other gothic tale) | Edgar Allen Poe | Tragic Love | Read |
+| Carmilla (Other gothic tale) |J. Sheridan Le Fanu | Vampire | Read |
+| Olalla (Other gothic tale) | Robert Louis Stevenson | Macabre Vampireish | Read |
+| The Withered Arm (Other gothic tale) | Thomas Hardy |  | |
+| The Abbot's Ghost, or, Maurice Treherne's Temptation (Other gothic tale) | Louisa May Alcott | | |
+| The Dead Smile (Other gothic tale) | F. Marion Crawford | | |
+| The De Grabrooke Monument (Other gothic tale) | Mrs.J.H. Riddel | Ghost Macabre | Read |
+| The Family of a Vourdalak (Other gothic tale) | Aleksey Tolsoy | Vampire | Read |
+| The Spider (Other gothic tale) | Hanns Heinz Ewers | | |
+| Execution (Other gothic tale) | M.Y. Halidom | | |
+| The Great God Pan (Other gothic tale) | Arthur Machen | | |
+| The House of Sounds (Other gothic tale) | M.P. Shiel | | |
+| The Secret of Growing Gold (Other gothic tale) | Bram Stoker | | |
+| In the Court of the Dragon (Other gothic tale) | Robert W. Chambers | | |
+| Sister Maddelena (Other gothic tale) | Ralph Adams Cram | | |
+| The Ghost of Mohammed Din (Other gothic tale) | Clark Ashton Smith | | |
+| The Rats in the Walls (Other gothic tale) | H.P. Lovecraft | | |
+| The Phantom of the Opera | Gaston Leroux | | |
 | Desgining Data Intensive Applications | Martin Kleppmann | Software Engineering | In Progress |
 | A History of Wales | John Davis | History | In Progress |
 | The Raven and Other Tales of Horror | Edgar Allen Poe | Macabre | 25/08/2024 |
