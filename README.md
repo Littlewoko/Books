@@ -23,7 +23,7 @@ Compilation of collected books and their read status
 | The De Grabrooke Monument (Other gothic tale) | Mrs.J.H. Riddel | Ghost Macabre | Read |
 | The Family of a Vourdalak (Other gothic tale) | Aleksey Tolsoy | Vampire | Read |
 | The Spider (Other gothic tale) | Hanns Heinz Ewers | Suicide Macabre | Read |
-| Execution (Other gothic tale) | M.Y. Halidom | | |
+| Execution (Other gothic tale) | M.Y. Halidom | Macabre | Read |
 | The Great God Pan (Other gothic tale) | Arthur Machen | | |
 | The House of Sounds (Other gothic tale) | M.P. Shiel | | |
 | The Secret of Growing Gold (Other gothic tale) | Bram Stoker | | |
