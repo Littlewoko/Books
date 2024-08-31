@@ -24,7 +24,7 @@ Compilation of collected books and their read status
 | The Family of a Vourdalak (Other gothic tale) | Aleksey Tolsoy | Vampire | Read |
 | The Spider (Other gothic tale) | Hanns Heinz Ewers | Suicide Macabre | Read |
 | Execution (Other gothic tale) | M.Y. Halidom | Macabre | Read |
-| The Great God Pan (Other gothic tale) | Arthur Machen | | |
+| The Great God Pan (Other gothic tale) | Arthur Machen | Macabre | Read |
 | The House of Sounds (Other gothic tale) | M.P. Shiel | | |
 | The Secret of Growing Gold (Other gothic tale) | Bram Stoker | | |
 | In the Court of the Dragon (Other gothic tale) | Robert W. Chambers | | |
@@ -159,6 +159,7 @@ Compilation of collected books and their read status
 | A Game of Thrones (1/6) | G.R.R. Martin | Low Fantasy | 2019 |
 | Don't Make a Sound | T.R. Ragan | Crime Thriller | 2018 |
 | No One is Home | D.M. Pulley | Crime Trhiller | 2018 |
+| 1984 | George Orwell | Dystopia | 2017 |
 | HP: The Deathly Hallows (7/7) | J.K. Rowling | Fantasy | 2017 |
 | HP: The Half Blood Prince (6/7) | J.K. Rowling | Fantasy |  2017 |
 | HP: The Order of the Pheonix (5/7) | J.K. Rowling | Fantasy | 2017 |
