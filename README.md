@@ -3,7 +3,7 @@ Compilation of collected books and their read status
 
 - Title ~~dashed through~~ is not owned
 - No date is unread
-- 2024 Books Read: 23...
+- 2024 Books Read: 24...
 
 | Title | Author | Genre | Finished Date |
 | --- | --- | --- | --- |
@@ -25,9 +25,9 @@ Compilation of collected books and their read status
 | The Spider (Other gothic tale) | Hanns Heinz Ewers | Suicide Macabre | Read |
 | Execution (Other gothic tale) | M.Y. Halidom | Macabre | Read |
 | The Great God Pan (Other gothic tale) | Arthur Machen | Macabre | Read |
-| The House of Sounds (Other gothic tale) | M.P. Shiel | | |
-| The Secret of Growing Gold (Other gothic tale) | Bram Stoker | | |
-| In the Court of the Dragon (Other gothic tale) | Robert W. Chambers | | |
+| The House of Sounds (Other gothic tale) | M.P. Shiel | Macabre | Read |
+| The Secret of Growing Gold (Other gothic tale) | Bram Stoker | Macabre | Read |
+| In the Court of the Dragon (Other gothic tale) | Robert W. Chambers | Macabre | Read |
 | Sister Maddelena (Other gothic tale) | Ralph Adams Cram | | |
 | The Ghost of Mohammed Din (Other gothic tale) | Clark Ashton Smith | | |
 | The Rats in the Walls (Other gothic tale) | H.P. Lovecraft | | |
@@ -67,6 +67,19 @@ Compilation of collected books and their read status
 | ~~Anno Dracula: Dracula Cha Cha Cha (3/6)~~ | Kim Newman | Vampire | |
 | Anno Dracula: The Bloody Red Baron (2/6) | Kim Newman | WW1 Vampire | In Progress |
 | Anno Dracula | Kim Newman (1/6) | Industrial Vampire | 15/06/2024 |
+| ~~Blood Communion (13/13)~~ | Anne Rice | Vampire |  |
+| ~~Prince Lestat and the Realms of Atlantis (12/13)~~ | Anne Rice | Vampire | |
+| ~~Prince Lestat (11/13)~~ | Anne Rice | Vampire |  |
+| ~~Blood Canticle (10/13)~~ | Anne Rice | Vampire |  |
+| ~~Blackwood Farm (9/13)~~ | Anne Rice | Vampire |  |
+| ~~Blood and Gold (8/13)~~ | Anne Rice | Vampire | |
+| ~~Merrick (7/13)~~ | Anne Rice | Vampire |  |
+| ~~The Vampire Armand (6/13)~~ | Anne Rice | Vampire | |
+| ~~Memnoch the Devil (5/13)~~ | Anne Rice | Vampire | |
+| ~~The Tale of the Body Thief (4/13)~~ | Anne Rice | Vampire | |
+| ~~The Queen of the Damned (3/13)~~ | Anne Rice | Vampire | |
+| The Vampire Lestat (2/13) | Anne Rice | Vampire | In Progress |
+| Interview with the Vampire (1/13) | Anne Rice | Vampire | 07/06/2024 | 
 | Modern Software Engineering | David Farley | Software Engineering | 01/06/2024 |
 | The Clean Coder | Robert C. Martin | Software Engineering | 22/05/2024 | 
 | Clean Code | Robert C. Martin | Software Engineering | 15/05/2024 |
