@@ -3,11 +3,11 @@ Compilation of collected books and their read status
 
 - Title ~~dashed through~~ is not owned
 - No date is unread
-- 2024 Books Read: 24...
+- 2024 Books Read: 25...
 
 | Title | Author | Genre | Finished Date |
 | --- | --- | --- | --- |
-| The Phantom of the Opera and Other Gothic Tales | Various | Various | In Progress |
+| The Phantom of the Opera and Other Gothic Tales | Various | Various | 04/09/2024 |
 | The Vampyre (Other gothic tale) | John Pilodori | Vampire | Read |
 | The Transformation (Other gothic tale) | Mary Shelley | Macabre | Read |
 | The Sandman (Other gothic tale) | E.T.A. Hoffman | Macabre | Read |
@@ -28,10 +28,10 @@ Compilation of collected books and their read status
 | The House of Sounds (Other gothic tale) | M.P. Shiel | Macabre | Read |
 | The Secret of Growing Gold (Other gothic tale) | Bram Stoker | Macabre | Read |
 | In the Court of the Dragon (Other gothic tale) | Robert W. Chambers | Macabre | Read |
-| Sister Maddelena (Other gothic tale) | Ralph Adams Cram | | |
-| The Ghost of Mohammed Din (Other gothic tale) | Clark Ashton Smith | | |
-| The Rats in the Walls (Other gothic tale) | H.P. Lovecraft | | |
-| The Phantom of the Opera | Gaston Leroux | | |
+| Sister Maddelena (Other gothic tale) | Ralph Adams Cram | Macabre | Read |
+| The Ghost of Mohammed Din (Other gothic tale) | Clark Ashton Smith | Macabre | Read |
+| The Rats in the Walls (Other gothic tale) | H.P. Lovecraft | Horror | Read |
+| The Phantom of the Opera | Gaston Leroux | Macabre | Read |
 | Desgining Data Intensive Applications | Martin Kleppmann | Software Engineering | In Progress |
 | A History of Wales | John Davis | History | In Progress |
 | The Raven and Other Tales of Horror | Edgar Allen Poe | Macabre | 25/08/2024 |
