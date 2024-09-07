@@ -7,6 +7,11 @@ Compilation of collected books and their read status
 
 | Title | Author | Genre | Finished Date |
 | --- | --- | --- | --- |
+| The Exorcist | William Peter Blatty | Horror | |
+| Desgining Data Intensive Applications | Martin Kleppmann | Software Engineering | In Progress |
+| Anno Dracula: The Bloody Red Baron (2/6) | Kim Newman | WW1 Vampire | In Progress |
+| A History of Wales | John Davis | History | In Progress |
+| The Vampire Lestat (2/13) | Anne Rice | Vampire | In Progress |
 | The Phantom of the Opera and Other Gothic Tales | Various | Various | 04/09/2024 |
 | The Vampyre (Other gothic tale) | John Pilodori | Vampire | Read |
 | The Transformation (Other gothic tale) | Mary Shelley | Macabre | Read |
@@ -32,8 +37,6 @@ Compilation of collected books and their read status
 | The Ghost of Mohammed Din (Other gothic tale) | Clark Ashton Smith | Macabre | Read |
 | The Rats in the Walls (Other gothic tale) | H.P. Lovecraft | Horror | Read |
 | The Phantom of the Opera | Gaston Leroux | Macabre | Read |
-| Desgining Data Intensive Applications | Martin Kleppmann | Software Engineering | In Progress |
-| A History of Wales | John Davis | History | In Progress |
 | The Raven and Other Tales of Horror | Edgar Allen Poe | Macabre | 25/08/2024 |
 | The Murders in the Rue Morgue (Other Tale of Horror) | Edgar Allen Poe | Macabre | Read |
 | MS. Found in a Bottle (Other Tale of Horror) | Edgar Allen Poe | Macabre | Read |
@@ -65,7 +68,6 @@ Compilation of collected books and their read status
 | ~~Anno Dracula: One Thousand Monsters (5/6)~~ | Kim Newman | Vampire | |
 | ~~Anno Dracula: Johnny Alucard (4/6)~~ | Kim Newman | Vampire | |
 | ~~Anno Dracula: Dracula Cha Cha Cha (3/6)~~ | Kim Newman | Vampire | |
-| Anno Dracula: The Bloody Red Baron (2/6) | Kim Newman | WW1 Vampire | In Progress |
 | Anno Dracula | Kim Newman (1/6) | Industrial Vampire | 15/06/2024 |
 | ~~Blood Communion (13/13)~~ | Anne Rice | Vampire |  |
 | ~~Prince Lestat and the Realms of Atlantis (12/13)~~ | Anne Rice | Vampire | |
@@ -78,7 +80,6 @@ Compilation of collected books and their read status
 | ~~Memnoch the Devil (5/13)~~ | Anne Rice | Vampire | |
 | ~~The Tale of the Body Thief (4/13)~~ | Anne Rice | Vampire | |
 | ~~The Queen of the Damned (3/13)~~ | Anne Rice | Vampire | |
-| The Vampire Lestat (2/13) | Anne Rice | Vampire | In Progress |
 | Interview with the Vampire (1/13) | Anne Rice | Vampire | 07/06/2024 | 
 | Modern Software Engineering | David Farley | Software Engineering | 01/06/2024 |
 | The Clean Coder | Robert C. Martin | Software Engineering | 22/05/2024 | 
