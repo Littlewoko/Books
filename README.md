@@ -7,6 +7,7 @@ Compilation of collected books and their read status
 
 | Title | Author | Genre | Finished Date |
 | --- | --- | --- | --- |
+| Frankenstein | Mary Shelly | Horror | |
 | The Exorcist | William Peter Blatty | Horror | |
 | Desgining Data Intensive Applications | Martin Kleppmann | Software Engineering | In Progress |
 | Anno Dracula: The Bloody Red Baron (2/6) | Kim Newman | WW1 Vampire | In Progress |
