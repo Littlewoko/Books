@@ -113,6 +113,7 @@ Compilation of collected books and their read status
 | Passage in the Secret Hisroty of an Irish Countess (Other tale of the Macabre) | Joseph Sheridan Le Fanu | Macabre | |
 | Carmilla | J. Sheridan Le Fanu | Vampire | 01/01/2024 |
 | Dracula | Bram Stoker | Vampire Horror | 21/12/2023 |
+| The Slow Regard of Silent Things | Patrick Rothfuss | Fantasy | 2022 |
 | ~~The Dresden Files: Battle Ground (17/17)~~ | Jim Butcher | Detective Fantasy | |
 | ~~The Dresden Files: Peace Talks (16/17)~~ | Jim Butcher | Detective Fantasy | |
 | The Dresden Files: Skin Game (15/17) | Jim Butcher | Detective Fantasy |2021 |
@@ -137,6 +138,7 @@ Compilation of collected books and their read status
 | Mistborn: The Hero of Ages (3/3) | Brandon Sanderson | High Fantasy | 2021 |
 | Mistborn: The Well of Ascension (2/3)| Brandon Sanderson | High Fantasy | 2021 |
 | Mistborn: The Final Empire (1/3) | Brandon Sanderson | High Fantasy | 2021 |
+| Strongman | Eddie Hall | Biopic | 2020 |
 | ~~The Completionist Chronicles: Thunderplump (11/11)~~ | Dakota Krout | Isekai | |
 | ~~The Completionist Chronicles: Thesaurize (10/11)~~ | Dakota Krout | Isekai | |
 | ~~The Completionist Chronicles: Tenacity (9/11)~~ | Dakota Krout | Isekai | |
