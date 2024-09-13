@@ -3,7 +3,7 @@ Compilation of collected books and their read status
 
 - Title ~~dashed through~~ is not owned
 - No date is unread
-- 2024 Books Read: 25...
+- 2024 Books Read: 26...
 
 | Title | Author | Genre | Finished Date |
 | --- | --- | --- | --- |
@@ -14,7 +14,7 @@ Compilation of collected books and their read status
 | ~~Anno Dracula: One Thousand Monsters (5/6)~~ | Kim Newman | Vampire | |
 | ~~Anno Dracula: Johnny Alucard (4/6)~~ | Kim Newman | Vampire | |
 | ~~Anno Dracula: Dracula Cha Cha Cha (3/6)~~ | Kim Newman | Vampire | |
-| Anno Dracula: The Bloody Red Baron (2/6) | Kim Newman | WW1 Vampire | In Progress |
+| Anno Dracula: The Bloody Red Baron (2/6) | Kim Newman | WW1 Vampire | 13/09/2024 |
 | A History of Wales | John Davis | History | In Progress |
 | The Vampire Lestat (2/13) | Anne Rice | Vampire | In Progress |
 | The Phantom of the Opera and Other Gothic Tales | Various | Various | 04/09/2024 |
