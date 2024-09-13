@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 using System.Net.Mail;
 
-namespace Book_Keeper.database;
+namespace Book_Keeper.Models;
 
 public class Book
 {
