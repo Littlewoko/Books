@@ -10,6 +10,10 @@ Compilation of collected books and their read status
 | Frankenstein | Mary Shelly | Horror | |
 | The Exorcist | William Peter Blatty | Horror | |
 | Desgining Data Intensive Applications | Martin Kleppmann | Software Engineering | In Progress |
+| ~~Anno Dracula: Daikaiju (6/6)~~ | Kim Newman | Vampire | |
+| ~~Anno Dracula: One Thousand Monsters (5/6)~~ | Kim Newman | Vampire | |
+| ~~Anno Dracula: Johnny Alucard (4/6)~~ | Kim Newman | Vampire | |
+| ~~Anno Dracula: Dracula Cha Cha Cha (3/6)~~ | Kim Newman | Vampire | |
 | Anno Dracula: The Bloody Red Baron (2/6) | Kim Newman | WW1 Vampire | In Progress |
 | A History of Wales | John Davis | History | In Progress |
 | The Vampire Lestat (2/13) | Anne Rice | Vampire | In Progress |
@@ -65,10 +69,6 @@ Compilation of collected books and their read status
 | ~~The Atlas Complex (3/3)~~ | Olivie Blake | Modern Fantasy | |
 | The Atlas Paradox (2/3) | Olivie Blake | Modern Fantasy | 20/08/2024 |
 | The Atlas Six (1/3) | Olivie Blake | Modern Fantasy | 11/08/2024 |
-| ~~Anno Dracula: Daikaiju (6/6)~~ | Kim Newman | Vampire | |
-| ~~Anno Dracula: One Thousand Monsters (5/6)~~ | Kim Newman | Vampire | |
-| ~~Anno Dracula: Johnny Alucard (4/6)~~ | Kim Newman | Vampire | |
-| ~~Anno Dracula: Dracula Cha Cha Cha (3/6)~~ | Kim Newman | Vampire | |
 | Anno Dracula | Kim Newman (1/6) | Industrial Vampire | 15/06/2024 |
 | ~~Blood Communion (13/13)~~ | Anne Rice | Vampire |  |
 | ~~Prince Lestat and the Realms of Atlantis (12/13)~~ | Anne Rice | Vampire | |
