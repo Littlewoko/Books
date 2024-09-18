@@ -7,16 +7,16 @@ Compilation of collected books and their read status
 
 | Title | Author | Genre | Finished Date |
 | --- | --- | --- | --- |
-| Frankenstein | Mary Shelly | Horror | |
-| The Exorcist | William Peter Blatty | Horror | |
+| Frankenstein | Mary Shelly | Horror | In Progress |
 | Desgining Data Intensive Applications | Martin Kleppmann | Software Engineering | In Progress |
+| A History of Wales | John Davis | History | In Progress |
+| The Vampire Lestat (2/13) | Anne Rice | Vampire | In Progress |
+| The Exorcist | William Peter Blatty | Horror | |
 | ~~Anno Dracula: Daikaiju (6/6)~~ | Kim Newman | Vampire | |
 | ~~Anno Dracula: One Thousand Monsters (5/6)~~ | Kim Newman | Vampire | |
 | ~~Anno Dracula: Johnny Alucard (4/6)~~ | Kim Newman | Vampire | |
 | ~~Anno Dracula: Dracula Cha Cha Cha (3/6)~~ | Kim Newman | Vampire | |
 | Anno Dracula: The Bloody Red Baron (2/6) | Kim Newman | WW1 Vampire | 13/09/2024 |
-| A History of Wales | John Davis | History | In Progress |
-| The Vampire Lestat (2/13) | Anne Rice | Vampire | In Progress |
 | The Phantom of the Opera and Other Gothic Tales | Various | Various | 04/09/2024 |
 | The Vampyre (Other gothic tale) | John Pilodori | Vampire | Read |
 | The Transformation (Other gothic tale) | Mary Shelley | Macabre | Read |
