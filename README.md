@@ -10,7 +10,10 @@ Compilation of collected books and their read status
 | Desgining Data Intensive Applications | Martin Kleppmann | Software Engineering | In Progress |
 | A History of Wales | John Davis | History | In Progress |
 | The Vampire Lestat (2/13) | Anne Rice | Vampire | In Progress |
+| ~~The Dresden Files: Battle Ground (17/17)~~ | Jim Butcher | Detective Fantasy | |
+| The Dresden Files: Peace Talks (16/17) | Jim Butcher | Detective Fantasy | In Progress |
 | Frankenstein | Mary Shelly | Horror | 20/09/2024 |
+| A Fragment (Short Story) | Lord Byron | Vampire | Read |
 | The Exorcist | William Peter Blatty | Horror | |
 | ~~Anno Dracula: Daikaiju (6/6)~~ | Kim Newman | Vampire | |
 | ~~Anno Dracula: One Thousand Monsters (5/6)~~ | Kim Newman | Vampire | |
@@ -18,53 +21,53 @@ Compilation of collected books and their read status
 | ~~Anno Dracula: Dracula Cha Cha Cha (3/6)~~ | Kim Newman | Vampire | |
 | Anno Dracula: The Bloody Red Baron (2/6) | Kim Newman | WW1 Vampire | 13/09/2024 |
 | The Phantom of the Opera and Other Gothic Tales | Various | Various | 04/09/2024 |
-| The Vampyre (Other gothic tale) | John Pilodori | Vampire | Read |
-| The Transformation (Other gothic tale) | Mary Shelley | Macabre | Read |
-| The Sandman (Other gothic tale) | E.T.A. Hoffman | Macabre | Read |
-| Somnambulism: A Fragment (Other gothic tale) | Charles Brockden Brown | Macabre | Read |
-| The Catle of Otranto: A Gothic Story (Other gothic tale) | Horace Wapole | Macabre | Read |
-| Metzengerstein (Other gothic tale) | Edgar Allen Poe | Macabre | Read |
-| Rapaccini's Daughter (Other gothic tale) | Edgar Allen Poe | Tragic Love | Read |
-| Carmilla (Other gothic tale) |J. Sheridan Le Fanu | Vampire | Read |
-| Olalla (Other gothic tale) | Robert Louis Stevenson | Macabre Vampireish | Read |
-| The Withered Arm (Other gothic tale) | Thomas Hardy | Macabre | Read |
-| The Abbot's Ghost, or, Maurice Treherne's Temptation (Other gothic tale) | Louisa May Alcott | Christmas Macabre | Read |
-| The Dead Smile (Other gothic tale) | F. Marion Crawford | Macabre | Read |
-| The De Grabrooke Monument (Other gothic tale) | Mrs.J.H. Riddel | Ghost Macabre | Read |
-| The Family of a Vourdalak (Other gothic tale) | Aleksey Tolsoy | Vampire | Read |
-| The Spider (Other gothic tale) | Hanns Heinz Ewers | Suicide Macabre | Read |
-| Execution (Other gothic tale) | M.Y. Halidom | Macabre | Read |
-| The Great God Pan (Other gothic tale) | Arthur Machen | Macabre | Read |
-| The House of Sounds (Other gothic tale) | M.P. Shiel | Macabre | Read |
-| The Secret of Growing Gold (Other gothic tale) | Bram Stoker | Macabre | Read |
-| In the Court of the Dragon (Other gothic tale) | Robert W. Chambers | Macabre | Read |
-| Sister Maddelena (Other gothic tale) | Ralph Adams Cram | Macabre | Read |
-| The Ghost of Mohammed Din (Other gothic tale) | Clark Ashton Smith | Macabre | Read |
-| The Rats in the Walls (Other gothic tale) | H.P. Lovecraft | Horror | Read |
+| The Vampyre (Short Story) | John Pilodori | Vampire | Read |
+| The Transformation (Short Story) | Mary Shelley | Macabre | Read |
+| The Sandman (Short Story) | E.T.A. Hoffman | Macabre | Read |
+| Somnambulism: A Fragment (Short Story) | Charles Brockden Brown | Macabre | Read |
+| The Catle of Otranto: A Gothic Story (Short Story) | Horace Wapole | Macabre | Read |
+| Metzengerstein (Short Story) | Edgar Allen Poe | Macabre | Read |
+| Rapaccini's Daughter (Short Story) | Edgar Allen Poe | Tragic Love | Read |
+| Carmilla (Short Story) |J. Sheridan Le Fanu | Vampire | Read |
+| Olalla (Short Story) | Robert Louis Stevenson | Macabre Vampireish | Read |
+| The Withered Arm (Short Story) | Thomas Hardy | Macabre | Read |
+| The Abbot's Ghost, or, Maurice Treherne's Temptation (Short Story) | Louisa May Alcott | Christmas Macabre | Read |
+| The Dead Smile (Short Story) | F. Marion Crawford | Macabre | Read |
+| The De Grabrooke Monument (Short Story) | Mrs.J.H. Riddel | Ghost Macabre | Read |
+| The Family of a Vourdalak (Short Story) | Aleksey Tolsoy | Vampire | Read |
+| The Spider (Short Story) | Hanns Heinz Ewers | Suicide Macabre | Read |
+| Execution (Short Story) | M.Y. Halidom | Macabre | Read |
+| The Great God Pan (Short Story) | Arthur Machen | Macabre | Read |
+| The House of Sounds (Short Story) | M.P. Shiel | Macabre | Read |
+| The Secret of Growing Gold (Short Story) | Bram Stoker | Macabre | Read |
+| In the Court of the Dragon (Short Story) | Robert W. Chambers | Macabre | Read |
+| Sister Maddelena (Short Story) | Ralph Adams Cram | Macabre | Read |
+| The Ghost of Mohammed Din (Short Story) | Clark Ashton Smith | Macabre | Read |
+| The Rats in the Walls (Short Story) | H.P. Lovecraft | Horror | Read |
 | The Phantom of the Opera | Gaston Leroux | Macabre | Read |
 | The Raven and Other Tales of Horror | Edgar Allen Poe | Macabre | 25/08/2024 |
-| The Murders in the Rue Morgue (Other Tale of Horror) | Edgar Allen Poe | Macabre | Read |
-| MS. Found in a Bottle (Other Tale of Horror) | Edgar Allen Poe | Macabre | Read |
-| The Oval Portrait (Other Tale of Horror) | Edgar Allen Poe | Macabre | Read |
-| The Purloined Letter (Other Tale of Horror) | Edgar Allen Poe | Macabre | Read |
-| A Descent into the Maelstrom (Other Tale of Horror) | Edgar Allen Poe | Macabre | Read |
-| The Black Cat (Other Tale of Horror) | Edgar Allen Poe | Macabre | Read |
-| The Fall of the House of Usher (Other Tale of Horror) | Edgar Allen Poe | Macabre | Read |
-| The Masque of the Red Death (Other Tale of Horror) | Edgar Allen Poe | Macabre | Read |
-| The Casque of Amontillado (Other Tale of Horror) | Edgar Allen Poe | Macabre | Read |
-| The Imp of the Perverse (Other Tale of Horror) | Edgar Allen Poe | Macabre | Read |
-| The Assignation (Other Tale of Horror) | Edgar Allen Poe | Macabre | Read |
-| The Pit and the Pendulum (Other Tale of Horror) | Edgar Allen Poe | Macabre | Read |
-| The Premature Burial (Other Tale of Horror) | Edgar Allen Poe | Macabre | Read |
-| The Mystery of Marie Roget (Other Tale of Horror) | Edgar Allen Poe | Macabre | Read |
-| The Tell-Tale Heart (Other Tale of Horror) | Edgar Allen Poe | Macabre | Read |
-| Berenice (Other Tale of Horror) | Edgar Allen Poe | Macabre | Read |
-| Eleonora (Other Tale of Horror) | Edgar Allen Poe | Macabre | Read |
-| Ligeia (Other Tale of Horror) | Edgar Allen Poe | Macabre | Read |
-| The Oblong Box (Other Tale of Horror) | Edgar Allen Poe | Macabre | Read |
-| The Man that was Used Up (Other Tale of Horror) | Edgar Allen Poe | Macabre | Read |
-| Hop-Frog (Other Tale of Horror) | Edgar Allen Poe | Macabre | Read |
-| The Man of the Crowd (Other Tale of Horror) | Edgar Allen Poe | Macabre | Read |
+| The Murders in the Rue Morgue (Short Story) | Edgar Allen Poe | Macabre | Read |
+| MS. Found in a Bottle (Short Story) | Edgar Allen Poe | Macabre | Read |
+| The Oval Portrait (Short Story) | Edgar Allen Poe | Macabre | Read |
+| The Purloined Letter (Short Story) | Edgar Allen Poe | Macabre | Read |
+| A Descent into the Maelstrom (Short Story) | Edgar Allen Poe | Macabre | Read |
+| The Black Cat (Short Story) | Edgar Allen Poe | Macabre | Read |
+| The Fall of the House of Usher (Short Story) | Edgar Allen Poe | Macabre | Read |
+| The Masque of the Red Death (Short Story) | Edgar Allen Poe | Macabre | Read |
+| The Casque of Amontillado (Short Story) | Edgar Allen Poe | Macabre | Read |
+| The Imp of the Perverse (Short Story) | Edgar Allen Poe | Macabre | Read |
+| The Assignation (Short Story) | Edgar Allen Poe | Macabre | Read |
+| The Pit and the Pendulum (Short Story) | Edgar Allen Poe | Macabre | Read |
+| The Premature Burial (Short Story) | Edgar Allen Poe | Macabre | Read |
+| The Mystery of Marie Roget (Short Story) | Edgar Allen Poe | Macabre | Read |
+| The Tell-Tale Heart (Short Story) | Edgar Allen Poe | Macabre | Read |
+| Berenice (Short Story) | Edgar Allen Poe | Macabre | Read |
+| Eleonora (Short Story) | Edgar Allen Poe | Macabre | Read |
+| Ligeia (Short Story) | Edgar Allen Poe | Macabre | Read |
+| The Oblong Box (Short Story) | Edgar Allen Poe | Macabre | Read |
+| The Man that was Used Up (Short Story) | Edgar Allen Poe | Macabre | Read |
+| Hop-Frog (Short Story) | Edgar Allen Poe | Macabre | Read |
+| The Man of the Crowd (Short Story) | Edgar Allen Poe | Macabre | Read |
 | The Raven | Edgar Allen Poe | Macabre | Read |
 | ~~The Atlas Complex (3/3)~~ | Olivie Blake | Modern Fantasy | |
 | The Atlas Paradox (2/3) | Olivie Blake | Modern Fantasy | 20/08/2024 |
@@ -100,24 +103,22 @@ Compilation of collected books and their read status
 | VTM: Toreador (1/13) | Stewart Wieck | Vampire | 08/02/2024 |
 | The Pragmatic Programmer | David Thomas, Andrew Hunt | Software Engineering | 01/02/2024 |
 | The Vampyre and Other Tales of the Macabre | John Polidori | Vampire / Macabre | 15/01/2024 |
-| Sir Guy Eveling's Dream (Other tale of the Macabre) | Horace Smith | Macabre | Read |
-| Confessions of a Reformed Ribbonman (Other tale of the Macabre) | William Carleton | Macabre | Read |
-| Monos and Daimonos (Other tale of the Macabre) | Edward Bulwer | Macabre | Read |
-| The Master of Logan (Other tale of the Macabre) | Allan Cunningham | Macabre | Read |
-| The Victim (Other tale of the Macabre) | Anonymous | Macabre | Read |
-| Some Terrible Letters from Scotland (Other tale of the Macabre) | James Hogg | Macabre | Read |
-| The Curse (Other tale of the Macabre) | Anonymous | Macabre | |
-| Life in Death (Other tale of the Macabre) | Anonymous | Macabre | |
-| My Hobby, - Rather (Other tale of the Macabre) | N.P. Willis | Macabre | |
-| The Red Man (Other tale of the Macabre) | Catherine Gore | Macabre | |
-| Post Mortem Recollections of a Medical Lecturer (Other tale of the Macabre) | Charles Lever | Macabre | |
-| The Bride of Lindorf (Other tale of the Macabre) | Leititia E. Landon | Macabre | |
-| Passage in the Secret Hisroty of an Irish Countess (Other tale of the Macabre) | Joseph Sheridan Le Fanu | Macabre | |
+| Sir Guy Eveling's Dream (Short Story) | Horace Smith | Macabre | Read |
+| Confessions of a Reformed Ribbonman (Short Story) | William Carleton | Macabre | Read |
+| Monos and Daimonos (Short Story) | Edward Bulwer | Macabre | Read |
+| The Master of Logan (Short Story) | Allan Cunningham | Macabre | Read |
+| The Victim (Short Story) | Anonymous | Macabre | Read |
+| Some Terrible Letters from Scotland (Short Story) | James Hogg | Macabre | Read |
+| The Curse (Short Story) | Anonymous | Macabre | |
+| Life in Death (Short Story) | Anonymous | Macabre | |
+| My Hobby, - Rather (Short Story) | N.P. Willis | Macabre | |
+| The Red Man (Short Story) | Catherine Gore | Macabre | |
+| Post Mortem Recollections of a Medical Lecturer (Short Story) | Charles Lever | Macabre | |
+| The Bride of Lindorf (Short Story) | Leititia E. Landon | Macabre | |
+| Passage in the Secret Hisroty of an Irish Countess (Short Story) | Joseph Sheridan Le Fanu | Macabre | |
 | Carmilla | J. Sheridan Le Fanu | Vampire | 01/01/2024 |
 | Dracula | Bram Stoker | Vampire Horror | 21/12/2023 |
 | The Slow Regard of Silent Things | Patrick Rothfuss | Fantasy | 2022 |
-| ~~The Dresden Files: Battle Ground (17/17)~~ | Jim Butcher | Detective Fantasy | |
-| ~~The Dresden Files: Peace Talks (16/17)~~ | Jim Butcher | Detective Fantasy | |
 | The Dresden Files: Skin Game (15/17) | Jim Butcher | Detective Fantasy |2021 |
 | The Dresden Files: Cold Days (14/17) | Jim Butcher | Detective Fantasy |2021 |
 | The Dresden Files: Ghost Story (13/17) | Jim Butcher | Detective Fantasy |2021 |
@@ -177,6 +178,7 @@ Compilation of collected books and their read status
 | Don't Make a Sound | T.R. Ragan | Crime Thriller | 2018 |
 | No One is Home | D.M. Pulley | Crime Trhiller | 2018 |
 | 1984 | George Orwell | Dystopia | 2017 |
+| The Tales of Beedle the Bard | J.K. Rowling | Fantasy | 2017 |
 | HP: The Deathly Hallows (7/7) | J.K. Rowling | Fantasy | 2017 |
 | HP: The Half Blood Prince (6/7) | J.K. Rowling | Fantasy |  2017 |
 | HP: The Order of the Pheonix (5/7) | J.K. Rowling | Fantasy | 2017 |
