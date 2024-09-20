@@ -7,10 +7,10 @@ Compilation of collected books and their read status
 
 | Title | Author | Genre | Finished Date |
 | --- | --- | --- | --- |
-| Frankenstein | Mary Shelly | Horror | In Progress |
 | Desgining Data Intensive Applications | Martin Kleppmann | Software Engineering | In Progress |
 | A History of Wales | John Davis | History | In Progress |
 | The Vampire Lestat (2/13) | Anne Rice | Vampire | In Progress |
+| Frankenstein | Mary Shelly | Horror | 20/09/2024 |
 | The Exorcist | William Peter Blatty | Horror | |
 | ~~Anno Dracula: Daikaiju (6/6)~~ | Kim Newman | Vampire | |
 | ~~Anno Dracula: One Thousand Monsters (5/6)~~ | Kim Newman | Vampire | |
