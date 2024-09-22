@@ -10,8 +10,11 @@ Compilation of collected books and their read status
 | Desgining Data Intensive Applications | Martin Kleppmann | Software Engineering | In Progress |
 | A History of Wales | John Davis | History | In Progress |
 | The Vampire Lestat (2/13) | Anne Rice | Vampire | In Progress |
-| ~~The Dresden Files: Battle Ground (17/17)~~ | Jim Butcher | Detective Fantasy | |
 | The Dresden Files: Peace Talks (16/17) | Jim Butcher | Detective Fantasy | In Progress |
+| H.P. Lovecraft Tales of Terror | H.P. Lovecraft | Horror | In Progress |
+| Herbert West - Reanimator | H.P. Lovecraft | Horror | Read |
+| Dagon | H.P. Lovecraft | Horror | Read |
+| ~~The Dresden Files: Battle Ground (17/17)~~ | Jim Butcher | Detective Fantasy | |
 | Frankenstein | Mary Shelly | Horror | 20/09/2024 |
 | A Fragment (Short Story) | Lord Byron | Vampire | Read |
 | The Exorcist | William Peter Blatty | Horror | |
