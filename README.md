@@ -12,6 +12,7 @@ Compilation of collected books and their read status
 | The Vampire Lestat (2/13) | Anne Rice | Vampire | In Progress |
 | The Dresden Files: Peace Talks (16/17) | Jim Butcher | Detective Fantasy | In Progress |
 | H.P. Lovecraft Tales of Terror | H.P. Lovecraft | Horror | In Progress |
+| The Whisperer in Darkness | H.P. Lovecraft | Read |
 | The Dunwich Horror | H.P. Lovecraft | Horror | Read |
 | The Call of Cthulu | H.P. Lovecraft | Horror | Read |
 | Herbert West - Reanimator | H.P. Lovecraft | Horror | Read |
