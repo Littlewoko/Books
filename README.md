@@ -3,7 +3,7 @@ Compilation of collected books and their read status
 
 - Title ~~dashed through~~ is not owned
 - No date is unread
-- 2024 Books Read: 27...
+- 2024 Books Read: 28...
 
 | Title | Author | Genre | Finished Date |
 | --- | --- | --- | --- |
