@@ -21,6 +21,13 @@ Compilation of collected books and their read status
 | The Call of Cthulu (Short Story) | H.P. Lovecraft | Horror | Read |
 | Herbert West - Reanimator | H.P. Lovecraft | Horror | Read |
 | Dagon | H.P. Lovecraft | Horror | Read |
+| A Study in Scarlet (1/7) | Arthur Conan Doyle | Detective | |
+| The Hound of the Baskervilles (2/7) | Arthur Conan Doyle | Detective | |
+| The Valley of Fear (3/7) | Arthur Conan Doyle | Detective | |
+| The Adventures of Sherlock Holmes (4/7) | Arthur Conan Doyle | Detective | |
+| The Memoires of Sherlock Holmes (5/7) | Arthur Conan Doyle | Detective | |
+| The Return of Sherlock Holmes (6/7) | Arthur Conan Doyle | Detective | |
+| His Last Bow (7/7 | Arthur Conan Doyle | Detective | |
 | Animal Farm | George Orwell | | |
 | A Clergyman's Daughter | George Orwell | | |
 | Burmese Days | George Orwell | | |
