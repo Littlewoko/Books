@@ -21,6 +21,12 @@ Compilation of collected books and their read status
 | The Call of Cthulu (Short Story) | H.P. Lovecraft | Horror | Read |
 | Herbert West - Reanimator | H.P. Lovecraft | Horror | Read |
 | Dagon | H.P. Lovecraft | Horror | Read |
+| Animal Farm | George Orwell | | |
+| A Clergyman's Daughter | George Orwell | | |
+| Burmese Days | George Orwell | | |
+| Keep the Aspidistra Flying | George Orwell | | |
+| Homage to Catalonia | George Orwell | | |
+| Down and Out in Paris and London | George Orwell | | |
 | ~~The Dresden Files: Battle Ground (17/17)~~ | Jim Butcher | Detective Fantasy | |
 | Frankenstein | Mary Shelly | Horror | 20/09/2024 |
 | A Fragment (Short Story) | Lord Byron | Vampire | Read |
