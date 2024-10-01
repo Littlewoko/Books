@@ -13,10 +13,11 @@ Compilation of collected books and their read status
 | The Vampire Lestat (2/13) | Anne Rice | Vampire | In Progress |
 | The Dresden Files: Peace Talks (16/17) | Jim Butcher | Detective Fantasy | In Progress |
 | H.P. Lovecraft Tales of Terror | H.P. Lovecraft | Horror | In Progress |
-| At the Mountain of Madness | H.P. Lovecraft | Horror | Read |
-| The Whisperer in Darkness | H.P. Lovecraft | Read |
-| The Dunwich Horror | H.P. Lovecraft | Horror | Read |
-| The Call of Cthulu | H.P. Lovecraft | Horror | Read |
+| The Shadow Over Insmouth | H.P. Lovecraft | Horror | Read |
+| At the Mountain of Madness (Short Story) | H.P. Lovecraft | Horror | Read |
+| The Whisperer in Darkness (Short Story) | H.P. Lovecraft | Read |
+| The Dunwich Horror (Short Story) | H.P. Lovecraft | Horror | Read |
+| The Call of Cthulu (Short Story) | H.P. Lovecraft | Horror | Read |
 | Herbert West - Reanimator | H.P. Lovecraft | Horror | Read |
 | Dagon | H.P. Lovecraft | Horror | Read |
 | ~~The Dresden Files: Battle Ground (17/17)~~ | Jim Butcher | Detective Fantasy | |
