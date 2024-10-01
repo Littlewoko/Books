@@ -15,7 +15,7 @@ Compilation of collected books and their read status
 | H.P. Lovecraft Tales of Terror | H.P. Lovecraft | Horror | In Progress |
 | The Shadow Over Insmouth | H.P. Lovecraft | Horror | Read |
 | At the Mountain of Madness (Short Story) | H.P. Lovecraft | Horror | Read |
-| The Whisperer in Darkness (Short Story) | H.P. Lovecraft | Read |
+| The Whisperer in Darkness (Short Story) | H.P. Lovecraft | Horror | Read |
 | The Dunwich Horror (Short Story) | H.P. Lovecraft | Horror | Read |
 | The Call of Cthulu (Short Story) | H.P. Lovecraft | Horror | Read |
 | Herbert West - Reanimator | H.P. Lovecraft | Horror | Read |
