@@ -13,7 +13,8 @@ Compilation of collected books and their read status
 | The Vampire Lestat (2/13) | Anne Rice | Vampire | In Progress |
 | The Dresden Files: Peace Talks (16/17) | Jim Butcher | Detective Fantasy | In Progress |
 | H.P. Lovecraft Tales of Terror | H.P. Lovecraft | Horror | In Progress |
-| The Shadow Over Insmouth | H.P. Lovecraft | Horror | Read |
+| The Shadow Out of Time (Short Story) | H.P. Lovecraft | Horror | Read |
+| The Shadow Over Insmouth (Short Story) | H.P. Lovecraft | Horror | Read |
 | At the Mountain of Madness (Short Story) | H.P. Lovecraft | Horror | Read |
 | The Whisperer in Darkness (Short Story) | H.P. Lovecraft | Horror | Read |
 | The Dunwich Horror (Short Story) | H.P. Lovecraft | Horror | Read |
