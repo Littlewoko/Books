@@ -7,6 +7,7 @@ Compilation of collected books and their read status
 
 | Title | Author | Genre | Finished Date |
 | --- | --- | --- | --- |
+| The Art of Unit Testing | Roy Osherove | Software Engineering | In Progress |
 | Desgining Data Intensive Applications | Martin Kleppmann | Software Engineering | 30/09/2024 |
 | A History of Wales | John Davis | History | In Progress |
 | The Vampire Lestat (2/13) | Anne Rice | Vampire | In Progress |
