@@ -3,7 +3,7 @@ Compilation of collected books and their read status
 
 - Title ~~dashed through~~ is not owned
 - No date is unread
-- 2024 Books Read: 28...
+- 2024 Books Read: 29...
 
 | Title | Author | Genre | Finished Date |
 | --- | --- | --- | --- |
@@ -12,7 +12,8 @@ Compilation of collected books and their read status
 | A History of Wales | John Davis | History | In Progress |
 | The Vampire Lestat (2/13) | Anne Rice | Vampire | In Progress |
 | The Dresden Files: Peace Talks (16/17) | Jim Butcher | Detective Fantasy | In Progress |
-| H.P. Lovecraft Tales of Terror | H.P. Lovecraft | Horror | In Progress |
+| H.P. Lovecraft Tales of Terror | H.P. Lovecraft | Horror | 01/10/2024 |
+| The Haunter of the Dark | H.P. Lovecraft | Horror | Read |
 | The Shadow Out of Time (Short Story) | H.P. Lovecraft | Horror | Read |
 | The Shadow Over Insmouth (Short Story) | H.P. Lovecraft | Horror | Read |
 | At the Mountain of Madness (Short Story) | H.P. Lovecraft | Horror | Read |
