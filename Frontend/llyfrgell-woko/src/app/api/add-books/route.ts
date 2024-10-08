@@ -1,9 +1,7 @@
 import { sql } from "@vercel/postgres";
 import { NextResponse } from "next/server";
-import { getDummyBooks } from "../../lib/dummy/books";
-import { Book } from "../../lib/classes/book";
 
-export async function GET(request: Request) {
+export async function GET() {
     // const books: Book[] = getDummyBooks();
 
     // try {
