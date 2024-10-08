@@ -23,10 +23,7 @@ export default function Home() {
         </thead>
         <tbody>
           {booksItems}
-
         </tbody>
-
-
       </table>
     </div>
   );
