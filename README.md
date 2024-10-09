@@ -3,10 +3,11 @@ Compilation of collected books and their read status
 
 - Title ~~dashed through~~ is not owned
 - No date is unread
-- 2024 Books Read: 29...
+- 2024 Books Read: 30...
 
 | Title | Author | Genre | Finished Date |
 | --- | --- | --- | --- |
+| The Exorcist | William Peter Blatty | Horror | 09/10/2024 |
 | The Art of Unit Testing | Roy Osherove | Software Engineering | In Progress |
 | Desgining Data Intensive Applications | Martin Kleppmann | Software Engineering | 30/09/2024 |
 | A History of Wales | John Davis | History | In Progress |
@@ -38,7 +39,6 @@ Compilation of collected books and their read status
 | ~~The Dresden Files: Battle Ground (17/17)~~ | Jim Butcher | Detective Fantasy | |
 | Frankenstein | Mary Shelly | Horror | 20/09/2024 |
 | A Fragment (Short Story) | Lord Byron | Vampire | Read |
-| The Exorcist | William Peter Blatty | Horror | |
 | ~~Anno Dracula: Daikaiju (6/6)~~ | Kim Newman | Vampire | |
 | ~~Anno Dracula: One Thousand Monsters (5/6)~~ | Kim Newman | Vampire | |
 | ~~Anno Dracula: Johnny Alucard (4/6)~~ | Kim Newman | Vampire | |
