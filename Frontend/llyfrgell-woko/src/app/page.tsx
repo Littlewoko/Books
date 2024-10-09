@@ -3,7 +3,8 @@ import { Book } from "./lib/classes/book";
 import { getDummyBooks } from "./lib/dummy/books";
 
 export default async function Home() {
-  let books: Book[];
+  const books: Book[] = getDummyBooks();
+
   // try {
   //   const result: QueryResult<QueryResultRow> = await sql`SELECT * FROM books;`;
 
@@ -22,8 +23,6 @@ export default async function Home() {
   //   console.log(error);
   //   books = [];
   // }
-
-  books = getDummyBooks();
 
   const booksItems = books.map((book) => (
     <tr key={book.title}>
