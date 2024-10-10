@@ -7,6 +7,7 @@ Compilation of collected books and their read status
 
 | Title | Author | Genre | Finished Date |
 | --- | --- | --- | --- |
+| Empire of the Vampire | Jay Kristoff | Vampire Fantasy | In Progress |
 | The Exorcist | William Peter Blatty | Horror | 09/10/2024 |
 | The Art of Unit Testing | Roy Osherove | Software Engineering | In Progress |
 | Desgining Data Intensive Applications | Martin Kleppmann | Software Engineering | 30/09/2024 |
