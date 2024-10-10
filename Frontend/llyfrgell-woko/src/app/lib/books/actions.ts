@@ -5,8 +5,7 @@ import { Book } from '../classes/book';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
-// TODO: fix form validation, allow nullables and parse dates correctly
-export async function createBook(formData: FormData) {
+function getBookFromFormData(formData: FormData): Book {
     const book: Book = {
         title: formData.get('title') as string,
         author: formData.get('author') as string,
@@ -17,6 +16,12 @@ export async function createBook(formData: FormData) {
         dateCompleted: formData.get('datecompleted') ? new Date(formData.get('datecompleted') as string) : null,
         considerTowardsTotalBooksCompleted: formData.get('consider') == null
     };
+
+    return book;
+}
+// TODO: fix form validation, allow nullables and parse dates correctly
+export async function createBook(formData: FormData) {
+    const book: Book = getBookFromFormData(formData);
 
     const useDatabase = false;
     if (useDatabase) {
@@ -32,6 +37,27 @@ export async function createBook(formData: FormData) {
             ${book.considerTowardsTotalBooksCompleted});`
     }
 
-    revalidatePath('/');
-    redirect('/');
+    revalidatePath('/books');
+    redirect('/books');
+}
+
+export async function UpdateBook(id: string, formData: FormData) {
+    const book: Book = getBookFromFormData(formData);
+
+    const useDatabase = false;
+    if (useDatabase) {
+        await sql`UPDATE books SET 
+                title = ${book.title},
+                author = ${book.author}, 
+                genre = ${book.genre}, 
+                isbn = ${book.isbn}, 
+                dateobtained = ${book.dateObtained ? book.dateObtained.toISOString().split('T')[0] : null}, 
+                datecompleted = ${book.dateCompleted ? book.dateCompleted.toISOString().split('T')[0] : null},
+                datestartedreading = ${book.dateStartedReading ? book.dateStartedReading.toISOString().split('T')[0] : null}, 
+                considertowardstotalbookscompleted = ${book.considerTowardsTotalBooksCompleted}
+            WHERE id=${id};`;
+    }
+
+    revalidatePath('/books');
+    redirect('/books');
 }

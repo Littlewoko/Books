@@ -2,6 +2,7 @@ import { Book } from "../classes/book";
 
 export function getDummyBooks(): Book[] {
     const vampire: Book = {
+        id: 1,
         author: "Mary Shelley", 
         isbn: "12345678987", 
         title: "vamire book", 
@@ -10,6 +11,7 @@ export function getDummyBooks(): Book[] {
     }
 
     const book2: Book = {
+        id: 2,
         author: "Edgar Allen Poe", 
         isbn: "12345678982", 
         title: "book2", 
@@ -21,6 +23,7 @@ export function getDummyBooks(): Book[] {
     }
 
     const book3: Book = {
+        id: 3,
         author: "John Polidori", 
         isbn: "12345678983", 
         title: "book3", 
@@ -29,6 +32,7 @@ export function getDummyBooks(): Book[] {
     }
 
     const book5: Book = {
+        id: 4,
         author: "H.P. Lovecraft", 
         isbn: "12345678985", 
         title: "book5", 

@@ -1,5 +1,6 @@
 import { Book } from "@/app/lib/classes/book";
 import formatDate from "@/app/utils/formatDate";
+import Link from "next/link";
 
 interface TableProps {
     books: Book[]
@@ -16,6 +17,11 @@ const Table: React.FC<TableProps> = ({ books }) => {
             <td className="p-2">{book.dateStartedReading ? formatDate(book.dateStartedReading?.toDateString()) : null}</td>
             <td className="p-2">{book.dateCompleted ? formatDate(book.dateCompleted?.toDateString()) : null}</td>
             <td className="p-2">{book.considerTowardsTotalBooksCompleted ? "yes" : "no"}</td>
+            <td className="p-2">
+                <Link href={`/books/${book.id}/edit`}>
+                    Edit
+                </Link>
+            </td>
         </tr>
     ));
 
@@ -31,6 +37,7 @@ const Table: React.FC<TableProps> = ({ books }) => {
                     <th className="p-2">Started on</th>
                     <th className="p-2">Completed on</th>
                     <th className="p-2">Include in total</th>
+                    <th className="p-2">Edit</th>
                 </tr>
             </thead>
             <tbody>
