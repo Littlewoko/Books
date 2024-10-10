@@ -1,4 +1,5 @@
 import { Book } from "@/app/lib/classes/book";
+import formatDate from "@/app/utils/formatDate";
 
 interface TableProps {
     books: Book[]
@@ -6,30 +7,30 @@ interface TableProps {
 
 const Table: React.FC<TableProps> = ({ books }) => {
     const booksItems = books.map((book) => (
-        <tr key={book.title}>
-            <td>{book.title}</td>
-            <td>{book.author}</td>
-            <td>{book.genre}</td>
-            <td>{book.isbn || null}</td>
-            <td>{book.dateObtained?.toISOString().split("T")[0] || null}</td>
-            <td>{book.dateStartedReading?.toISOString().split("T")[0] || null}</td>
-            <td>{book.dateCompleted?.toISOString().split("T")[0] || null}</td>
-            <td>{book.considerTowardsTotalBooksCompleted ? "yes" : "no"}</td>
+        <tr key={book.title} className="border-b">
+            <td className="p-2">{book.title}</td>
+            <td className="p-2">{book.author}</td>
+            <td className="p-2">{book.genre}</td>
+            <td className="p-2">{book.isbn || null}</td>
+            <td className="p-2">{book.dateObtained ? formatDate(book.dateObtained?.toDateString()) : null}</td>
+            <td className="p-2">{book.dateStartedReading ? formatDate(book.dateStartedReading?.toDateString()) : null}</td>
+            <td className="p-2">{book.dateCompleted ? formatDate(book.dateCompleted?.toDateString()) : null}</td>
+            <td className="p-2">{book.considerTowardsTotalBooksCompleted ? "yes" : "no"}</td>
         </tr>
     ));
 
     return (
-        <table>
-            <thead>
+        <table className="w-full border-collapse">
+            <thead  className="bg-gray-200">
                 <tr>
-                    <th>Title</th>
-                    <th>Author</th>
-                    <th>Genre</th>
-                    <th>ISBN</th>
-                    <th>Obtained on</th>
-                    <th>Started on</th>
-                    <th>Completed on</th>
-                    <th>Include in total</th>
+                    <th className="p-2">Title</th>
+                    <th className="p-2">Author</th>
+                    <th className="p-2">Genre</th>
+                    <th className="p-2">ISBN</th>
+                    <th className="p-2">Obtained on</th>
+                    <th className="p-2">Started on</th>
+                    <th className="p-2">Completed on</th>
+                    <th className="p-2">Include in total</th>
                 </tr>
             </thead>
             <tbody>

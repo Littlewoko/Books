@@ -14,6 +14,9 @@ export function getDummyBooks(): Book[] {
         isbn: "12345678982", 
         title: "book2", 
         genre: "action", 
+        dateObtained: new Date(),
+        dateCompleted: new Date(),
+        dateStartedReading: new Date(),
         considerTowardsTotalBooksCompleted: false
     }
 
