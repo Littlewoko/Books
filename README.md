@@ -11,7 +11,7 @@ Compilation of collected books and their read status
 | A History of Wales | John Davis | History | In Progress |
 | The Vampire Lestat (2/13) | Anne Rice | Vampire | In Progress |
 | The Dresden Files: Peace Talks (16/17) | Jim Butcher | Detective Fantasy | In Progress |
-| The Art of Unit Testing | Roy Osherove | Software Engineering | 11/10/24 |
+| The Art of Unit Testing | Roy Osherove | Software Engineering | 11/10/2024 |
 | The Exorcist | William Peter Blatty | Horror | 09/10/2024 |
 | Desgining Data Intensive Applications | Martin Kleppmann | Software Engineering | 30/09/2024 |
 | H.P. Lovecraft Tales of Terror | H.P. Lovecraft | Horror | 01/10/2024 |
