@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
+import AuthButton from './authButton';
 
 interface Props {
     isOpen: boolean, 
@@ -26,6 +27,9 @@ const MobileDrawer: React.FC<Props> = ({ isOpen, onClose }) => {
             </li>
             <li className="text-3xl hover:text-blue-900 hover:font-semibold">
               <Link href="/books/create">New Book</Link>
+            </li>
+            <li className="text-3xl hover:text-blue-900 hover:font-semibold">
+              <AuthButton />
             </li>
           </ul>
         </div>
