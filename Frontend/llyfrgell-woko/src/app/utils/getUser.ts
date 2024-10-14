@@ -1,6 +1,10 @@
 import { QueryResult, QueryResultRow, sql } from "@vercel/postgres";
 
-export default async function getUser(user) {
+interface User {
+    id: string
+}
+
+export default async function getUser(user: User) {
     try {
         const result: QueryResult<QueryResultRow> =
             await sql`SELECT * FROM USERS WHERE id=${user?.id};`;
