@@ -17,8 +17,6 @@ export default function QuickAdd() {
                 <button onClick={handleToggleForm}>{formHidden ? "Show" : "Hide"}</button>
                 { formHidden ? <QuickAddForm /> : <></>}
             </div>
-
         </section>
-
     )
 }
