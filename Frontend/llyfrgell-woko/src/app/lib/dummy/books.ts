@@ -7,14 +7,16 @@ export function getDummyBooks(): Book[] {
         isbn: "12345678987", 
         title: "vamire book", 
         genre: "horror", 
-        considerTowardsTotalBooksCompleted: true
+        considerTowardsTotalBooksCompleted: true,
+        dateObtained: new Date(),
+        dateStartedReading: new Date()
     }
 
     const book2: Book = {
         id: 2,
         author: "Edgar Allen Poe", 
         isbn: "12345678982", 
-        title: "book2", 
+        title: "book2kjabsjk b ascjbac n xcibsdvhbxnc shdb vshbc vn sdvjhbsdvibsnv hbsidvbxm cksdbjvilsbdvn xcvkbi", 
         genre: "action", 
         dateObtained: new Date(),
         dateCompleted: new Date(),

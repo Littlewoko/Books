@@ -1,11 +1,9 @@
 import * as React from 'react';
-import Box from '@mui/material/Box';
-// import Card from '@mui/material/Card';
-import CardActions from '@mui/material/CardActions';
+import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
-import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import { Book } from '@/app/lib/classes/book';
+import formatDate from '@/app/utils/formatDate';
 
 interface Props {
     book: Book
@@ -14,43 +12,125 @@ interface Props {
 export default function BookComponent({ book }: Props) {
     const status = () => {
         if (!!book.dateCompleted) {
-            return "Completed"
+            return (
+                <Typography
+                    sx={{
+                        fontSize: { xs: '10px', sm: '13px' }
+                    }}
+                    className="text-yellow-500"
+                >
+                    Completed
+                </Typography>
+            )
         }
 
         if (!!book.dateStartedReading) {
-            return "In Progress"
+            return (
+                <Typography
+                    sx={{
+                        fontSize: { xs: '10px', sm: '13px' }
+                    }}
+                    className="text-violet-500"
+                >
+                    In Progress
+                </Typography>
+            )
         }
 
         if (!!!book.dateObtained) {
-            return "Not owned"
+            return (
+                <Typography
+                    sx={{
+                        fontSize: { xs: '10px', sm: '13px' }
+                    }}
+                >
+                    Not Owned
+                </Typography>
+            )
         }
     }
 
-    return (
-        <Box sx={{ minWidth: 275 }}>
-            <div className="flex">
-                <CardContent>
-                    <Typography gutterBottom sx={{ color: 'text.secondary', fontSize: 13 }}>
-                        {book.author}
-                    </Typography>
-                    <Typography variant="h5" component="div">
-                        {book.title}
-                    </Typography>
-                    <Typography sx={{ color: 'text.secondary', mb: 1.5, fontSize: 12 }}>
-                        {book.genre}
-                    </Typography>
-                </CardContent>
+    const DateComponent = (text: string, date: Date | null | undefined) => {
+        if (!date) return <></>
 
-                <CardContent>
-                    <Typography sx={{ color: 'text.secondary', fontSize: 13 }}>
-                        Status: {status()}
-                    </Typography>
-                </CardContent>
+        return (
+            <div className="flex justify-between">
+                <Typography
+                    sx={{
+                        color: 'text.secondary',
+                        fontSize: { xs: '10px', sm: '13px' }
+                    }}
+                >
+                    {text}
+
+                </Typography>
+                <Typography
+                    sx={{
+                        color: 'text.secondary',
+                        fontSize: { xs: '10px', sm: '13px' }
+                    }}
+                >
+                    {formatDate(date.toISOString())}
+                </Typography>
             </div>
+        )
+    }
 
-            <CardActions sx={{ mt: -2 }}>
-                <Button size="small">See More</Button>
-            </CardActions>
-        </Box>
+    return (
+        <Card className="h-fit" sx={{ minWidth: 275, display: 'flex', flexWrap: 'nowrap' }}>
+            <CardContent>
+                <Typography
+                    gutterBottom
+                    sx={{
+                        color: { light: 'text.secondary', dark: 'white' },
+                        fontSize: { xs: '10px', sm: '13px' }
+                    }}>
+                    {book.author}
+                </Typography>
+                <Typography
+                    gutterBottom
+                    sx={{
+                        color: { light: 'text.secondary', dark: 'white' },
+                        fontSize: { xs: '10px', sm: '13px' }
+                    }}>
+                    {book.considerTowardsTotalBooksCompleted ? " (Short Story)" : ""}
+                </Typography>
+                <Typography
+                    variant="h5"
+                    component="div"
+                    sx={{
+                        color: { light: 'text.primary', dark: 'white' },
+                        fontSize: { xs: '16px', sm: 'h5.fontSize' }
+                    }}>
+                    {book.title}
+                </Typography>
+                <Typography
+                    sx={{
+                        color: { light: 'text.secondary', dark: 'pink' },
+                        mb: 1.5,
+                        fontSize: { xs: '10px', sm: '12px' }
+                    }}>
+                    {book.genre}
+                </Typography>
+            </CardContent>
+            <CardContent className="ml-auto min-w-36">
+                <div className="flex justify-between">
+                    <Typography
+                        sx={{
+                            color: { light: 'text.secondary', dark: 'white' },
+                            fontSize: { xs: '10px', sm: '13px' }
+                        }}
+
+                    >
+                        Status:
+                    </Typography>
+                    {status()}
+                </div>
+
+                {DateComponent("Obtained:", book.dateObtained)}
+                {DateComponent("Began:", book.dateObtained)}
+                {DateComponent("Completed:", book.dateObtained)}
+            </CardContent>
+        </Card>
     );
 }
