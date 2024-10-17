@@ -12,7 +12,7 @@ const Table: React.FC<TableProps> = ({ books }) => {
     ));
 
     return (
-        <div>
+        <div className="flex flex-col m-1 gap-y-1">
             {bookCardItems}
         </div>
     );

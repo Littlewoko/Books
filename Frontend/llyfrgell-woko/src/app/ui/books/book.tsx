@@ -77,12 +77,12 @@ export default function BookComponent({ book }: Props) {
     }
 
     return (
-        <Card className="h-fit" sx={{ minWidth: 275, display: 'flex', flexWrap: 'nowrap' }}>
+        <Card className="h-fit" sx={{ minWidth: 275, display: 'flex', flexWrap: 'nowrap', backgroundColor: "rgba(128, 128, 128, 0.5)" }}>
             <CardContent>
                 <Typography
                     gutterBottom
                     sx={{
-                        color: { light: 'text.secondary', dark: 'white' },
+                        color: 'text.secondary',
                         fontSize: { xs: '10px', sm: '13px' }
                     }}>
                     {book.author}
@@ -90,10 +90,9 @@ export default function BookComponent({ book }: Props) {
                 <Typography
                     gutterBottom
                     sx={{
-                        color: { light: 'text.secondary', dark: 'white' },
+                        color: 'text.secondary',
                         fontSize: { xs: '10px', sm: '13px' }
                     }}>
-                    {book.considerTowardsTotalBooksCompleted ? " (Short Story)" : ""}
                 </Typography>
                 <Typography
                     variant="h5"
@@ -106,11 +105,11 @@ export default function BookComponent({ book }: Props) {
                 </Typography>
                 <Typography
                     sx={{
-                        color: { light: 'text.secondary', dark: 'pink' },
+                        color: 'text.secondary',
                         mb: 1.5,
                         fontSize: { xs: '10px', sm: '12px' }
                     }}>
-                    {book.genre}
+                    {book.genre}{book.considerTowardsTotalBooksCompleted ? " - Short Story" : ""}
                 </Typography>
             </CardContent>
             <CardContent className="ml-auto min-w-36">
