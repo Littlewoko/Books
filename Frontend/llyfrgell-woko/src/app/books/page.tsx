@@ -4,6 +4,7 @@ import AllTable from "../ui/books/all-table";
 import { getServerSession } from "next-auth";
 import QuickAddForm from "../ui/books/quick-add";
 import React from "react";
+import { sortBydateStartedReading } from "../utils/sortBooks";
 
 export default async function Page() {
   let books: Book[];
@@ -26,6 +27,8 @@ export default async function Page() {
     console.log(error);
     books = [];
   }
+  
+  const sortedBooks = sortBydateStartedReading(books);
 
   const session = await getServerSession();
   const hasSession = session && session.user;
@@ -33,7 +36,7 @@ export default async function Page() {
   return (
     <div className="overflow-x-auto">
       {hasSession ? <QuickAddForm /> : <></>}
-      <AllTable books={books} />
+      <AllTable books={sortedBooks} />
     </div>
   );
 }

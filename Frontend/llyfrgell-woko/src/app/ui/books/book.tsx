@@ -4,6 +4,7 @@ import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import { Book } from '@/app/lib/classes/book';
 import formatDate from '@/app/utils/formatDate';
+import Link from 'next/link';
 
 interface Props {
     book: Book
@@ -33,6 +34,19 @@ export default function BookComponent({ book }: Props) {
                     className="text-violet-500"
                 >
                     In Progress
+                </Typography>
+            )
+        }
+
+        if (!!book.dateObtained && !book.dateStartedReading) {
+            return (
+                <Typography
+                    className="text-slate-400"
+                    sx={{
+                        fontSize: { xs: '10px', sm: '13px' }
+                    }}
+                >
+                    Owned
                 </Typography>
             )
         }
@@ -130,6 +144,10 @@ export default function BookComponent({ book }: Props) {
                 {DateComponent("Obtained:", book.dateObtained)}
                 {DateComponent("Began:", book.dateObtained)}
                 {DateComponent("Completed:", book.dateObtained)}
+                <Link href={`/books/${book.id}/edit`}>
+                    <button type="button" className="text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-purple-200 dark:focus:ring-purple-800 font-small rounded-lg text-sm p-1 px-5 text-center">Edit</button>
+                </Link>
+
             </CardContent>
         </Card>
     );
