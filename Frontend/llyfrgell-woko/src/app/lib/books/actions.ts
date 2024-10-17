@@ -23,9 +23,7 @@ function getBookFromFormData(formData: FormData): Book {
 export async function createBook(formData: FormData) {
     const book: Book = getBookFromFormData(formData);
 
-    const useDatabase = false;
-    if (useDatabase) {
-        await sql`INSERT INTO books (title, author, genre, isbn, dateobtained, datecompleted, datestartedreading, considertowardstotalbookscompleted)
+    await sql`INSERT INTO books (title, author, genre, isbn, dateobtained, datecompleted, datestartedreading, considertowardstotalbookscompleted)
         VALUES (
             ${book.title}, 
             ${book.author}, 
@@ -35,7 +33,6 @@ export async function createBook(formData: FormData) {
             ${book.dateCompleted ? book.dateCompleted.toISOString().split('T')[0] : null}, 
             ${book.dateStartedReading ? book.dateStartedReading.toISOString().split('T')[0] : null}, 
             ${book.considerTowardsTotalBooksCompleted});`
-    }
 
     revalidatePath('/books');
     redirect('/books');
@@ -44,9 +41,7 @@ export async function createBook(formData: FormData) {
 export async function UpdateBook(id: string, formData: FormData) {
     const book: Book = getBookFromFormData(formData);
 
-    const useDatabase = false;
-    if (useDatabase) {
-        await sql`UPDATE books SET 
+    await sql`UPDATE books SET 
                 title = ${book.title},
                 author = ${book.author}, 
                 genre = ${book.genre}, 
@@ -56,7 +51,6 @@ export async function UpdateBook(id: string, formData: FormData) {
                 datestartedreading = ${book.dateStartedReading ? book.dateStartedReading.toISOString().split('T')[0] : null}, 
                 considertowardstotalbookscompleted = ${book.considerTowardsTotalBooksCompleted}
             WHERE id=${id};`;
-    }
 
     revalidatePath('/books');
     redirect('/books');
