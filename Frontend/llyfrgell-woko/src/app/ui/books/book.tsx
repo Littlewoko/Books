@@ -40,6 +40,7 @@ export default function BookComponent({ book }: Props) {
         if (!!!book.dateObtained) {
             return (
                 <Typography
+                    className="text-slate-400"
                     sx={{
                         fontSize: { xs: '10px', sm: '13px' }
                     }}
@@ -56,8 +57,8 @@ export default function BookComponent({ book }: Props) {
         return (
             <div className="flex justify-between">
                 <Typography
+                    className='text-gray-300'
                     sx={{
-                        color: 'text.secondary',
                         fontSize: { xs: '10px', sm: '13px' }
                     }}
                 >
@@ -65,8 +66,8 @@ export default function BookComponent({ book }: Props) {
 
                 </Typography>
                 <Typography
+                    className='text-gray-300'
                     sx={{
-                        color: 'text.secondary',
                         fontSize: { xs: '10px', sm: '13px' }
                     }}
                 >
@@ -77,35 +78,35 @@ export default function BookComponent({ book }: Props) {
     }
 
     return (
-        <Card className="h-fit" sx={{ minWidth: 275, display: 'flex', flexWrap: 'nowrap', backgroundColor: "rgba(128, 128, 128, 0.5)" }}>
+        <Card className="h-fit" sx={{ minWidth: 275, display: 'flex', flexWrap: 'nowrap', backgroundColor: "rgba(0,0,0,0.75)" }}>
             <CardContent>
                 <Typography
                     gutterBottom
+                    className='text-gray-300'
                     sx={{
-                        color: 'text.secondary',
                         fontSize: { xs: '10px', sm: '13px' }
                     }}>
                     {book.author}
                 </Typography>
                 <Typography
                     gutterBottom
+                    className='text-gray-300'
                     sx={{
-                        color: 'text.secondary',
                         fontSize: { xs: '10px', sm: '13px' }
                     }}>
                 </Typography>
                 <Typography
                     variant="h5"
                     component="div"
+                    className="text-orange-400"
                     sx={{
-                        color: { light: 'text.primary', dark: 'white' },
                         fontSize: { xs: '16px', sm: 'h5.fontSize' }
                     }}>
                     {book.title}
                 </Typography>
                 <Typography
+                    className='text-gray-300'
                     sx={{
-                        color: 'text.secondary',
                         mb: 1.5,
                         fontSize: { xs: '10px', sm: '12px' }
                     }}>
@@ -115,7 +116,7 @@ export default function BookComponent({ book }: Props) {
             <CardContent className="ml-auto min-w-36">
                 <div className="flex justify-between">
                     <Typography
-                        className="text-slate-400 dark:white"
+                        className="text-slate-400"
                         sx={{
                             fontSize: { xs: '10px', sm: '13px' }
                         }}
