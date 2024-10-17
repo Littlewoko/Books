@@ -115,8 +115,8 @@ export default function BookComponent({ book }: Props) {
             <CardContent className="ml-auto min-w-36">
                 <div className="flex justify-between">
                     <Typography
+                        className="text-slate-400 dark:white"
                         sx={{
-                            color: { light: 'text.secondary', dark: 'white' },
                             fontSize: { xs: '10px', sm: '13px' }
                         }}
 
