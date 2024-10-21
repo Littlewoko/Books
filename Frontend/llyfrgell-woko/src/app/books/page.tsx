@@ -35,7 +35,10 @@ export default async function Page() {
 
   return (
     <div className="overflow-x-auto">
-      {hasSession ? <QuickAddForm /> : <></>}
+      <div className="flex flex-col m-1 gap-y-1">
+        {hasSession ? <QuickAddForm /> : <></>}
+      </div>
+
       <AllTable books={sortedBooks} />
     </div>
   );
