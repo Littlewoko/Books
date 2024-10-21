@@ -156,7 +156,7 @@ export default function BookComponent({ book }: Props) {
                 {DateComponent("Began:", book.dateStartedReading)}
                 {DateComponent("Obtained:", book.dateObtained)}
 
-                <div className="flex justify-end mt-auto mt-3 gap-2">
+                <div className="flex justify-end mt-3 gap-2">
                     <Link href={`/books/${book.id}/edit`}>
                         <button type="button" className="flex items-center text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-purple-200 dark:focus:ring-purple-800 font-small rounded-lg text-sm p-1 px-2 md:px-3 text-center text-xs md:text-sm">
                             <EditIcon className="md:mr-1" fontSize="small" />

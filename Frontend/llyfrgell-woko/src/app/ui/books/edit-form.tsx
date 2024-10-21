@@ -14,7 +14,7 @@ const Form: React.FC<Props> = ({ book }) => {
             </>
         )
     }
-
+    console.log(book.considerTowardsTotalBooksCompleted)
     const updateBookWithId = UpdateBook.bind(null, book.id.toString());
     return (
         <form action={updateBookWithId}>
