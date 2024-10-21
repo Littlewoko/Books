@@ -7,7 +7,7 @@ export function getDummyBooks(): Book[] {
         isbn: "12345678987", 
         title: "vamire book", 
         genre: "horror", 
-        considerTowardsTotalBooksCompleted: true,
+        shortStory: true,
         dateObtained: new Date(),
         dateStartedReading: new Date()
     }
@@ -21,7 +21,7 @@ export function getDummyBooks(): Book[] {
         dateObtained: new Date(),
         dateCompleted: new Date(),
         dateStartedReading: new Date(),
-        considerTowardsTotalBooksCompleted: false
+        shortStory: false
     }
 
     const book3: Book = {
@@ -30,7 +30,7 @@ export function getDummyBooks(): Book[] {
         isbn: "12345678983", 
         title: "book3", 
         genre: "new genre", 
-        considerTowardsTotalBooksCompleted: true
+        shortStory: true
     }
 
     const book5: Book = {
@@ -39,7 +39,7 @@ export function getDummyBooks(): Book[] {
         isbn: "12345678985", 
         title: "book5", 
         genre: "romance", 
-        considerTowardsTotalBooksCompleted: true
+        shortStory: true
     }
 
     return [vampire, book2, book3, book5];

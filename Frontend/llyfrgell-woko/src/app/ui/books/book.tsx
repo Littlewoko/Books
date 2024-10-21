@@ -100,7 +100,7 @@ export default function BookComponent({ book }: Props) {
         const wantToDelete = confirm(`Are you sure you want to delete ${book.title}? This action cannot be undone`);
         if (!wantToDelete) return;
 
-        await DeleteBook(book.id?.toString() ?? "", book.title);
+        await DeleteBook(book.id?.toString() ?? "");
     }
 
     return (
