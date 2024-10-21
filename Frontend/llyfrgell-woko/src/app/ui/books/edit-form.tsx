@@ -14,7 +14,6 @@ const Form: React.FC<Props> = ({ book }) => {
             </>
         )
     }
-    console.log(book.considerTowardsTotalBooksCompleted)
     const updateBookWithId = UpdateBook.bind(null, book.id.toString());
     return (
         <form action={updateBookWithId}>
@@ -103,14 +102,14 @@ const Form: React.FC<Props> = ({ book }) => {
                 />
             </div>
             <div>
-                <label htmlFor="consider">
-                    Is this a full novel?
+                <label htmlFor="shortStory">
+                    Short story?
                 </label>
                 <input
                     type="checkbox"
-                    id="consider"
-                    name="consider"
-                    defaultChecked={book.considerTowardsTotalBooksCompleted}
+                    id="shortStory"
+                    name="shortStory"
+                    defaultChecked={book.shortStory}
                 />
             </div>
             <button type="submit">Submit</button>

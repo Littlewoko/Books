@@ -17,7 +17,7 @@ function getBookFromFormData(formData: FormData): Book {
         dateObtained: formData.get('dateobtained') ? new Date(formData.get('dateobtained') as string) : null,
         dateStartedReading: formData.get('datestartedreading') ? new Date(formData.get('datestartedreading') as string) : null,
         dateCompleted: formData.get('datecompleted') ? new Date(formData.get('datecompleted') as string) : null,
-        considerTowardsTotalBooksCompleted: formData.get('consider') != null
+        shortStory: formData.get('shortStory') != null
     };
 
     return book;
@@ -28,7 +28,7 @@ export async function createBook(formData: FormData) {
     
     const book: Book = getBookFromFormData(formData);
 
-    await sql`INSERT INTO books (title, author, genre, isbn, dateobtained, datecompleted, datestartedreading, considertowardstotalbookscompleted)
+    await sql`INSERT INTO books (title, author, genre, isbn, dateobtained, datecompleted, datestartedreading, shortstory)
         VALUES (
             ${book.title}, 
             ${book.author}, 
@@ -37,7 +37,7 @@ export async function createBook(formData: FormData) {
             ${book.dateObtained ? book.dateObtained.toISOString().split('T')[0] : null}, 
             ${book.dateCompleted ? book.dateCompleted.toISOString().split('T')[0] : null}, 
             ${book.dateStartedReading ? book.dateStartedReading.toISOString().split('T')[0] : null}, 
-            ${book.considerTowardsTotalBooksCompleted});`
+            ${book.shortStory});`
 
     revalidatePath('/books');
     redirect('/books');
@@ -56,7 +56,7 @@ export async function UpdateBook(id: string, formData: FormData) {
                 dateobtained = ${book.dateObtained ? book.dateObtained.toISOString().split('T')[0] : null}, 
                 datecompleted = ${book.dateCompleted ? book.dateCompleted.toISOString().split('T')[0] : null},
                 datestartedreading = ${book.dateStartedReading ? book.dateStartedReading.toISOString().split('T')[0] : null}, 
-                considertowardstotalbookscompleted = ${book.considerTowardsTotalBooksCompleted}
+                shortstory = ${book.shortStory}
             WHERE id=${id};`;
 
     revalidatePath('/books');

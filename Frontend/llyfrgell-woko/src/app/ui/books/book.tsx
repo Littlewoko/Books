@@ -136,7 +136,7 @@ export default function BookComponent({ book }: Props) {
                         mb: 1.5,
                         fontSize: { xs: '10px', sm: '12px' }
                     }}>
-                    {book.genre}{!book.considerTowardsTotalBooksCompleted ? " - Short Story" : ""}
+                    {book.genre}{book.shortStory ? " - Short Story" : ""}
                 </Typography>
             </CardContent>
             <CardContent className="ml-auto min-w-36 flex flex-col p-3">

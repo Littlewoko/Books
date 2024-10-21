@@ -8,7 +8,7 @@ export default function Form() {
     return (
         <form action={createBook}>
             <Card className="h-fit" sx={{ minWidth: 275, display: 'flex', flexWrap: 'nowrap', backgroundColor: "rgba(0,0,0,0.75)" }}>
-                <CardContent className="p-3 flex flex-col gap-2">
+                <CardContent className="p-3 flex flex-col gap-2 flex-grow">
                     <div>
                         <label htmlFor="author">
                             <Typography
@@ -71,7 +71,7 @@ export default function Form() {
                     </div>
 
                     <div className="flex mt-3 gap-2 align-middle">
-                        <label htmlFor="consider">
+                        <label htmlFor="shortStory">
                             <Typography
                                 className='text-gray-300 mb-0'
                                 sx={{
@@ -81,12 +81,12 @@ export default function Form() {
                                 Short story?
                             </Typography>
                         </label>
-                        <input type="checkbox" id="consider" name="consider" />
+                        <input type="checkbox" id="shortStory" name="shortStory" />
                     </div>
                 </CardContent>
                 <CardContent className="ml-auto min-w-36 flex flex-col p-3">
 
-                    <div className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-2.5">
                         <div>
                             <label htmlFor="dateobtained">
                                 <Typography
@@ -131,7 +131,7 @@ export default function Form() {
                     <div className="flex justify-end mt-3 gap-2">
                         <button type="submit" className="flex items-center text-white bg-gradient-to-r from-blue-500 to-green-500 hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-purple-200 dark:focus:ring-purple-800 font-small rounded-lg text-sm p-1 px-2 md:px-3 text-center text-xs md:text-sm">
                             <AddCircleIcon className="md:mr-1" fontSize="small" />
-                            <span className="hidden md:inline">Create</span>
+                            <span className="hidden md:inline">Submit</span>
                         </button>
                     </div>
                 </CardContent>
