@@ -63,7 +63,7 @@ export async function UpdateBook(id: string, formData: FormData) {
     redirect('/books');
 }
 
-export async function DeleteBook(id: string, title: string) {
+export async function DeleteBook(id: string) {
     await ProtectRoute();
     
     await sql`DELETE FROM books WHERE id = ${id}`;
