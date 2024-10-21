@@ -104,7 +104,7 @@ const Form: React.FC<Props> = ({ book }) => {
             </div>
             <div>
                 <label htmlFor="consider">
-                    Once completed, consider towards total?
+                    Is this a full novel?
                 </label>
                 <input
                     type="checkbox"

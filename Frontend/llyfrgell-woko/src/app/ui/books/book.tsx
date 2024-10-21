@@ -124,7 +124,7 @@ export default function BookComponent({ book }: Props) {
                         mb: 1.5,
                         fontSize: { xs: '10px', sm: '12px' }
                     }}>
-                    {book.genre}{book.considerTowardsTotalBooksCompleted ? " - Short Story" : ""}
+                    {book.genre}{!book.considerTowardsTotalBooksCompleted ? " - Short Story" : ""}
                 </Typography>
             </CardContent>
             <CardContent className="ml-auto min-w-36">
@@ -140,10 +140,9 @@ export default function BookComponent({ book }: Props) {
                     </Typography>
                     {status()}
                 </div>
-
+                {DateComponent("Completed:", book.dateCompleted)}
+                {DateComponent("Began:", book.dateStartedReading)}
                 {DateComponent("Obtained:", book.dateObtained)}
-                {DateComponent("Began:", book.dateObtained)}
-                {DateComponent("Completed:", book.dateObtained)}
                 <Link href={`/books/${book.id}/edit`}>
                     <button type="button" className="text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-purple-200 dark:focus:ring-purple-800 font-small rounded-lg text-sm p-1 px-5 text-center">Edit</button>
                 </Link>

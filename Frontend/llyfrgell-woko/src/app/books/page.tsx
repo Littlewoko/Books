@@ -21,13 +21,13 @@ export default async function Page() {
       dateObtained: row.dateobtained ? new Date(row.dateobtained) : null,
       dateCompleted: row.datecompleted ? new Date(row.datecompleted) : null,
       dateStartedReading: row.datestartedreading ? new Date(row.datestartedreading) : null,
-      considerTowardsTotalBooksCompleted: row.considerTowardsTotalBooksCompleted
+      considerTowardsTotalBooksCompleted: row.considertowardstotalbookscompleted
     }));
   } catch (error) {
     console.log(error);
     books = [];
   }
-  
+
   const sortedBooks = sortBydateStartedReading(books);
 
   const session = await getServerSession();
