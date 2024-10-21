@@ -7,6 +7,8 @@ import { redirect } from 'next/navigation';
 import ProtectRoute from '@/app/utils/protectRoute';
 
 function getBookFromFormData(formData: FormData): Book {
+    console.log(formData.get('consider'));
+    
     const book: Book = {
         title: formData.get('title') as string,
         author: formData.get('author') as string,
@@ -15,7 +17,7 @@ function getBookFromFormData(formData: FormData): Book {
         dateObtained: formData.get('dateobtained') ? new Date(formData.get('dateobtained') as string) : null,
         dateStartedReading: formData.get('datestartedreading') ? new Date(formData.get('datestartedreading') as string) : null,
         dateCompleted: formData.get('datecompleted') ? new Date(formData.get('datecompleted') as string) : null,
-        considerTowardsTotalBooksCompleted: formData.get('consider') == null
+        considerTowardsTotalBooksCompleted: formData.get('consider') != null
     };
 
     return book;
@@ -35,7 +37,7 @@ export async function createBook(formData: FormData) {
             ${book.dateObtained ? book.dateObtained.toISOString().split('T')[0] : null}, 
             ${book.dateCompleted ? book.dateCompleted.toISOString().split('T')[0] : null}, 
             ${book.dateStartedReading ? book.dateStartedReading.toISOString().split('T')[0] : null}, 
-            ${book.considerTowardsTotalBooksCompleted ? "true" : "false"});`
+            ${book.considerTowardsTotalBooksCompleted});`
 
     revalidatePath('/books');
     redirect('/books');
@@ -54,14 +56,14 @@ export async function UpdateBook(id: string, formData: FormData) {
                 dateobtained = ${book.dateObtained ? book.dateObtained.toISOString().split('T')[0] : null}, 
                 datecompleted = ${book.dateCompleted ? book.dateCompleted.toISOString().split('T')[0] : null},
                 datestartedreading = ${book.dateStartedReading ? book.dateStartedReading.toISOString().split('T')[0] : null}, 
-                considertowardstotalbookscompleted = ${book.considerTowardsTotalBooksCompleted ? "true" : "false"}
+                considertowardstotalbookscompleted = ${book.considerTowardsTotalBooksCompleted}
             WHERE id=${id};`;
 
     revalidatePath('/books');
     redirect('/books');
 }
 
-export async function DeleteBook(id: string) {
+export async function DeleteBook(id: string, title: string) {
     await ProtectRoute();
     
     await sql`DELETE FROM books WHERE id = ${id}`;

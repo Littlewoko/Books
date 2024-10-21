@@ -1,4 +1,5 @@
-import * as React from 'react';
+"use client";
+
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
@@ -94,7 +95,14 @@ export default function BookComponent({ book }: Props) {
         )
     }
 
-    const Delete = DeleteBook.bind(null, book.id?.toString() ?? "");
+    const Delete = async () => {
+        console.log("here")
+        const wantToDelete = confirm(`Are you sure you want to delete ${book.title}? This action cannot be undone`);
+        if (!wantToDelete) return;
+
+        await DeleteBook(book.id?.toString() ?? "", book.title);
+    }
+
     return (
         <Card className="h-fit" sx={{ minWidth: 275, display: 'flex', flexWrap: 'nowrap', backgroundColor: "rgba(0,0,0,0.75)" }}>
             <CardContent className="p-3">
@@ -156,15 +164,14 @@ export default function BookComponent({ book }: Props) {
                         </button>
                     </Link>
 
-                    <form action={Delete}>
-                        <button
-                            type="submit"
-                            className="flex items-center text-white bg-gradient-to-r from-red-500 to-red-700 hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-red-200 dark:focus:ring-red-800 font-small rounded-lg text-sm p-1 px-2 md:px-3 text-center text-xs md:text-sm"
-                        >
-                            <DeleteIcon className="md:mr-1" fontSize="small" />
-                            <span className="hidden md:inline">Delete</span>
-                        </button>
-                    </form>
+                    <button
+                        onClick={Delete}
+                        type="button"
+                        className="flex items-center text-white bg-gradient-to-r from-red-500 to-red-700 hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-red-200 dark:focus:ring-red-800 font-small rounded-lg text-sm p-1 px-2 md:px-3 text-center text-xs md:text-sm"
+                    >
+                        <DeleteIcon className="md:mr-1" fontSize="small" />
+                        <span className="hidden md:inline">Delete</span>
+                    </button>
 
                 </div>
             </CardContent>
