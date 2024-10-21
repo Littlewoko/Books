@@ -4,6 +4,8 @@ import { sql } from '@vercel/postgres';
 import { Book } from '../classes/book';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { getServerSession } from 'next-auth';
+import ProtectRoute from '@/app/utils/protectRoute';
 
 function getBookFromFormData(formData: FormData): Book {
     const book: Book = {
@@ -21,6 +23,8 @@ function getBookFromFormData(formData: FormData): Book {
 }
 // TODO: fix form validation, allow nullables and parse dates correctly
 export async function createBook(formData: FormData) {
+    await ProtectRoute();
+    
     const book: Book = getBookFromFormData(formData);
 
     await sql`INSERT INTO books (title, author, genre, isbn, dateobtained, datecompleted, datestartedreading, considertowardstotalbookscompleted)
@@ -39,9 +43,10 @@ export async function createBook(formData: FormData) {
 }
 
 export async function UpdateBook(id: string, formData: FormData) {
+    await ProtectRoute();
+    
     const book: Book = getBookFromFormData(formData);
 
-    console.log(book.isbn ?? null)
     await sql`UPDATE books SET 
                 title = ${book.title},
                 author = ${book.author}, 
@@ -52,6 +57,15 @@ export async function UpdateBook(id: string, formData: FormData) {
                 datestartedreading = ${book.dateStartedReading ? book.dateStartedReading.toISOString().split('T')[0] : null}, 
                 considertowardstotalbookscompleted = ${book.considerTowardsTotalBooksCompleted ? "true" : "false"}
             WHERE id=${id};`;
+
+    revalidatePath('/books');
+    redirect('/books');
+}
+
+export async function DeleteBook(id: string) {
+    await ProtectRoute();
+    
+    await sql`DELETE FROM books WHERE id = ${id}`;
 
     revalidatePath('/books');
     redirect('/books');
