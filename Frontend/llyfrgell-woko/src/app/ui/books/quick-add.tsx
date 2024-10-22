@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Form from "./create-form";
-
+import QuickAddHidden from "./quick-add-hide";
 export default function QuickAdd() {
     const [formHidden, setFormHidden] = useState(false);
 
@@ -13,9 +13,7 @@ export default function QuickAdd() {
     return (
         <section className="bg-white dark:bg-gray-900">
             <div>
-                <h2 className="mb-4 text-xl font-bold text-gray-900 dark:text-white">Quick Add</h2>
-                <button onClick={handleToggleForm}>{formHidden ? "Hide" : "Show"}</button>
-                { formHidden ? <Form /> : <></>}
+                { formHidden ? <Form /> : <QuickAddHidden click={handleToggleForm} />}
             </div>
         </section>
     )
