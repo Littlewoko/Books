@@ -3,8 +3,12 @@ import { Typography } from "@mui/material";
 import { CardContent } from "@mui/material";
 import { Card } from "@mui/material";
 import AddCircleIcon from '@mui/icons-material/AddCircle';
+import ZoomInMapIcon from '@mui/icons-material/ZoomInMap';
 
-export default function Form() {
+interface Props {
+    action: (() => void) | null
+}
+export default function Form({ action }: Props) {
     return (
         <form action={createBook}>
             <Card className="h-fit" sx={{ minWidth: 275, display: 'flex', flexWrap: 'nowrap', backgroundColor: "rgba(0,0,0,0.75)" }}>
@@ -85,7 +89,6 @@ export default function Form() {
                     </div>
                 </CardContent>
                 <CardContent className="ml-auto min-w-36 flex flex-col p-3">
-
                     <div className="flex flex-col gap-2.5">
                         <div>
                             <label htmlFor="dateobtained">
@@ -128,7 +131,16 @@ export default function Form() {
                         </div>
                     </div>
 
+
                     <div className="flex justify-end mt-3 gap-2">
+                        {
+                            action
+                            &&
+                            <button onClick={action} type="button" className="flex items-center text-white bg-gradient-to-r from-orange-700 to-yellow-500 hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-purple-200 dark:focus:ring-purple-800 font-small rounded-lg text-sm p-1 px-2 md:px-3 text-center text-xs md:text-sm">
+                                <ZoomInMapIcon className="md:mr-1" fontSize="small" />
+                            </button>
+                        }
+
                         <button type="submit" className="flex items-center text-white bg-gradient-to-r from-blue-500 to-green-500 hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-purple-200 dark:focus:ring-purple-800 font-small rounded-lg text-sm p-1 px-2 md:px-3 text-center text-xs md:text-sm">
                             <AddCircleIcon className="md:mr-1" fontSize="small" />
                             <span className="hidden md:inline">Submit</span>
