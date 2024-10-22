@@ -11,9 +11,14 @@ export default function QuickAdd() {
     }
 
     return (
-        <section className="bg-white dark:bg-gray-900">
-            <div>
-                { formHidden ? <Form action={handleToggleForm}/> : <QuickAddHidden click={handleToggleForm} />}
+        <section className="bg-white dark:bg-gray-900 h-auto">
+            <div className="relative overflow-hidden transition-all duration-500 ease-in-out">
+                <div className={`${formHidden ? 'max-h-0' : 'max-h-screen'} transition-all duration-200 ease-in-out overflow-hidden`}>
+                    <QuickAddHidden click={handleToggleForm} clickText="Quick Create" />
+                </div>
+                <div className={`${formHidden ? 'max-h-screen' : 'max-h-0'} transition-all duration-400 ease-in-out overflow-hidden`}>
+                    <Form action={handleToggleForm} actionText="Collapse"/>
+                </div>
             </div>
         </section>
     )

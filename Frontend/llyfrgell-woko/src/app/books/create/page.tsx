@@ -10,7 +10,7 @@ export default async function Page() {
 
     return (
         <main>
-            <Form action={null} />
+            <Form />
         </main>
     )
 }
