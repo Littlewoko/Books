@@ -14,12 +14,11 @@ export default function Form({ action, actionText }: Props) {
         <form action={createBook}>
             <Card className="h-fit" sx={{ minWidth: 275, display: 'flex', flexWrap: 'nowrap', backgroundColor: "rgba(0,0,0,0.75)" }}>
                 <CardContent className="p-3 flex flex-col gap-2 flex-grow">
-                    <div>
+                    <div className="flex flex-col gap-0">
                         <label htmlFor="author">
                             <Typography
                                 className='text-gray-300 mb-0'
                                 sx={{
-                                    mb: 1.5,
                                     fontSize: { xs: '10px', sm: '12px' }
                                 }}>
                                 Author
@@ -31,7 +30,7 @@ export default function Form({ action, actionText }: Props) {
                             max={255}
                             placeholder="Author"
                             required
-                            className="placeholder-gray-300/80 border border-white bg-inherit text-sm focus:ring-primary-600 focus:border-primary-600 block w-full p-1 dark:focus:ring-primary-500 dark:focus:border-primary-500 text-gray-300"
+                            className="m-0 placeholder-gray-300/80 border border-white bg-inherit text-sm focus:ring-primary-600 focus:border-primary-600 block w-full p-1 dark:focus:ring-primary-500 dark:focus:border-primary-500 text-gray-300"
                         />
                     </div>
                     <div>
@@ -39,7 +38,6 @@ export default function Form({ action, actionText }: Props) {
                             <Typography
                                 className='text-gray-300 mb-0'
                                 sx={{
-                                    mb: 1.5,
                                     fontSize: { xs: '10px', sm: '12px' }
                                 }}>
                                 Title
@@ -51,7 +49,7 @@ export default function Form({ action, actionText }: Props) {
                             max={255}
                             placeholder="Title"
                             required
-                            className="placeholder-orange-400/80 border border-white bg-inherit text-sm focus:ring-primary-600 focus:border-primary-600 block w-full p-1 dark:focus:ring-primary-500 dark:focus:border-primary-500 text-orange-400"
+                            className="placeholder-gray-300/80 border border-white bg-inherit text-sm focus:ring-primary-600 focus:border-primary-600 block w-full p-1 dark:focus:ring-primary-500 dark:focus:border-primary-500 text-orange-400"
                         />
                     </div>
                     <div>
@@ -59,7 +57,6 @@ export default function Form({ action, actionText }: Props) {
                             <Typography
                                 className='text-gray-300 mb-0'
                                 sx={{
-                                    mb: 1.5,
                                     fontSize: { xs: '10px', sm: '12px' }
                                 }}>
                                 Genre
@@ -80,7 +77,6 @@ export default function Form({ action, actionText }: Props) {
                             <Typography
                                 className='text-gray-300 mb-0'
                                 sx={{
-                                    mb: 1.5,
                                     fontSize: { xs: '10px', sm: '12px' }
                                 }}>
                                 Short story?
@@ -96,7 +92,6 @@ export default function Form({ action, actionText }: Props) {
                                 <Typography
                                     className='text-gray-300 mb-0'
                                     sx={{
-                                        mb: 1.5,
                                         fontSize: { xs: '10px', sm: '12px' }
                                     }}>
                                     Obtained
@@ -109,7 +104,6 @@ export default function Form({ action, actionText }: Props) {
                                 <Typography
                                     className='text-gray-300 mb-0'
                                     sx={{
-                                        mb: 1.5,
                                         fontSize: { xs: '10px', sm: '12px' }
                                     }}>
                                     Began
@@ -122,7 +116,6 @@ export default function Form({ action, actionText }: Props) {
                                 <Typography
                                     className='text-gray-300 mb-0'
                                     sx={{
-                                        mb: 1.5,
                                         fontSize: { xs: '10px', sm: '12px' }
                                     }}>
                                     Completed
