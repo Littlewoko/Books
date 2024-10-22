@@ -68,7 +68,7 @@ export default function Form() {
                     </div>
 
                     <div className="flex mt-3 gap-2 align-middle">
-                        <label htmlFor="shortstory">
+                        <label htmlFor="shortStory">
                             <Typography
                                 className='text-gray-300 mb-0'
                                 sx={{
@@ -77,9 +77,9 @@ export default function Form() {
                                 Short story?
                             </Typography>
                         </label>
-                        <input type="checkbox" 
-                        id="shortstory" 
-                        name="shortstory" />
+                        <input type="checkbox"
+                            id="shortStory"
+                            name="shortStory" />
                     </div>
                 </CardContent>
                 <CardContent className="ml-auto min-w-36 flex flex-col p-3">
@@ -94,7 +94,11 @@ export default function Form() {
                                     Obtained
                                 </Typography>
                             </label>
-                            <input type="date" id="dateobtained" className="bg-inherit border border-gray-300 text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500 block w-full p-0.5 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500 text-white/70" />
+                            <input
+                                type="date"
+                                id="dateobtained"
+                                name="dateobtained"
+                                className="bg-inherit border border-gray-300 text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500 block w-full p-0.5 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500 text-white/70" />
                         </div>
                         <div>
                             <label htmlFor="datestartedreading">
@@ -106,7 +110,11 @@ export default function Form() {
                                     Began
                                 </Typography>
                             </label>
-                            <input type="date" id="datestartedreading" className="bg-inherit border border-gray-300 text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500 block w-full p-0.5 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500 text-white/70" />
+                            <input
+                                type="date"
+                                id="datestartedreading"
+                                name="datestartedreading"
+                                className="bg-inherit border border-gray-300 text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500 block w-full p-0.5 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500 text-white/70" />
                         </div>
                         <div>
                             <label htmlFor="datecompleted">
@@ -118,7 +126,12 @@ export default function Form() {
                                     Completed
                                 </Typography>
                             </label>
-                            <input type="date" id="datecompleted" className="bg-inherit border border-gray-300 text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500 block w-full p-0.5 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500 text-white/70" />
+                            <input
+                                type="date"
+                                id="datecompleted"
+                                name="datecompleted"
+                                className="bg-inherit border border-gray-300 text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500 block w-full p-0.5 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500 text-white/70"
+                            />
                         </div>
                     </div>
 
