@@ -2,6 +2,7 @@ import Form from "@/app/ui/books/edit-form";
 import { fetchBookById } from "@/app/lib/books/data";
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
+import Header from "@/app/ui/books/header";
 
 export default async function Page({ params }: { params: { id: string } }) {
   const session = await getServerSession();
@@ -15,6 +16,7 @@ export default async function Page({ params }: { params: { id: string } }) {
 
   return (
     <main>
+      <Header text="Update" colour="text-purple-500"/>
       <Form book={book} />
     </main>
   );

@@ -3,13 +3,8 @@ import { Typography } from "@mui/material";
 import { CardContent } from "@mui/material";
 import { Card } from "@mui/material";
 import AddCircleIcon from '@mui/icons-material/AddCircle';
-import ZoomInMapIcon from '@mui/icons-material/ZoomInMap';
 
-interface Props {
-    action?: (() => void)
-    actionText?: string
-}
-export default function Form({ action, actionText }: Props) {
+export default function Form() {
     return (
         <form action={createBook}>
             <Card className="h-fit" sx={{ minWidth: 275, display: 'flex', flexWrap: 'nowrap', backgroundColor: "rgba(0,0,0,0.75)" }}>
@@ -73,7 +68,7 @@ export default function Form({ action, actionText }: Props) {
                     </div>
 
                     <div className="flex mt-3 gap-2 align-middle">
-                        <label htmlFor="shortStory">
+                        <label htmlFor="shortstory">
                             <Typography
                                 className='text-gray-300 mb-0'
                                 sx={{
@@ -82,7 +77,9 @@ export default function Form({ action, actionText }: Props) {
                                 Short story?
                             </Typography>
                         </label>
-                        <input type="checkbox" id="shortStory" name="shortStory" />
+                        <input type="checkbox" 
+                        id="shortstory" 
+                        name="shortstory" />
                     </div>
                 </CardContent>
                 <CardContent className="ml-auto min-w-36 flex flex-col p-3">
@@ -127,15 +124,6 @@ export default function Form({ action, actionText }: Props) {
 
 
                     <div className="flex justify-end mt-3 gap-2">
-                        {
-                            action
-                            &&
-                            <button onClick={action} type="button" className="flex items-center text-white bg-gradient-to-r from-orange-700 to-yellow-500 hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-purple-200 dark:focus:ring-purple-800 font-small rounded-lg text-sm p-1 px-2 md:px-3 text-center text-xs md:text-sm">
-                                <ZoomInMapIcon className="md:mr-1" fontSize="small" />
-                                <span className="hidden md:inline">{actionText}</span>
-                            </button>
-                        }
-
                         <button type="submit" className="flex items-center text-white bg-gradient-to-r from-blue-500 to-green-500 hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-purple-200 dark:focus:ring-purple-800 font-small rounded-lg text-sm p-1 px-2 md:px-3 text-center text-xs md:text-sm">
                             <AddCircleIcon className="md:mr-1" fontSize="small" />
                             <span className="hidden md:inline">Submit</span>

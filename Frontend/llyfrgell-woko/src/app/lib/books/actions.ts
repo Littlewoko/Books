@@ -7,8 +7,6 @@ import { redirect } from 'next/navigation';
 import ProtectRoute from '@/app/utils/protectRoute';
 
 function getBookFromFormData(formData: FormData): Book {
-    console.log(formData.get('consider'));
-    
     const book: Book = {
         title: formData.get('title') as string,
         author: formData.get('author') as string,
@@ -17,12 +15,12 @@ function getBookFromFormData(formData: FormData): Book {
         dateObtained: formData.get('dateobtained') ? new Date(formData.get('dateobtained') as string) : null,
         dateStartedReading: formData.get('datestartedreading') ? new Date(formData.get('datestartedreading') as string) : null,
         dateCompleted: formData.get('datecompleted') ? new Date(formData.get('datecompleted') as string) : null,
-        shortStory: formData.get('shortStory') != null
+        shortStory: formData.get('shortstory') != null
     };
 
     return book;
 }
-// TODO: fix form validation, allow nullables and parse dates correctly
+
 export async function createBook(formData: FormData) {
     await ProtectRoute();
     
