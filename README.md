@@ -7,7 +7,7 @@ Compilation of collected books and their read status
 
 | Title | Author | Genre | Finished Date |
 | --- | --- | --- | --- |
-| Empire of the Vampire | Jay Kristoff | Vampire Fantasy | In Progress |
+| Empire of the Vampire | Jay Kristoff | Vampire Fantasy | 21/10/24 |
 | A History of Wales | John Davis | History | In Progress |
 | The Vampire Lestat (2/13) | Anne Rice | Vampire | In Progress |
 | The Dresden Files: Peace Talks (16/17) | Jim Butcher | Detective Fantasy | In Progress |
