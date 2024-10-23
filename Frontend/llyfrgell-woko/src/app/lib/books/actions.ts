@@ -15,7 +15,7 @@ function getBookFromFormData(formData: FormData): Book {
         dateObtained: formData.get('dateobtained') ? new Date(formData.get('dateobtained') as string) : null,
         dateStartedReading: formData.get('datestartedreading') ? new Date(formData.get('datestartedreading') as string) : null,
         dateCompleted: formData.get('datecompleted') ? new Date(formData.get('datecompleted') as string) : null,
-        shortStory: formData.get('shortstory') != null
+        shortStory: formData.get('shortStory') != null
     };
 
     return book;
