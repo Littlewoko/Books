@@ -7,10 +7,14 @@ Compilation of collected books and their read status
 
 | Title | Author | Genre | Finished Date |
 | --- | --- | --- | --- |
-| Empire of the Vampire | Jay Kristoff | Vampire Fantasy | 21/10/24 |
 | A History of Wales | John Davis | History | In Progress |
 | The Vampire Lestat (2/13) | Anne Rice | Vampire | In Progress |
 | The Dresden Files: Peace Talks (16/17) | Jim Butcher | Detective Fantasy | In Progress |
+| Agor y Drws | Wyn James | Welsh Language | In Progress | 
+| Fundamentals of Software Architecture | Mark Richards | Software Engineering | In Progress |
+| Animal Farm | George Orwell | Dystopia | 22/10/24 |
+| Empire of the Vampire | Jay Kristoff | Vampire Fantasy | 21/10/24 |
+| Ydw i'n fach? | Phillipp Winterberg | Welsh Language | 15/10/24 |
 | The Art of Unit Testing | Roy Osherove | Software Engineering | 11/10/2024 |
 | The Exorcist | William Peter Blatty | Horror | 09/10/2024 |
 | Desgining Data Intensive Applications | Martin Kleppmann | Software Engineering | 30/09/2024 |
