@@ -15,7 +15,7 @@ export default function Navbar() {
 
     return (
         <>
-            <div className="hidden relative py-6 sm:flex flex-col justify-center">
+            <div className="hidden relative py-6 sm:flex justify-between mr-2">
                 <LogoLink />
                 <DesktopNavLinks />
             </div>
