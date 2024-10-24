@@ -7,8 +7,8 @@ interface Props {
 
 const MobileMenuButton: React.FC<Props> = ({ onClick }) => {
   return (
-    <button className="absolute right-2 top-2 p-2" onClick={onClick}>
-      <FontAwesomeIcon className="text-4xl" icon={faBars} />
+    <button className="mr-4 pb-2" onClick={onClick}>
+      <FontAwesomeIcon className="text-3xl" icon={faBars} />
     </button>
   );
 }
