@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import AuthButton from './authButton';
-import AddCircleIcon from '@mui/icons-material/AddCircle';
 import AutoStoriesIcon from '@mui/icons-material/AutoStories';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import HomeIcon from '@mui/icons-material/Home';
