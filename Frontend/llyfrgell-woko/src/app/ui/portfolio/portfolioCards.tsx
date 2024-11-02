@@ -16,7 +16,7 @@ export default function PortfolioComponent({ portfolio, userId }: Props) {
 
     return (
         <div className="flex flex-col m-1 gap-y-1">
-            <Header text="Other Projects" colour="text-orange-500" />
+            <Header text="Projects" colour="text-orange-500" />
             {portfolioCardItems}
             <QuickAdd Form={<Form userId={userId} />}/>
         </div>

@@ -26,21 +26,21 @@ export default function PortfolioCard({ portfolioItem }: props) {
             <Link href={portfolioItem.url} rel="noopener noreferrer" className="flex" target="_blank">
                 <CardContent className="m-0 p-0 flex flex-grow gap-5 items-center">
                     <div
-                        className="w-16 h-16 flex items-center justify-center" // Center the SVG
+                        className="min-w-14 min-h-14 max-w-14 max-h-14 flex items-center justify-center" // Center the SVG
                         dangerouslySetInnerHTML={{ __html: svgString }}
                     />
-                    <div>
+                    <CardContent>
                         <Typography
                             variant="h5"
                             component="div"
-                            className="text-orange-400"
+                            className="text-orange-400 mb-2"
                             sx={{
                                 fontSize: { xs: '16px', sm: 'h5.fontSize' }
                             }}>
                             {portfolioItem.title}
                         </Typography>
                         <Typography
-                            className='text-gray-300'
+                            className='text-slate-800'
                             sx={{
                                 mb: 1.5,
                                 fontSize: { xs: '10px', sm: '12px' }
@@ -48,8 +48,7 @@ export default function PortfolioCard({ portfolioItem }: props) {
                             {portfolioItem.description}
                         </Typography>
 
-                    </div>
-
+                    </CardContent>
                 </CardContent>
 
                 <LaunchIcon />

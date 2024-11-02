@@ -33,7 +33,7 @@ export default async function Page() {
   return (
     <div className="overflow-x-auto m-2">
       <div className="flex flex-col m-1 gap-y-1">
-        <QuickAddForm Form={<CreateBookForm />}/>
+        <QuickAddForm Form={<CreateBookForm />} />
       </div>
 
       <AllTable books={sortedBooks} />

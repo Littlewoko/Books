@@ -8,7 +8,7 @@ interface Props {
 export default function StatsCard({ stats }: Props) {
     return (
         <Card className="p-2 pb-0 m-1" sx={{ minWidth: 275, backgroundColor: "rgba(0,0,0,0.5)" }}>
-            <CardContent className="m-0 p-0 flex flex-col items-center">
+            <CardContent className="m-0 p-2 flex flex-col items-center">
                 <Typography
                     className='text-gray-300 flex justify-between w-40'
                     sx={{
