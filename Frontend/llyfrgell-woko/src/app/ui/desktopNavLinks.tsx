@@ -2,7 +2,6 @@ import Link from 'next/link';
 import AuthButton from './authButton';
 import AutoStoriesIcon from '@mui/icons-material/AutoStories';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
-import HomeIcon from '@mui/icons-material/Home';
 
 export function DesktopNavLinks() {
   return (
