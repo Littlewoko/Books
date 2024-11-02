@@ -63,6 +63,9 @@ export async function deletePortfolio(id: string) {
     await ProtectRoute();
 
     await sql`DELETE FROM portfolio WHERE id=${id}`
+
+    revalidatePath('/');
+    redirect('/');
 }
 
 

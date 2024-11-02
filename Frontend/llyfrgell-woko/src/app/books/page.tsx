@@ -1,10 +1,10 @@
 import { QueryResult, QueryResultRow, sql } from "@vercel/postgres";
 import { Book } from "../lib/classes/book";
 import AllTable from "../ui/books/all-table";
-import { getServerSession } from "next-auth";
 import QuickAddForm from "../ui/books/quick-add";
 import React from "react";
 import { defaultSort } from "../utils/sortBooks";
+import CreateBookForm from "../ui/books/create-form";
 
 export default async function Page() {
   let books: Book[];
@@ -30,13 +30,10 @@ export default async function Page() {
 
   const sortedBooks = defaultSort(books);
 
-  const session = await getServerSession();
-  const hasSession = session && session.user;
-
   return (
     <div className="overflow-x-auto">
       <div className="flex flex-col m-1 gap-y-1">
-        {hasSession ? <QuickAddForm /> : <></>}
+        <QuickAddForm Form={<CreateBookForm />}/>
       </div>
 
       <AllTable books={sortedBooks} />

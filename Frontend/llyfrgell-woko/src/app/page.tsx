@@ -41,10 +41,16 @@ export default async function Home() {
   }
 
   let portfolio: Portfolio[] = [];
+  const userId = session?.user?.email ? session.user.email : "watkinsbradley01@gmail.com";
+
   if (session && session.user && session.user.email) {
     portfolio = await fetchUserPortfolio(session.user.email);
+  } else {
+    portfolio = await fetchUserPortfolio(userId);
+
   }
 
+console.log(userId);
   return (
     <div className="px-2">
       <p className="my-4 text-lg text-gray-500 dark:text-amber-500">
@@ -70,7 +76,7 @@ export default async function Home() {
         Short stories read this year: {shortStoriesThisYearcount}
       </p>
 
-      <PortfolioComponent portfolio={portfolio} />
+      <PortfolioComponent portfolio={portfolio} userId={userId} />
     </div>
   )
 }
