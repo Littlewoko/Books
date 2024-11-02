@@ -22,7 +22,6 @@ export default function PortfolioCard({ portfolioItem }: props) {
     }
 
     return (
-
         <Card className="h-fit p-2" sx={{ minWidth: 275, backgroundColor: "rgba(0,0,0,0.5)" }}>
             <Link href={portfolioItem.url} rel="noopener noreferrer" className="flex" target="_blank">
                 <CardContent className="m-0 p-0 flex flex-grow gap-5 items-center">

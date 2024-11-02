@@ -15,11 +15,11 @@ export default function Navbar() {
 
     return (
         <>
-            <div className="hidden relative py-6 sm:flex justify-between mr-2">
+            <div className="hidden relative mx-1 my-3 sm:flex justify-between mr-3 items-center">
                 <LogoLink />
                 <DesktopNavLinks />
             </div>
-            <div className="sm:hidden relative flex flex-row my-4 justify-between">
+            <div className="sm:hidden relative flex flex-row ml-1 my-3 justify-between items-center">
                 <LogoLink />
                 <MobileMenuButton onClick={handleToggleDrawer} />
                 <MobileDrawer isOpen={isDrawerOpen} onClose={handleToggleDrawer} />

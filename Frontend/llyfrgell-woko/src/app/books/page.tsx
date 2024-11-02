@@ -31,7 +31,7 @@ export default async function Page() {
   const sortedBooks = defaultSort(books);
 
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto m-2">
       <div className="flex flex-col m-1 gap-y-1">
         <QuickAddForm Form={<CreateBookForm />}/>
       </div>
