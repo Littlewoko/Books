@@ -25,7 +25,7 @@ export default function PortfolioCard({ portfolioItem }: props) {
 
         <Card className="h-fit p-2" sx={{ minWidth: 275, backgroundColor: "rgba(0,0,0,0.5)" }}>
             <Link href={portfolioItem.url} rel="noopener noreferrer" className="flex" target="_blank">
-                <CardContent className="m-0 p-0 flex gap-5 items-center">
+                <CardContent className="m-0 p-0 flex flex-grow gap-5 items-center">
                     <div
                         className="w-16 h-16 flex items-center justify-center" // Center the SVG
                         dangerouslySetInnerHTML={{ __html: svgString }}

@@ -50,7 +50,6 @@ export default async function Home() {
 
   }
 
-console.log(userId);
   return (
     <div className="px-2">
       <p className="my-4 text-lg text-gray-500 dark:text-amber-500">
