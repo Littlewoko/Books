@@ -39,4 +39,24 @@ export async function createPortfolio(userId: string, formData: FormData) {
     redirect('/');
 }
 
+export async function editPortfolio(id: number, userId: string, formData: FormData) {
+    await ProtectRoute();
+
+    const portfolio: Portfolio = getPortfolioFromFormData(formData, userId);
+    portfolio.id = id;
+
+    await sql`
+    UPDATE portfolio 
+    SET title=${portfolio.title}, 
+    description=${portfolio.description}, 
+    url=${portfolio.url}, 
+    svg_icon=${portfolio.svgIcon}
+    WHERE
+    id=${portfolio.id}
+    `
+
+    revalidatePath('/');
+    redirect('/');
+}
+
 

@@ -20,3 +20,9 @@ export async function fetchUserPortfolio(userId: string) {
 
     return convertToPortfolio(result);
 }
+
+export async function fetchUserPortfolioById(id: string, userId: string) {
+    const result = await sql`SELECT * FROM portfolio WHERE user_id=${userId} AND id=${id};`;
+
+    return convertToPortfolio(result)[0];
+}
