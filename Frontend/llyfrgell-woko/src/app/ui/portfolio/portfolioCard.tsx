@@ -40,10 +40,10 @@ export default function PortfolioCard({ portfolioItem }: props) {
                             {portfolioItem.title}
                         </Typography>
                         <Typography
-                            className='text-slate-800'
+                            className='text-white'
                             sx={{
                                 mb: 1.5,
-                                fontSize: { xs: '10px', sm: '12px' }
+                                fontSize: { xs: '12px', sm: '14px' }
                             }}>
                             {portfolioItem.description}
                         </Typography>
