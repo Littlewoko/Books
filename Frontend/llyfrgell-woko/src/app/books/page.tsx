@@ -41,7 +41,7 @@ export default function Page() {
             <div className="flex flex-col m-1 gap-y-1">
               <QuickAddForm Form={<CreateBookForm />} />
             </div>
-            <Paging page={page} setPage={setPage}/>
+            <Paging page={page} setPage={setPage} pageLimit={10}/>
 
             <AllTable books={books} />
           </div>

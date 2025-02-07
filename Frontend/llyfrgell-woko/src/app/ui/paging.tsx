@@ -26,25 +26,25 @@ export default function Paging({ page, setPage, pageLimit = 2 }: Props) {
     }
 
     const pageNumbers = (): number[] => {
-        const actualPage = page + 1;
+        const displayPage = page + 1;
 
         if (pageLimit < 2) {
             // If there are less than three pages, return all available pages
             return Array.from({ length: pageLimit }, (_, index) => index + 1);
         }
     
-        if (actualPage === 1) {
+        if (displayPage === 1) {
             // If the current page is the first page, return the first three pages
             return [1, 2, 3];
         }
     
-        if (actualPage === pageLimit + 1) {
+        if (displayPage === pageLimit + 1) {
             // If the current page is the last page, return the last three pages
-            return [actualPage - 2, actualPage - 1, actualPage];
+            return [displayPage - 2, displayPage - 1, displayPage];
         }
     
         // For all other cases, return the current page and its adjacent pages
-        return [actualPage - 1, actualPage, actualPage + 1];
+        return [displayPage - 1, displayPage, displayPage + 1];
     }
 
     const pageNumberDisplay = () => {
