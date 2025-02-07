@@ -5,6 +5,8 @@ import { Book } from '../classes/book';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import ProtectRoute from '@/app/utils/protectRoute';
+import { convertToBook } from './data';
+import { GetBooksRequest } from './sql';
 
 function getBookFromFormData(formData: FormData): Book {
     const book: Book = {
@@ -47,35 +49,9 @@ export async function GetBooks(page: number, pageSize: number): Promise<Book[]> 
     let skip = pageSize * page;
 
   try {
-    const result: QueryResult<QueryResultRow> = 
-    await sql
-    `SELECT * FROM books
-    ORDER BY
-    CASE
-        WHEN dateCompleted IS NULL AND dateStartedReading IS NOT NULL THEN 1
-        WHEN dateCompleted IS NOT NULL THEN 2
-        WHEN dateCompleted IS NULL AND dateStartedReading IS NULL AND dateObtained IS NOT NULL THEN 3
-        ELSE 4
-    END,
-    CASE
-        WHEN dateCompleted IS NULL AND dateStartedReading IS NOT NULL THEN dateStartedReading
-        WHEN dateCompleted IS NOT NULL THEN dateCompleted
-        WHEN dateCompleted IS NULL AND dateStartedReading IS NULL AND dateObtained IS NOT NULL THEN dateObtained
-        ELSE NULL
-    END DESC 
-    OFFSET ${skip} LIMIT ${pageSize};`;
+    const result: QueryResult<QueryResultRow> = await GetBooksRequest(skip, pageSize);
 
-    books = result.rows.map(row => ({
-      id: row.id,
-      title: row.title,
-      author: row.author,
-      genre: row.genre,
-      isbn: row.isbn,
-      dateObtained: row.dateobtained ? new Date(row.dateobtained) : null,
-      dateCompleted: row.datecompleted ? new Date(row.datecompleted) : null,
-      dateStartedReading: row.datestartedreading ? new Date(row.datestartedreading) : null,
-      shortStory: row.shortstory
-    }));
+    books = convertToBook(result);
     
   } catch (error) {
     console.log(error);

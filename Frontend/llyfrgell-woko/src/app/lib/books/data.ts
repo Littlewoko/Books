@@ -1,6 +1,6 @@
 import { sql, QueryResult, QueryResultRow } from "@vercel/postgres";
 
-function convertToBook(result: QueryResult<QueryResultRow>) {
+export function convertToBook(result: QueryResult<QueryResultRow>) {
     const books = result.rows.map(row => ({
         id: row.id,
         title: row.title,
