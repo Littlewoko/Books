@@ -47,7 +47,23 @@ export async function GetBooks(page: number, pageSize: number): Promise<Book[]> 
     let skip = pageSize * page;
 
   try {
-    const result: QueryResult<QueryResultRow> = await sql`SELECT * FROM books OFFSET ${skip} LIMIT ${pageSize};`;
+    const result: QueryResult<QueryResultRow> = 
+    await sql
+    `SELECT * FROM books
+    ORDER BY
+    CASE
+        WHEN dateCompleted IS NULL AND dateStartedReading IS NOT NULL THEN 1
+        WHEN dateCompleted IS NOT NULL THEN 2
+        WHEN dateCompleted IS NULL AND dateStartedReading IS NULL AND dateObtained IS NOT NULL THEN 3
+        ELSE 4
+    END,
+    CASE
+        WHEN dateCompleted IS NULL AND dateStartedReading IS NOT NULL THEN dateStartedReading
+        WHEN dateCompleted IS NOT NULL THEN dateCompleted
+        WHEN dateCompleted IS NULL AND dateStartedReading IS NULL AND dateObtained IS NOT NULL THEN dateObtained
+        ELSE NULL
+    END DESC 
+    OFFSET ${skip} LIMIT ${pageSize};`;
 
     books = result.rows.map(row => ({
       id: row.id,
