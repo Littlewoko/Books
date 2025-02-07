@@ -1,5 +1,3 @@
-import { QueryResult, QueryResultRow, sql } from "@vercel/postgres";
-import { Book } from "../lib/classes/book";
 import AllTable from "../ui/books/all-table";
 import QuickAddForm from "../ui/books/quick-add";
 import React from "react";
@@ -8,7 +6,10 @@ import CreateBookForm from "../ui/books/create-form";
 import { GetBooks } from "../lib/books/actions";
 
 export default async function Page() {
-  let books = await GetBooks();
+  let page = 0;
+  let pageSize = 10;
+
+  let books = await GetBooks(page, pageSize);
 
   const sortedBooks = defaultSort(books);
 

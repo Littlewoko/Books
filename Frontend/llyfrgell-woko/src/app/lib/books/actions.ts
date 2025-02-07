@@ -41,11 +41,13 @@ export async function createBook(formData: FormData) {
     redirect('/books');
 }
 
-export async function GetBooks(): Promise<Book[]> {
+export async function GetBooks(page: number, pageSize: number): Promise<Book[]> {
     let books: Book[];
 
+    let skip = pageSize * page;
+
   try {
-    const result: QueryResult<QueryResultRow> = await sql`SELECT * FROM books;`;
+    const result: QueryResult<QueryResultRow> = await sql`SELECT * FROM books OFFSET ${skip} LIMIT ${pageSize};`;
 
     books = result.rows.map(row => ({
       id: row.id,
