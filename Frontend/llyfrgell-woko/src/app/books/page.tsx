@@ -6,11 +6,12 @@ import React, { useEffect, useState } from "react";
 import CreateBookForm from "../ui/books/create-form";
 import { GetBooks } from "../lib/books/actions";
 import { Book } from "../lib/classes/book";
+import Paging from "../ui/paging";
 
 export default function Page() {
-  let page = 0;
   let pageSize = 10;
 
+  const [page, setPage] = useState(0);
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -36,9 +37,11 @@ export default function Page() {
           </div>
           :
           <div>
+
             <div className="flex flex-col m-1 gap-y-1">
               <QuickAddForm Form={<CreateBookForm />} />
             </div>
+            <Paging page={page} setPage={setPage}/>
 
             <AllTable books={books} />
           </div>
