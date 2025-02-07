@@ -1,6 +1,6 @@
 'use server';
 
-import { sql } from '@vercel/postgres';
+import { QueryResult, QueryResultRow, sql } from '@vercel/postgres';
 import { Book } from '../classes/book';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
@@ -39,6 +39,32 @@ export async function createBook(formData: FormData) {
 
     revalidatePath('/books');
     redirect('/books');
+}
+
+export async function GetBooks(): Promise<Book[]> {
+    let books: Book[];
+
+  try {
+    const result: QueryResult<QueryResultRow> = await sql`SELECT * FROM books;`;
+
+    books = result.rows.map(row => ({
+      id: row.id,
+      title: row.title,
+      author: row.author,
+      genre: row.genre,
+      isbn: row.isbn,
+      dateObtained: row.dateobtained ? new Date(row.dateobtained) : null,
+      dateCompleted: row.datecompleted ? new Date(row.datecompleted) : null,
+      dateStartedReading: row.datestartedreading ? new Date(row.datestartedreading) : null,
+      shortStory: row.shortstory
+    }));
+    
+  } catch (error) {
+    console.log(error);
+    books = [];
+  }
+
+  return books;
 }
 
 export async function UpdateBook(id: string, formData: FormData) {
