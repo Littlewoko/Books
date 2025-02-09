@@ -6,7 +6,7 @@ interface Props {
 
 export default function Paging({ page, setPage, pageLimit = 2 }: Props) {
     const decrement = () => {
-        if (page == 0) return;
+        if (page == 1) return;
 
         setPage(page - 1);
     }
@@ -18,7 +18,7 @@ export default function Paging({ page, setPage, pageLimit = 2 }: Props) {
     }
 
     const getPageNumberCSS = (pageNumber: number) => {
-        if (pageNumber === page + 1) {
+        if (pageNumber === page) {
             return "relative z-10 inline-flex items-center bg-indigo-600 px-4 py-2 text-sm font-semibold text-white focus:z-20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
         }
 
@@ -26,31 +26,29 @@ export default function Paging({ page, setPage, pageLimit = 2 }: Props) {
     }
 
     const pageNumbers = (): number[] => {
-        const displayPage = page + 1;
-
-        if (pageLimit < 2) {
+        if (pageLimit < 3) {
             // If there are less than three pages, return all available pages
             return Array.from({ length: pageLimit }, (_, index) => index + 1);
         }
 
-        if (displayPage === 1) {
+        if (page === 1) {
             // If the current page is the first page, return the first three pages
             return [1, 2, 3];
         }
 
-        if (displayPage === pageLimit + 1) {
+        if (page === pageLimit) {
             // If the current page is the last page, return the last three pages
-            return [displayPage - 2, displayPage - 1, displayPage];
+            return [page - 2, page - 1, page];
         }
 
         // For all other cases, return the current page and its adjacent pages
-        return [displayPage - 1, displayPage, displayPage + 1];
+        return [page - 1, page, page + 1];
     }
 
     const pageNumberDisplay = () => {
         const arr = pageNumbers();
 
-        return arr.map(num => <button className={getPageNumberCSS(num)} onClick={() => setPage(num - 1)} key={`page-${num-1}`}>{num}</button>)
+        return arr.map(num => <button className={getPageNumberCSS(num)} onClick={() => setPage(num)} key={`page-${num-1}`}>{num}</button>)
     }
 
     return (

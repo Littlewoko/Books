@@ -7,11 +7,15 @@ import CreateBookForm from "../ui/books/create-form";
 import { GetBooks } from "../lib/books/actions";
 import { Book } from "../lib/classes/book";
 import Paging from "../ui/paging";
+import { useSearchParams } from "next/navigation";
 
 export default function Page() {
+  const searchParams = useSearchParams();
+  const pageParam = searchParams.get('page');
+
   const pageSize = 10;
 
-  const [page, setPage] = useState(0);
+  const [page, setPage] = useState(Number(pageParam) || 1);
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
 
