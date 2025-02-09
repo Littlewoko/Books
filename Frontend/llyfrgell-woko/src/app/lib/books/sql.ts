@@ -18,3 +18,7 @@ export async function GetBooksRequest(offset: number, limit: number): Promise<Qu
     END DESC 
     OFFSET ${offset} LIMIT ${limit};`;
 }
+
+export async function GetPageCountRequest(pageSize: number) {
+    return `SELECT CEILING(COUNT(*)/${pageSize}) FROM books`
+}
