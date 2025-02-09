@@ -32,7 +32,7 @@ export default function Page() {
         const params = new URLSearchParams(Array.from(searchParams.entries()));
 
         if(page > pageLimit) {
-          setPage(pageLimit);
+          setPage(1);
         }
 
         params.set('page', String(page));
