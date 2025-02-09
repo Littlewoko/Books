@@ -48,9 +48,9 @@ export default function Paging({ page, setPage, pageLimit = 2 }: Props) {
     }
 
     const pageNumberDisplay = () => {
-        let arr = pageNumbers();
+        const arr = pageNumbers();
 
-        return arr.map(num => <button className={getPageNumberCSS(num)} onClick={() => setPage(num - 1)}>{num}</button>)
+        return arr.map(num => <button className={getPageNumberCSS(num)} onClick={() => setPage(num - 1)} key={`page-${num-1}`}>{num}</button>)
     }
 
     return (

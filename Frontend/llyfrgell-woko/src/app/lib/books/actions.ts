@@ -46,7 +46,7 @@ export async function createBook(formData: FormData) {
 export async function GetBooks(page: number, pageSize: number): Promise<Book[]> {
     let books: Book[];
 
-    let skip = pageSize * page;
+    const skip = pageSize * page;
 
   try {
     const result: QueryResult<QueryResultRow> = await GetBooksRequest(skip, pageSize);

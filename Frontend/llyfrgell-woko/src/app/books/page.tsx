@@ -9,7 +9,7 @@ import { Book } from "../lib/classes/book";
 import Paging from "../ui/paging";
 
 export default function Page() {
-  let pageSize = 10;
+  const pageSize = 10;
 
   const [page, setPage] = useState(0);
   const [books, setBooks] = useState<Book[]>([]);
