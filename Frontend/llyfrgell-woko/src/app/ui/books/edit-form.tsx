@@ -95,8 +95,8 @@ const Form: React.FC<Props> = ({ book }) => {
                         </label>
                         <input
                             type="checkbox"
-                            id="shortstory"
-                            name="shortstory"
+                            id="shortStory"
+                            name="shortStory"
                             defaultChecked={book.shortStory}
                         />
                     </div>
