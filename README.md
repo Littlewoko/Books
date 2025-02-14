@@ -1,6 +1,8 @@
 # Books
 Compilation of collected books and their read status
 
+# Super seeded by: [https://lyffrgell-woko.vercel.app]link
+
 - Title ~~dashed through~~ is not owned
 - No date is unread
 - 2024 Books Read: 31...
