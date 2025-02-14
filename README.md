@@ -1,7 +1,7 @@
 # Books
 Compilation of collected books and their read status
 
-# Super seeded by: [https://lyffrgell-woko.vercel.app]link
+# Super seeded by: [link](https://lyffrgell-woko.vercel.app)
 
 - Title ~~dashed through~~ is not owned
 - No date is unread
