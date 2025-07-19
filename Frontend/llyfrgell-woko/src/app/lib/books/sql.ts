@@ -8,7 +8,7 @@ export async function GetBooksRequest(
     let query = `
         SELECT * FROM books
     `;
-    let params: (string | number)[] = [];
+    const params: (string | number)[] = [];
 
     if (search) {
         query += ` WHERE (LOWER(title) LIKE $1`;
@@ -44,7 +44,7 @@ export async function GetBooksRequest(
 
 export async function GetPageCountRequest(pageSize: number, search?: string) {
     let query = "SELECT CEILING(COUNT(*)::numeric / $1) as count FROM books";
-    let params: (string | number)[] = [pageSize];
+    const params: (string | number)[] = [pageSize];
 
     if (search) {
         query += ` WHERE (LOWER(title) LIKE $2`;
