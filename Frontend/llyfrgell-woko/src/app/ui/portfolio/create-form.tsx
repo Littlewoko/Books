@@ -1,14 +1,14 @@
+'use client'
+
 import { Typography } from "@mui/material";
 import { CardContent } from "@mui/material";
 import { Card } from "@mui/material";
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { createPortfolio } from "@/app/lib/portfolio/actions";
-interface Props {
-    userId: string
-}
 
-export default function Form({ userId }: Props) {
-    const createPortfolioWithId = createPortfolio.bind(null, userId);
+
+export default function Form() {
+    const createPortfolioWithId = createPortfolio.bind(null, 'watkinsbradley01@gmail.com');
 
     return (
         <form action={createPortfolioWithId}>

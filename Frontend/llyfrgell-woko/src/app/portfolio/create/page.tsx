@@ -12,7 +12,7 @@ export default async function Page() {
     return (
         <main>
             <Header text="Create Portfolio Item" colour="text-blue-400" />
-            <Form userId={session.user.email}/>
+            <Form/>
         </main>
     )
 }

@@ -10,7 +10,6 @@ import SearchBar from "./ui/searchbar";
 import { Stats } from "./lib/classes/stats";
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import { convertToPortfolio } from "./lib/portfolio/data";
 
 export default function Home() {
   const session = useSession();
@@ -23,16 +22,12 @@ export default function Home() {
       const res = await getStats();
       setStats(res);
 
-      if (session.data?.user?.email) {
-        const data = await fetchUserPortfolio(session.data.user.email);
-        if (data) {
-          setPortfolio(convertToPortfolio(data))
-        }
-      }
+      const data = await fetchUserPortfolio();
+      setPortfolio(data);
     }
 
     handle();
-  }, [])
+  }, [session])
 
   return (
     <div className="px-2">
@@ -41,7 +36,7 @@ export default function Home() {
         <Header text="A life without books is a life not lived - Jay Kristoff" colour="text-orange-500" />
       </div>
       <StatsCard stats={stats} />
-      {session.data?.user?.email && <PortfolioComponent portfolio={portfolio} userId={session.data?.user?.email} />}
+      <PortfolioComponent portfolio={portfolio}/>
     </div>
   )
 }

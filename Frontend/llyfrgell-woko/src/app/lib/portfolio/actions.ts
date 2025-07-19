@@ -69,12 +69,14 @@ export async function deletePortfolio(id: string) {
     redirect('/');
 }
 
-export async function fetchUserPortfolio(userId: string) {
-    return await sql`SELECT * FROM portfolio WHERE user_id=${userId};`;
+export async function fetchUserPortfolio() {
+    const data = await sql.query(`SELECT * FROM portfolio;`);
+
+    return convertToPortfolio(data);
 }
 
-export async function fetchUserPortfolioById(id: string, userId: string) {
-    const result = await sql`SELECT * FROM portfolio WHERE user_id=${userId} AND id=${id};`;
+export async function fetchUserPortfolioById(id: string) {
+    const data = await sql`SELECT * FROM portfolio WHERE id=${id};`;
 
-    return convertToPortfolio(result)[0];
+    return convertToPortfolio(data)[0]
 }

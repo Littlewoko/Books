@@ -11,12 +11,12 @@ export default async function Page({ params }: { params: { id: string } }) {
     }
 
     const id = params.id;
-    const portfolio = await fetchUserPortfolioById(id, session.user.email);
+    const data = await fetchUserPortfolioById(id);
 
     return (
         <main>
             <Header text="Update Portfolio Item" colour="text-purple-500" />
-            <Form portfolio={portfolio} />
+            <Form portfolio={data} />
         </main>
     )
 }
