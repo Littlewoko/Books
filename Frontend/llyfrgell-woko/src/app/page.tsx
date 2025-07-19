@@ -1,7 +1,7 @@
 'use client'
 
 import { Portfolio } from "./lib/classes/portfolio";
-import { fetchUserPortfolio } from "./lib/portfolio/data";
+import { fetchUserPortfolio } from "./lib/portfolio/actions";
 import PortfolioComponent from "./ui/portfolio/portfolioCards";
 import { getStats } from "./utils/getStats";
 import StatsCard from "./ui/books/stats-card";
@@ -30,8 +30,6 @@ export default function Home() {
 
     handle();
   }, [])
-
-  console.log(session.data?.user?.email)
 
   return (
     <div className="px-2">
