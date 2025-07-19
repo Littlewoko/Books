@@ -5,6 +5,7 @@ import PortfolioComponent from "./ui/portfolio/portfolioCards";
 import { getStats } from "./utils/getStats";
 import StatsCard from "./ui/books/stats-card";
 import Header from "./ui/books/header";
+import SearchBar from "./ui/searchbar";
 
 export default async function Home() {
   const session = await getServerSession();
@@ -23,7 +24,8 @@ export default async function Home() {
 
   return (
     <div className="px-2">
-      <div className="m-1">
+      <div className="m-1 flex flex-col gap-1">
+        <SearchBar />
         <Header text="A life without books is a life not lived - Jay Kristoff" colour="text-orange-500" />
       </div>
       <StatsCard stats={stats} />

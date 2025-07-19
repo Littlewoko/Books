@@ -8,6 +8,7 @@ import { GetBooks, GetPageCount } from "../lib/books/actions";
 import { Book } from "../lib/classes/book";
 import Paging from "../ui/paging";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import SearchBar from "../ui/searchbar";
 
 export default function Page() {
   const router = useRouter();
@@ -53,6 +54,7 @@ export default function Page() {
       <div>
 
         <div className="flex flex-col m-1 gap-y-1">
+          <SearchBar />
           <QuickAddForm Form={<CreateBookForm />} />
         </div>
         <Paging page={page} setPage={setPage} pageLimit={pageLimit} />
