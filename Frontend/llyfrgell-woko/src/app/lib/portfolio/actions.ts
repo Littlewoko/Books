@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import ProtectRoute from '@/app/utils/protectRoute';
 import { Portfolio } from '../classes/portfolio';
+import { convertToPortfolio } from './data';
 
 function getPortfolioFromFormData(formData: FormData, userId: string): Portfolio {
     const svg = formData.get('svg-icon') as string;
@@ -66,6 +67,18 @@ export async function deletePortfolio(id: string) {
 
     revalidatePath('/');
     redirect('/');
+}
+
+export async function fetchUserPortfolio(userId: string) {
+    const result = await sql`SELECT * FROM portfolio WHERE user_id=${userId};`;
+
+    return convertToPortfolio(result);
+}
+
+export async function fetchUserPortfolioById(id: string, userId: string) {
+    const result = await sql`SELECT * FROM portfolio WHERE user_id=${userId} AND id=${id};`;
+
+    return convertToPortfolio(result)[0];
 }
 
 
