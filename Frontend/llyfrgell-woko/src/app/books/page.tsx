@@ -52,7 +52,6 @@ export default function Page() {
   return (
     <div className="overflow-x-auto m-2">
       <div>
-
         <div className="flex flex-col m-1 gap-y-1">
           <SearchBar defaultQuery={query || ''}/>
           <QuickAddForm Form={<CreateBookForm />} />

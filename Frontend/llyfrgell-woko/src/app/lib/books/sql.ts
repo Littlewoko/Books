@@ -11,7 +11,9 @@ export async function GetBooksRequest(
     let params: (string | number)[] = [];
 
     if (search) {
-        query += ` WHERE LOWER(title) LIKE $1`;
+        query += ` WHERE (LOWER(title) LIKE $1`;
+        query += ` OR LOWER(genre) LIKE $1`;
+        query += ` OR LOWER(author) LIKE $1)`;
         params.push(`%${search.toLowerCase()}%`);
     }
 
@@ -45,7 +47,9 @@ export async function GetPageCountRequest(pageSize: number, search?: string) {
     let params: (string | number)[] = [pageSize];
 
     if (search) {
-        query += ` WHERE LOWER(title) LIKE $2`;
+        query += ` WHERE (LOWER(title) LIKE $2`;
+        query += ` OR LOWER(genre) LIKE $2`;
+        query += ` OR LOWER(author) LIKE $2)`;
         params.push(`%${search.toLowerCase()}%`);
     }
 
