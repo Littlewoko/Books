@@ -19,7 +19,7 @@ export default function Paging({ page, setPage, pageLimit = 2 }: Props) {
 
     const getPageNumberCSS = (pageNumber: number) => {
         if (pageNumber === page) {
-            return "relative z-10 inline-flex items-center bg-indigo-600 px-4 py-2 text-sm font-semibold text-white focus:z-20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            return "relative z-10 inline-flex items-center bg-orange-600 px-4 py-2 text-sm font-semibold text-white focus:z-20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
         }
 
         return "relative items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-gray-300 ring-inset focus:z-20 focus:outline-offset-0 md:inline-flex";
