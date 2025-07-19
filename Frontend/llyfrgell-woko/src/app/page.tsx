@@ -1,3 +1,5 @@
+'use client'
+
 import { Portfolio } from "./lib/classes/portfolio";
 import { fetchUserPortfolio } from "./lib/portfolio/data";
 import { getServerSession } from "next-auth";
