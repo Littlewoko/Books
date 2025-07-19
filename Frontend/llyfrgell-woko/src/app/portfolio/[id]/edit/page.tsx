@@ -2,7 +2,7 @@ import Form from "@/app/ui/portfolio/edit-form"
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import Header from "@/app/ui/books/header";
-import { fetchUserPortfolioById } from "@/app/lib/portfolio/data";
+import { fetchUserPortfolioById } from "@/app/lib/portfolio/actions";
 
 export default async function Page({ params }: { params: { id: string } }) {
     const session = await getServerSession();

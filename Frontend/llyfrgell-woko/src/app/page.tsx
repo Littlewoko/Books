@@ -10,6 +10,7 @@ import SearchBar from "./ui/searchbar";
 import { Stats } from "./lib/classes/stats";
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
+import { convertToPortfolio } from "./lib/portfolio/data";
 
 export default function Home() {
   const session = useSession();
@@ -24,7 +25,9 @@ export default function Home() {
 
       if (session.data?.user?.email) {
         const data = await fetchUserPortfolio(session.data.user.email);
-        setPortfolio(data);
+        if (data) {
+          setPortfolio(convertToPortfolio(data))
+        }
       }
     }
 

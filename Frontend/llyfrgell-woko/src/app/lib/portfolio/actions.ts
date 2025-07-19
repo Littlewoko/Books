@@ -70,9 +70,7 @@ export async function deletePortfolio(id: string) {
 }
 
 export async function fetchUserPortfolio(userId: string) {
-    const result = await sql`SELECT * FROM portfolio WHERE user_id=${userId};`;
-
-    return convertToPortfolio(result);
+    return await sql`SELECT * FROM portfolio WHERE user_id=${userId};`;
 }
 
 export async function fetchUserPortfolioById(id: string, userId: string) {
@@ -80,5 +78,3 @@ export async function fetchUserPortfolioById(id: string, userId: string) {
 
     return convertToPortfolio(result)[0];
 }
-
-
