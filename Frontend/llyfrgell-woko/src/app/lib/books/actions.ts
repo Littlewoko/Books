@@ -25,7 +25,7 @@ function getBookFromFormData(formData: FormData): Book {
 
 export async function createBook(formData: FormData) {
     await ProtectRoute();
-    
+
     const book: Book = getBookFromFormData(formData);
 
     await sql`INSERT INTO books (title, author, genre, isbn, dateobtained, datecompleted, datestartedreading, shortstory)
@@ -43,27 +43,27 @@ export async function createBook(formData: FormData) {
     redirect('/books');
 }
 
-export async function GetBooks(page: number, pageSize: number): Promise<Book[]> {
+export async function GetBooks(page: number, pageSize: number, search: string): Promise<Book[]> {
     let books: Book[];
 
     const skip = pageSize * page;
 
-  try {
-    const result: QueryResult<QueryResultRow> = await GetBooksRequest(skip, pageSize);
+    try {
+        const result: QueryResult<QueryResultRow> = await GetBooksRequest(skip, pageSize, search);
 
-    books = convertToBook(result);
-    
-  } catch (error) {
-    console.log(error);
-    books = [];
-  }
+        books = convertToBook(result);
 
-  return books;
+    } catch (error) {
+        console.log(error);
+        books = [];
+    }
+
+    return books;
 }
 
 export async function UpdateBook(id: string, formData: FormData) {
     await ProtectRoute();
-    
+
     const book: Book = getBookFromFormData(formData);
 
     await sql`UPDATE books SET 
@@ -83,13 +83,16 @@ export async function UpdateBook(id: string, formData: FormData) {
 
 export async function DeleteBook(id: string) {
     await ProtectRoute();
-    
+
     await sql`DELETE FROM books WHERE id = ${id}`;
 
     revalidatePath('/books');
     redirect('/books');
 }
 
-export async function GetPageCount(pageSize: number): Promise<number> {
-    return Number(await GetPageCountRequest(pageSize));
+export async function GetPageCount(pageSize: number, search: string = ''): Promise<number> {
+    const result: QueryResult<{ count: string }> = await GetPageCountRequest(pageSize, search);
+    const firstRow = result.rows[0];
+    const countValue = firstRow ? firstRow.count : '1';
+    return Number(countValue);
 }

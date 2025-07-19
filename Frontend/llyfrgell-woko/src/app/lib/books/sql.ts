@@ -41,8 +41,16 @@ export async function GetBooksRequest(
 
 
 export async function GetPageCountRequest(pageSize: number, search?: string) {
- const whereClause = search
-        ? "WHERE LOWER(title) LIKE '%" + search.toLowerCase() + "%'"
-        : "";
-    return "SELECT CEILING(COUNT(*)/" + pageSize + ") FROM books " + whereClause + ";";
+    let query = "SELECT CEILING(COUNT(*)::numeric / $1) as count FROM books";
+    let params: (string | number)[] = [pageSize];
+
+    if (search) {
+        query += ` WHERE LOWER(title) LIKE $2`;
+        params.push(`%${search.toLowerCase()}%`);
+    }
+
+    query += ";";
+
+    return sql.query(query, params);
+
 }

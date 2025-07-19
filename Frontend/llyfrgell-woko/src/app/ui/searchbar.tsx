@@ -13,7 +13,6 @@ export default function SearchBar({ defaultQuery = '' }: Props) {
                     name="query"
                     max={255}
                     placeholder="Search"
-                    required
                     defaultValue={defaultQuery}
                     className="m-0 placeholder-white/80 bg-[rgba(0,0,0,0.5)] text-sm focus:ring-primary-600 focus:border-primary-600 block w-full p-1 dark:focus:ring-primary-500 dark:focus:border-primary-500 text-gray-300"
                 />

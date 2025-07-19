@@ -16,8 +16,9 @@ export default function Page() {
   const searchParams = useSearchParams();
 
   const pageParam = searchParams.get('page');
+  const query = searchParams.get('query');
 
-  const pageSize = 10;
+  const pageSize = 25;
 
   const [page, setPage] = useState(Number(pageParam) || 1);
   const [books, setBooks] = useState<Book[]>([]);
@@ -27,11 +28,10 @@ export default function Page() {
   useEffect(() => {
     setLoading(true);
 
-    GetPageCount(pageSize)
+    GetPageCount(pageSize, query ? query : '')
       .then(count => setPageLimit(count))
       .then(() => {
         const params = new URLSearchParams(Array.from(searchParams.entries()));
-
         if(page > pageLimit) {
           setPage(1);
         }
@@ -43,9 +43,9 @@ export default function Page() {
         router.push(`${pathname}${query}`);
       })
       .then(() => {
-        GetBooks(page - 1, pageSize)
+        GetBooks(page - 1, pageSize, query ? query : '')
           .then(res => setBooks(res))
-          .then(() => setLoading(false));
+          .then(() => setLoading(false))
       })
   }, [page, pageSize]);
 
@@ -54,7 +54,7 @@ export default function Page() {
       <div>
 
         <div className="flex flex-col m-1 gap-y-1">
-          <SearchBar />
+          <SearchBar defaultQuery={query || ''}/>
           <QuickAddForm Form={<CreateBookForm />} />
         </div>
         <Paging page={page} setPage={setPage} pageLimit={pageLimit} />
