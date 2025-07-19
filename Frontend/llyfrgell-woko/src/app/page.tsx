@@ -31,6 +31,8 @@ export default function Home() {
     handle();
   }, [])
 
+  console.log(session.data?.user?.email)
+
   return (
     <div className="px-2">
       <div className="m-1 flex flex-col gap-1">
