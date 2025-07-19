@@ -58,3 +58,24 @@ export async function GetPageCountRequest(pageSize: number, search?: string) {
     return sql.query(query, params);
 
 }
+
+export async function GetStatsRequest() {
+    const currentYear = new Date().getFullYear();
+    const params: (string | number)[] = [currentYear];
+
+    const query = `
+        WITH counts AS (
+            SELECT 
+                COUNT(id) FILTER (WHERE datestartedreading IS NOT NULL AND datecompleted IS NULL) AS inProgress,
+                COUNT(id) FILTER (WHERE datecompleted IS NOT NULL AND shortstory = false) AS completedCount,
+                COUNT(id) FILTER (WHERE datecompleted IS NOT NULL AND shortstory = true) AS shortstorycount,
+                COUNT(id) FILTER (WHERE datecompleted IS NOT NULL AND EXTRACT(YEAR FROM datecompleted) = $1 AND shortstory = false) AS completedthisyearcount,
+                COUNT(id) FILTER (WHERE datecompleted IS NOT NULL AND EXTRACT(YEAR FROM datecompleted) = $1 AND shortstory = true) AS shortstorythisyearcount
+              FROM books
+        )
+        SELECT *
+        FROM counts;
+    `;
+
+    return sql.query(query, params)
+}
