@@ -2,27 +2,34 @@
 
 import { Portfolio } from "./lib/classes/portfolio";
 import { fetchUserPortfolio } from "./lib/portfolio/data";
-import { getServerSession } from "next-auth";
 import PortfolioComponent from "./ui/portfolio/portfolioCards";
 import { getStats } from "./utils/getStats";
 import StatsCard from "./ui/books/stats-card";
 import Header from "./ui/books/header";
 import SearchBar from "./ui/searchbar";
+import { Stats } from "./lib/classes/stats";
+import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 
-export default async function Home() {
-  const session = await getServerSession();
+export default function Home() {
+  const session = useSession();
 
-  const stats = await getStats();
+  const [stats, setStats] = useState<Stats | null>(null);
+  const [portfolio, setPortfolio] = useState<Portfolio[]>([]);
 
-  let portfolio: Portfolio[] = [];
-  const userId = session?.user?.email ? session.user.email : "watkinsbradley01@gmail.com";
+  useEffect(() => {
+    async function handle() {
+      const res = await getStats();
+      setStats(res);
 
-  if (session && session.user && session.user.email) {
-    portfolio = await fetchUserPortfolio(session.user.email);
-  } else {
-    portfolio = await fetchUserPortfolio(userId);
+      if (session.data?.user?.email) {
+        const data = await fetchUserPortfolio(session.data.user.email);
+        setPortfolio(data);
+      }
+    }
 
-  }
+    handle();
+  }, [])
 
   return (
     <div className="px-2">
@@ -31,7 +38,7 @@ export default async function Home() {
         <Header text="A life without books is a life not lived - Jay Kristoff" colour="text-orange-500" />
       </div>
       <StatsCard stats={stats} />
-      <PortfolioComponent portfolio={portfolio} userId={userId} />
+      {session.data?.user?.email && <PortfolioComponent portfolio={portfolio} userId={session.data?.user?.email} />}
     </div>
   )
 }

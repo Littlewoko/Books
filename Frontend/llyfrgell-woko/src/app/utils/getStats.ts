@@ -31,6 +31,6 @@ export async function getStats() {
     } catch (error) {
         console.log(error);
     }
-
+    
     return stats;
 }
