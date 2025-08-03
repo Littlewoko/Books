@@ -10,7 +10,15 @@ import SearchBar from "./ui/searchbar";
 import { Stats } from "./lib/classes/stats";
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import GradioSpace from "./ui/gradioSpace";
+import dynamic from "next/dynamic";
+
+const GradioSpace = dynamic(
+  () => import('./ui/gradioSpace'),
+  {
+      ssr: false,
+      loading: () => <p>Loading chat...</p>, // Optional loading state while the component is being fetched
+  }
+);
 
 export default function Home() {
   const session = useSession();
