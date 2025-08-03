@@ -31,6 +31,12 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
+      <head>
+        <script
+          type="module"
+          src="https://gradio.s3-us-west-2.amazonaws.com/5.34.2/gradio.js"
+        ></script>
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
