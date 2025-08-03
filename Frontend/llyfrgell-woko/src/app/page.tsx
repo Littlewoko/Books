@@ -10,6 +10,7 @@ import SearchBar from "./ui/searchbar";
 import { Stats } from "./lib/classes/stats";
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
+import GradioSpace from "./ui/gradioSpace";
 
 export default function Home() {
   const session = useSession();
@@ -36,6 +37,7 @@ export default function Home() {
         <Header text="A life without books is a life not lived - Jay Kristoff" colour="text-orange-500" />
       </div>
       <StatsCard stats={stats} />
+      <GradioSpace />
       <PortfolioComponent portfolio={portfolio}/>
     </div>
   )
