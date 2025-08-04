@@ -5,6 +5,7 @@ import Navbar from "./ui/navbar";
 
 import { getServerSession } from "next-auth";
 import SessionProvider from "./components/SessionProvider";
+import GradioSpace from "./ui/gradioSpace";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -36,6 +37,7 @@ export default async function RootLayout({
       >
         <SessionProvider session={session}>
           <Navbar />
+          <GradioSpace />
           {children}
         </SessionProvider>
       </body>

@@ -10,15 +10,6 @@ import SearchBar from "./ui/searchbar";
 import { Stats } from "./lib/classes/stats";
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import dynamic from "next/dynamic";
-
-const GradioSpace = dynamic(
-  () => import('./ui/gradioSpace'),
-  {
-      ssr: false,
-      loading: () => <p>Loading chat...</p>, // Optional loading state while the component is being fetched
-  }
-);
 
 export default function Home() {
   const session = useSession();
@@ -48,7 +39,6 @@ export default function Home() {
       <div className="m-1 flex flex-col gap-1">
         <Header text="Chat below with Dracula to learn more about Bradley, his career, and his reading habits. Keep scrolling to find notable projects!" colour="text-white" />
       </div>
-      <GradioSpace />
       <PortfolioComponent portfolio={portfolio}/>
     </div>
   )
