@@ -36,9 +36,6 @@ export default function Home() {
         <Header text="A life without books is a life not lived - Jay Kristoff" colour="text-orange-500" />
       </div>
       <StatsCard stats={stats} />
-      <div className="m-1 flex flex-col gap-1">
-        <Header text="Chat below with Dracula to learn more about Bradley, his career, and his reading habits. Keep scrolling to find notable projects!" colour="text-white" />
-      </div>
       <PortfolioComponent portfolio={portfolio}/>
     </div>
   )
