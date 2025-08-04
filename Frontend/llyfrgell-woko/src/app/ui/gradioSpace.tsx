@@ -36,11 +36,10 @@ const App = () => {
       {/* The chat window container, which conditionally renders based on 'isOpen' state. */}
       <div
         className={`
-          fixed inset-x-4 bottom-[5rem]
+          fixed inset-x-4 top-4 bottom-[5rem]
           bg-white rounded-xl shadow-2xl transition-all duration-500 transform
           ${isOpen ? 'scale-100 opacity-100' : 'scale-0 opacity-0 pointer-events-none'}
           flex flex-col overflow-hidden
-          h-[calc(100vh-6rem)]
         `}
       >
         {/* Chat header with a close button */}
