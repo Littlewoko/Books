@@ -47,7 +47,7 @@ export default function Page() {
           .then(res => setBooks(res))
           .then(() => setLoading(false))
       })
-  }, [page, pageSize, pageLimit, pathname, query, router, searchParams]);
+  }, [page, pageSize]);
 
   return (
     <div className="overflow-x-auto m-2">
