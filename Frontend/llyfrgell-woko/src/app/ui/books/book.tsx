@@ -94,7 +94,7 @@ export default function BookComponent({ book }: Props) {
     }
 
     return (
-        <Link href={`/books/${book.id}/edit`} className="block">
+        <Link href={`/books/${book.id}`} className="block">
             <Card className="h-fit hover:bg-gray-800/50 transition-colors cursor-pointer" sx={{ minWidth: 275, display: 'flex', flexWrap: { xs: 'wrap', sm: 'nowrap' }, backgroundColor: "rgba(0,0,0,0.75)" }}>
             {book.coverImageUrl && (
                 <div className="flex-shrink-0 w-24 h-32 p-2">
