@@ -95,13 +95,13 @@ export default function BookComponent({ book }: Props) {
 
     return (
         <Link href={`/books/${book.id}/edit`} className="block">
-            <Card className="h-fit hover:bg-gray-800/50 transition-colors cursor-pointer" sx={{ minWidth: 275, display: 'flex', flexWrap: 'nowrap', backgroundColor: "rgba(0,0,0,0.75)" }}>
+            <Card className="h-fit hover:bg-gray-800/50 transition-colors cursor-pointer" sx={{ minWidth: 275, display: 'flex', flexWrap: { xs: 'wrap', sm: 'nowrap' }, backgroundColor: "rgba(0,0,0,0.75)" }}>
             {book.coverImageUrl && (
                 <div className="flex-shrink-0 w-24 h-32 p-2">
                     <img src={book.coverImageUrl} alt={book.title} className="w-full h-full object-cover rounded" />
                 </div>
             )}
-            <CardContent className="p-3">
+            <CardContent className="p-3 flex-1 min-w-0">
                 <Typography
                     gutterBottom
                     className='text-gray-300'
@@ -120,9 +120,11 @@ export default function BookComponent({ book }: Props) {
                 <Typography
                     variant="h5"
                     component="div"
-                    className="text-orange-400"
+                    className="text-orange-400 break-words"
                     sx={{
-                        fontSize: { xs: '16px', sm: 'h5.fontSize' }
+                        fontSize: { xs: '16px', sm: 'h5.fontSize' },
+                        wordBreak: 'break-word',
+                        overflowWrap: 'break-word'
                     }}>
                     {book.title}
                 </Typography>
@@ -138,7 +140,7 @@ export default function BookComponent({ book }: Props) {
                     <StarRating rating={book.rating} />
                 )}
             </CardContent>
-            <CardContent className="ml-auto min-w-36 flex flex-col p-3">
+            <CardContent className="ml-auto min-w-36 flex flex-col p-3 w-full sm:w-auto">
                 <div className="flex justify-between">
                     <Typography
                         className="text-slate-400"

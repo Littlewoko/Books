@@ -134,7 +134,7 @@ export default function BookSearch({ onSelectBook, currentData }: BookSearchProp
                 Search for Book Data
             </Typography>
             
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
                 <input
                     type="text"
                     placeholder="Title"
@@ -160,7 +160,7 @@ export default function BookSearch({ onSelectBook, currentData }: BookSearchProp
                     type="button"
                     onClick={handleSearch}
                     disabled={loading || (!title.trim() && !isbn.trim())}
-                    className="flex items-center text-white bg-gradient-to-r from-blue-500 to-cyan-500 hover:bg-gradient-to-l disabled:opacity-50 font-small rounded-lg text-sm p-1 px-3"
+                    className="flex items-center justify-center text-white bg-gradient-to-r from-blue-500 to-cyan-500 hover:bg-gradient-to-l disabled:opacity-50 font-small rounded-lg text-sm p-1 px-3 w-full sm:w-auto"
                 >
                     {loading ? <CircularProgress size={16} className="text-white" /> : <SearchIcon fontSize="small" />}
                 </button>

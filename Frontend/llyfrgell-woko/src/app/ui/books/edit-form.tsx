@@ -69,7 +69,7 @@ const Form: React.FC<Props> = ({ book }) => {
                 </div>
             )}
 
-            <Card className="h-fit" sx={{ minWidth: 275, display: 'flex', flexWrap: 'nowrap', backgroundColor: "rgba(0,0,0,0.75)" }}>
+            <Card className="h-fit" sx={{ minWidth: 275, display: 'flex', flexWrap: { xs: 'wrap', sm: 'nowrap' }, backgroundColor: "rgba(0,0,0,0.75)" }}>
                 <CardContent className="p-3 flex flex-col gap-2 flex-grow">
                     <div className="flex flex-col gap-0">
                         <label htmlFor="author">
@@ -233,7 +233,7 @@ const Form: React.FC<Props> = ({ book }) => {
 
                     <input type="hidden" name="coverImageUrl" value={coverImageUrl} />
                 </CardContent>
-                <CardContent className="ml-auto min-w-36 flex flex-col p-3">
+                <CardContent className="ml-auto min-w-36 flex flex-col p-3 w-full sm:w-auto">
                     <div className="flex flex-col gap-2.5">
                         <div>
                             <label htmlFor="dateobtained">
