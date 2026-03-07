@@ -3,18 +3,56 @@ import { QueryResult, QueryResultRow, sql } from "@vercel/postgres";
 export async function GetBooksRequest(
     offset: number,
     limit: number,
-    search?: string
+    search?: string,
+    filters?: {
+        shortStory?: boolean | null;
+        genre?: string;
+        status?: string;
+        year?: number;
+    }
 ): Promise<QueryResult<QueryResultRow>> {
     let query = `
-        SELECT * FROM books
+        SELECT * FROM books WHERE 1=1
     `;
-    const params: (string | number)[] = [];
+    const params: (string | number | boolean)[] = [];
+    let paramIndex = 1;
 
     if (search) {
-        query += ` WHERE (LOWER(title) LIKE $1`;
-        query += ` OR LOWER(genre) LIKE $1`;
-        query += ` OR LOWER(author) LIKE $1)`;
+        query += ` AND (LOWER(title) LIKE $${paramIndex}`;
+        query += ` OR LOWER(genre) LIKE $${paramIndex}`;
+        query += ` OR LOWER(author) LIKE $${paramIndex})`;
         params.push(`%${search.toLowerCase()}%`);
+        paramIndex++;
+    }
+
+    if (filters?.shortStory !== undefined && filters.shortStory !== null) {
+        query += ` AND shortstory = $${paramIndex}`;
+        params.push(filters.shortStory);
+        paramIndex++;
+    }
+
+    if (filters?.genre) {
+        query += ` AND LOWER(genre) = $${paramIndex}`;
+        params.push(filters.genre.toLowerCase());
+        paramIndex++;
+    }
+
+    if (filters?.status) {
+        if (filters.status === 'completed') {
+            query += ` AND datecompleted IS NOT NULL`;
+        } else if (filters.status === 'in-progress') {
+            query += ` AND datestartedreading IS NOT NULL AND datecompleted IS NULL`;
+        } else if (filters.status === 'owned') {
+            query += ` AND dateobtained IS NOT NULL AND datestartedreading IS NULL`;
+        } else if (filters.status === 'not-owned') {
+            query += ` AND dateobtained IS NULL`;
+        }
+    }
+
+    if (filters?.year) {
+        query += ` AND EXTRACT(YEAR FROM datecompleted) = $${paramIndex}`;
+        params.push(filters.year);
+        paramIndex++;
     }
 
     query += `
@@ -31,32 +69,66 @@ export async function GetBooksRequest(
                 WHEN dateCompleted IS NULL AND dateStartedReading IS NULL AND dateObtained IS NOT NULL THEN dateObtained
                 ELSE NULL
             END DESC
-        OFFSET ${offset} LIMIT ${limit};
+        OFFSET $${paramIndex} LIMIT $${paramIndex + 1};
     `;
 
-    if (search) {
-        return sql.query(query, params);
-    } else {
-        return sql.query(query);
-    }
+    params.push(offset, limit);
+
+    return sql.query(query, params);
 }
 
 
-export async function GetPageCountRequest(pageSize: number, search?: string) {
-    let query = "SELECT CEILING(COUNT(*)::numeric / $1) as count FROM books";
-    const params: (string | number)[] = [pageSize];
+export async function GetPageCountRequest(pageSize: number, search?: string, filters?: {
+    shortStory?: boolean | null;
+    genre?: string;
+    status?: string;
+    year?: number;
+}) {
+    let query = "SELECT CEILING(COUNT(*)::numeric / $1) as count FROM books WHERE 1=1";
+    const params: (string | number | boolean)[] = [pageSize];
+    let paramIndex = 2;
 
     if (search) {
-        query += ` WHERE (LOWER(title) LIKE $2`;
-        query += ` OR LOWER(genre) LIKE $2`;
-        query += ` OR LOWER(author) LIKE $2)`;
+        query += ` AND (LOWER(title) LIKE $${paramIndex}`;
+        query += ` OR LOWER(genre) LIKE $${paramIndex}`;
+        query += ` OR LOWER(author) LIKE $${paramIndex})`;
         params.push(`%${search.toLowerCase()}%`);
+        paramIndex++;
+    }
+
+    if (filters?.shortStory !== undefined && filters.shortStory !== null) {
+        query += ` AND shortstory = $${paramIndex}`;
+        params.push(filters.shortStory);
+        paramIndex++;
+    }
+
+    if (filters?.genre) {
+        query += ` AND LOWER(genre) = $${paramIndex}`;
+        params.push(filters.genre.toLowerCase());
+        paramIndex++;
+    }
+
+    if (filters?.status) {
+        if (filters.status === 'completed') {
+            query += ` AND datecompleted IS NOT NULL`;
+        } else if (filters.status === 'in-progress') {
+            query += ` AND datestartedreading IS NOT NULL AND datecompleted IS NULL`;
+        } else if (filters.status === 'owned') {
+            query += ` AND dateobtained IS NOT NULL AND datestartedreading IS NULL`;
+        } else if (filters.status === 'not-owned') {
+            query += ` AND dateobtained IS NULL`;
+        }
+    }
+
+    if (filters?.year) {
+        query += ` AND EXTRACT(YEAR FROM datecompleted) = $${paramIndex}`;
+        params.push(filters.year);
+        paramIndex++;
     }
 
     query += ";";
 
     return sql.query(query, params);
-
 }
 
 export async function GetStatsRequest() {

@@ -1,14 +1,13 @@
 'use client'
 
 import AllTable from "../ui/books/all-table";
-import QuickAddForm from "../ui/books/quick-add";
 import React, { useEffect, useState } from "react";
-import CreateBookForm from "../ui/books/create-form";
 import { GetBooks, GetPageCount } from "../lib/books/actions";
 import { Book } from "../lib/classes/book";
 import Paging from "../ui/paging";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import SearchBar from "../ui/searchbar";
+import FilterModal from "../ui/books/filter-modal";
 
 export default function Page() {
   const router = useRouter();
@@ -17,6 +16,10 @@ export default function Page() {
 
   const pageParam = searchParams.get('page');
   const query = searchParams.get('query');
+  const shortStoryParam = searchParams.get('shortStory');
+  const genreParam = searchParams.get('genre');
+  const statusParam = searchParams.get('status');
+  const yearParam = searchParams.get('year');
 
   const pageSize = 25;
 
@@ -24,11 +27,22 @@ export default function Page() {
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
   const [pageLimit, setPageLimit] = useState(1);
+  const [filters, setFilters] = useState({
+    shortStory: shortStoryParam === 'true' ? true : shortStoryParam === 'false' ? false : null,
+    genre: genreParam || undefined,
+    status: statusParam || undefined,
+    year: yearParam ? parseInt(yearParam) : undefined,
+  });
+
+  const handleApplyFilters = (newFilters: typeof filters) => {
+    setFilters(newFilters);
+    setPage(1);
+  };
 
   useEffect(() => {
     setLoading(true);
 
-    GetPageCount(pageSize, query ? query : '')
+    GetPageCount(pageSize, query ? query : '', filters)
       .then(count => setPageLimit(count))
       .then(() => {
         const params = new URLSearchParams(Array.from(searchParams.entries()));
@@ -37,26 +51,53 @@ export default function Page() {
         }
 
         params.set('page', String(page));
+        
+        if (filters.shortStory !== null && filters.shortStory !== undefined) {
+          params.set('shortStory', String(filters.shortStory));
+        } else {
+          params.delete('shortStory');
+        }
+        
+        if (filters.genre) {
+          params.set('genre', filters.genre);
+        } else {
+          params.delete('genre');
+        }
+        
+        if (filters.status) {
+          params.set('status', filters.status);
+        } else {
+          params.delete('status');
+        }
+        
+        if (filters.year) {
+          params.set('year', String(filters.year));
+        } else {
+          params.delete('year');
+        }
+        
         const strParams = params.toString();
         const query = strParams ? `?${strParams}` : '';
 
         router.push(`${pathname}${query}`);
       })
       .then(() => {
-        GetBooks(page - 1, pageSize, query ? query : '')
+        GetBooks(page - 1, pageSize, query ? query : '', filters)
           .then(res => setBooks(res))
           .then(() => setLoading(false))
       })
-  }, [page, pageSize]);
+  }, [page, pageSize, filters]);
 
   return (
     <div className="overflow-x-auto m-2">
       <div>
         <div className="flex flex-col m-1 gap-y-1">
           <SearchBar defaultQuery={query || ''}/>
-          <QuickAddForm Form={<CreateBookForm />} />
         </div>
-        <Paging page={page} setPage={setPage} pageLimit={pageLimit} />
+        <div className="flex items-center justify-between">
+          <Paging page={page} setPage={setPage} pageLimit={pageLimit} />
+          <FilterModal onApplyFilters={handleApplyFilters} currentFilters={filters} />
+        </div>
         {
           loading
             ?

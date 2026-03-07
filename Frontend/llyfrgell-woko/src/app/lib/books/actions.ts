@@ -53,13 +53,18 @@ export async function createBook(formData: FormData) {
     redirect('/books');
 }
 
-export async function GetBooks(page: number, pageSize: number, search: string): Promise<Book[]> {
+export async function GetBooks(page: number, pageSize: number, search: string, filters?: {
+    shortStory?: boolean | null;
+    genre?: string;
+    status?: string;
+    year?: number;
+}): Promise<Book[]> {
     let books: Book[];
 
     const skip = pageSize * page;
 
     try {
-        const result: QueryResult<QueryResultRow> = await GetBooksRequest(skip, pageSize, search);
+        const result: QueryResult<QueryResultRow> = await GetBooksRequest(skip, pageSize, search, filters);
 
         books = convertToBook(result);
 
@@ -105,8 +110,13 @@ export async function DeleteBook(id: string) {
     redirect('/books');
 }
 
-export async function GetPageCount(pageSize: number, search: string = ''): Promise<number> {
-    const result: QueryResult<{ count: string }> = await GetPageCountRequest(pageSize, search);
+export async function GetPageCount(pageSize: number, search: string = '', filters?: {
+    shortStory?: boolean | null;
+    genre?: string;
+    status?: string;
+    year?: number;
+}): Promise<number> {
+    const result: QueryResult<{ count: string }> = await GetPageCountRequest(pageSize, search, filters);
     const firstRow = result.rows[0];
     const countValue = firstRow ? firstRow.count : '1';
     return Number(countValue);
