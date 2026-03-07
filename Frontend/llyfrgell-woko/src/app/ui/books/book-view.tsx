@@ -82,17 +82,6 @@ export default function BookView({ book }: Props) {
                         </div>
                     </div>
 
-                    {book.description && (
-                        <div className="mb-6">
-                            <Typography variant="h6" className="text-orange-400 mb-2" sx={{ fontSize: { xs: '16px', sm: '18px' } }}>
-                                Description
-                            </Typography>
-                            <Typography className="text-gray-300 whitespace-pre-wrap" sx={{ fontSize: { xs: '12px', sm: '14px' } }}>
-                                {book.description}
-                            </Typography>
-                        </div>
-                    )}
-
                     {book.review && (
                         <div className="mb-6">
                             <Typography variant="h6" className="text-orange-400 mb-2" sx={{ fontSize: { xs: '16px', sm: '18px' } }}>
@@ -100,6 +89,17 @@ export default function BookView({ book }: Props) {
                             </Typography>
                             <Typography className="text-gray-300 whitespace-pre-wrap" sx={{ fontSize: { xs: '12px', sm: '14px' } }}>
                                 {book.review}
+                            </Typography>
+                        </div>
+                    )}
+
+                    {book.description && (
+                        <div className="mb-6">
+                            <Typography variant="h6" className="text-orange-400 mb-2" sx={{ fontSize: { xs: '16px', sm: '18px' } }}>
+                                Description
+                            </Typography>
+                            <Typography className="text-gray-300 whitespace-pre-wrap" sx={{ fontSize: { xs: '12px', sm: '14px' } }}>
+                                {book.description}
                             </Typography>
                         </div>
                     )}
