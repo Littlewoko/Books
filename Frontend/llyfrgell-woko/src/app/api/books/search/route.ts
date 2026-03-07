@@ -3,13 +3,13 @@ import { searchBooksByTitle } from '@/app/lib/books/api-service';
 
 export async function POST(request: NextRequest) {
     try {
-        const { title, author } = await request.json();
+        const { title, author, isbn } = await request.json();
 
-        if (!title) {
-            return NextResponse.json({ error: 'Title is required' }, { status: 400 });
+        if (!title && !isbn) {
+            return NextResponse.json({ error: 'Title or ISBN is required' }, { status: 400 });
         }
 
-        const results = await searchBooksByTitle(title, author);
+        const results = await searchBooksByTitle(title, author, isbn);
         return NextResponse.json({ results });
     } catch (error) {
         console.error('Error in book search API:', error);

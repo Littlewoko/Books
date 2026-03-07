@@ -30,7 +30,17 @@ export default function Form() {
 
     return (
         <form action={createBook}>
-            <BookSearch onSelectBook={handleSelectBook} />
+            <BookSearch 
+                onSelectBook={handleSelectBook}
+                currentData={{
+                    title,
+                    author,
+                    genre,
+                    isbn,
+                    description,
+                    coverImageUrl,
+                }}
+            />
             
             {coverImageUrl && (
                 <div className="mb-3 flex justify-center">
@@ -100,6 +110,27 @@ export default function Form() {
                             required
                             value={genre}
                             onChange={(e) => setGenre(e.target.value)}
+                            className="placeholder-gray-300/80 border border-white bg-inherit text-sm focus:ring-primary-600 focus:border-primary-600 block w-full p-1 dark:focus:ring-primary-500 dark:focus:border-primary-500 text-gray-300"
+                        />
+                    </div>
+
+                    <div>
+                        <label htmlFor="isbn">
+                            <Typography
+                                className='text-gray-300 mb-0'
+                                sx={{
+                                    fontSize: { xs: '10px', sm: '12px' }
+                                }}>
+                                ISBN
+                            </Typography>
+                        </label>
+                        <input
+                            id="isbn"
+                            name="isbn"
+                            max={255}
+                            placeholder="ISBN"
+                            value={isbn}
+                            onChange={(e) => setIsbn(e.target.value)}
                             className="placeholder-gray-300/80 border border-white bg-inherit text-sm focus:ring-primary-600 focus:border-primary-600 block w-full p-1 dark:focus:ring-primary-500 dark:focus:border-primary-500 text-gray-300"
                         />
                     </div>
@@ -175,7 +206,6 @@ export default function Form() {
                         />
                     </div>
 
-                    <input type="hidden" name="isbn" value={isbn} />
                     <input type="hidden" name="coverImageUrl" value={coverImageUrl} />
                 </CardContent>
                 <CardContent className="ml-auto min-w-36 flex flex-col p-3">

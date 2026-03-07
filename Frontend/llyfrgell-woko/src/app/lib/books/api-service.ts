@@ -8,8 +8,17 @@ export interface BookSearchResult {
     publishedDate?: string;
 }
 
-export async function searchBooksByTitle(title: string, author?: string): Promise<BookSearchResult[]> {
-    const query = author ? `intitle:${title}+inauthor:${author}` : `intitle:${title}`;
+export async function searchBooksByTitle(title: string, author?: string, isbn?: string): Promise<BookSearchResult[]> {
+    let query: string;
+    
+    if (isbn) {
+        query = `isbn:${isbn}`;
+    } else if (author) {
+        query = `intitle:${title}+inauthor:${author}`;
+    } else {
+        query = `intitle:${title}`;
+    }
+    
     const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=10`;
 
     try {
