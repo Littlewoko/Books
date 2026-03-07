@@ -6,9 +6,6 @@ import Typography from '@mui/material/Typography';
 import { Book } from '@/app/lib/classes/book';
 import formatDate from '@/app/utils/formatDate';
 import Link from 'next/link';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
-import { DeleteBook } from '@/app/lib/books/actions';
 import StarRating from './star-rating';
 
 interface Props {
@@ -104,7 +101,8 @@ export default function BookComponent({ book }: Props) {
     }
 
     return (
-        <Card className="h-fit" sx={{ minWidth: 275, display: 'flex', flexWrap: 'nowrap', backgroundColor: "rgba(0,0,0,0.75)" }}>
+        <Link href={`/books/${book.id}/edit`} className="block">
+            <Card className="h-fit hover:bg-gray-800/50 transition-colors cursor-pointer" sx={{ minWidth: 275, display: 'flex', flexWrap: 'nowrap', backgroundColor: "rgba(0,0,0,0.75)" }}>
             {book.coverImageUrl && (
                 <div className="flex-shrink-0 w-24 h-32 p-2">
                     <img src={book.coverImageUrl} alt={book.title} className="w-full h-full object-cover rounded" />
@@ -163,26 +161,8 @@ export default function BookComponent({ book }: Props) {
                 {DateComponent("Completed:", book.dateCompleted)}
                 {DateComponent("Began:", book.dateStartedReading)}
                 {DateComponent("Obtained:", book.dateObtained)}
-
-                <div className="flex justify-end mt-3 gap-2">
-                    <Link href={`/books/${book.id}/edit`}>
-                        <button type="button" className="flex items-center text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-purple-200 dark:focus:ring-purple-800 font-small rounded-lg text-sm p-1 px-2 md:px-3 text-center text-xs md:text-sm">
-                            <EditIcon className="md:mr-1" fontSize="small" />
-                            <span className="hidden md:inline">Edit</span>
-                        </button>
-                    </Link>
-
-                    <button
-                        onClick={Delete}
-                        type="button"
-                        className="flex items-center text-white bg-gradient-to-r from-red-500 to-red-700 hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-red-200 dark:focus:ring-red-800 font-small rounded-lg text-sm p-1 px-2 md:px-3 text-center text-xs md:text-sm"
-                    >
-                        <DeleteIcon className="md:mr-1" fontSize="small" />
-                        <span className="hidden md:inline">Delete</span>
-                    </button>
-
-                </div>
             </CardContent>
         </Card>
+        </Link>
     );
 }

@@ -3,8 +3,9 @@
 import { Book } from "@/app/lib/classes/book";
 import { formatDateForDatePicker } from "@/app/utils/formatDate";
 import SaveIcon from '@mui/icons-material/Save';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { Card, CardContent, Typography } from "@mui/material";
-import { UpdateBook } from "@/app/lib/books/actions";
+import { UpdateBook, DeleteBook } from "@/app/lib/books/actions";
 import { useState } from "react";
 import StarRating from "./star-rating";
 import BookSearch from "./book-search";
@@ -38,6 +39,12 @@ const Form: React.FC<Props> = ({ book }) => {
         setIsbn(selectedBook.isbn || "");
         setDescription(selectedBook.description || "");
         setCoverImageUrl(selectedBook.coverImageUrl || "");
+    };
+
+    const handleDelete = async () => {
+        const wantToDelete = confirm(`Are you sure you want to delete ${book.title}? This action cannot be undone`);
+        if (!wantToDelete) return;
+        await DeleteBook(book.id.toString());
     };
 
     const updateBookWithId = UpdateBook.bind(null, book.id.toString());
@@ -287,6 +294,14 @@ const Form: React.FC<Props> = ({ book }) => {
                         <button type="submit" className="flex items-center text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-purple-200 dark:focus:ring-purple-800 font-small rounded-lg text-sm p-1 px-2 md:px-3 text-center text-xs md:text-sm">
                             <SaveIcon className="md:mr-1" fontSize="small" />
                             <span className="hidden md:inline">Submit</span>
+                        </button>
+                        <button
+                            type="button"
+                            onClick={handleDelete}
+                            className="flex items-center text-white bg-gradient-to-r from-red-500 to-red-700 hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-red-200 dark:focus:ring-red-800 font-small rounded-lg text-sm p-1 px-2 md:px-3 text-center text-xs md:text-sm"
+                        >
+                            <DeleteIcon className="md:mr-1" fontSize="small" />
+                            <span className="hidden md:inline">Delete</span>
                         </button>
                     </div>
                 </CardContent>
