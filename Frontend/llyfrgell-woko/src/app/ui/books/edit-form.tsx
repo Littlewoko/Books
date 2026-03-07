@@ -1,14 +1,19 @@
+"use client";
+
 import { Book } from "@/app/lib/classes/book";
 import { formatDateForDatePicker } from "@/app/utils/formatDate";
 import SaveIcon from '@mui/icons-material/Save';
 import { Card, CardContent, Typography } from "@mui/material";
 import { UpdateBook } from "@/app/lib/books/actions";
+import { useState } from "react";
+import StarRating from "./star-rating";
 
 interface Props {
     book: Book | undefined
 }
 
 const Form: React.FC<Props> = ({ book }) => {
+    const [rating, setRating] = useState(book?.rating || 0);
     if (!book || !book.id) {
         return (
             <>
@@ -98,6 +103,41 @@ const Form: React.FC<Props> = ({ book }) => {
                             id="shortStory"
                             name="shortStory"
                             defaultChecked={book.shortStory}
+                        />
+                    </div>
+
+                    <div className="flex flex-col gap-1 mt-3">
+                        <label htmlFor="rating">
+                            <Typography
+                                className='text-gray-300 mb-0'
+                                sx={{
+                                    fontSize: { xs: '10px', sm: '12px' }
+                                }}>
+                                Rating
+                            </Typography>
+                        </label>
+                        <StarRating rating={rating} interactive onChange={setRating} />
+                        <input type="hidden" name="rating" value={rating} />
+                    </div>
+
+                    <div className="flex flex-col gap-1 mt-3">
+                        <label htmlFor="review">
+                            <Typography
+                                className='text-gray-300 mb-0'
+                                sx={{
+                                    fontSize: { xs: '10px', sm: '12px' }
+                                }}>
+                                Review
+                            </Typography>
+                        </label>
+                        <textarea
+                            id="review"
+                            name="review"
+                            rows={4}
+                            maxLength={2000}
+                            placeholder="Write your review..."
+                            className="placeholder-gray-300/80 border border-white bg-inherit text-sm focus:ring-primary-600 focus:border-primary-600 block w-full p-1 dark:focus:ring-primary-500 dark:focus:border-primary-500 text-gray-300 resize-none"
+                            defaultValue={book.review || ""}
                         />
                     </div>
                 </CardContent>

@@ -4,13 +4,13 @@ import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import Header from "@/app/ui/books/header";
 
-export default async function Page({ params }: { params: { id: string } }) {
+export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession();
   if (!session || !session.user) {
     redirect("/api/auth/signin");
   }
 
-  const id = params.id;
+  const { id } = await params;
 
   const book = await fetchBookById(id);
 

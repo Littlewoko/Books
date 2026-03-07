@@ -7,5 +7,7 @@ export type Book = {
     dateObtained?: Date | null, 
     dateCompleted?: Date | null, 
     dateStartedReading?: Date | null, 
-    shortStory: boolean, 
+    shortStory: boolean,
+    rating?: number | null,
+    review?: string | null,
 }

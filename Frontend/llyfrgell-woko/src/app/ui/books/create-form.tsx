@@ -1,10 +1,15 @@
+"use client";
+
 import { createBook } from "@/app/lib/books/actions";
 import { Typography } from "@mui/material";
 import { CardContent } from "@mui/material";
 import { Card } from "@mui/material";
 import AddCircleIcon from '@mui/icons-material/AddCircle';
+import { useState } from "react";
+import StarRating from "./star-rating";
 
 export default function Form() {
+    const [rating, setRating] = useState(0);
     return (
         <form action={createBook}>
             <Card className="h-fit" sx={{ minWidth: 275, display: 'flex', flexWrap: 'nowrap', backgroundColor: "rgba(0,0,0,0.75)" }}>
@@ -80,6 +85,40 @@ export default function Form() {
                         <input type="checkbox"
                             id="shortStory"
                             name="shortStory" />
+                    </div>
+
+                    <div className="flex flex-col gap-1 mt-3">
+                        <label htmlFor="rating">
+                            <Typography
+                                className='text-gray-300 mb-0'
+                                sx={{
+                                    fontSize: { xs: '10px', sm: '12px' }
+                                }}>
+                                Rating
+                            </Typography>
+                        </label>
+                        <StarRating rating={rating} interactive onChange={setRating} />
+                        <input type="hidden" name="rating" value={rating} />
+                    </div>
+
+                    <div className="flex flex-col gap-1 mt-3">
+                        <label htmlFor="review">
+                            <Typography
+                                className='text-gray-300 mb-0'
+                                sx={{
+                                    fontSize: { xs: '10px', sm: '12px' }
+                                }}>
+                                Review
+                            </Typography>
+                        </label>
+                        <textarea
+                            id="review"
+                            name="review"
+                            rows={4}
+                            maxLength={2000}
+                            placeholder="Write your review..."
+                            className="placeholder-gray-300/80 border border-white bg-inherit text-sm focus:ring-primary-600 focus:border-primary-600 block w-full p-1 dark:focus:ring-primary-500 dark:focus:border-primary-500 text-gray-300 resize-none"
+                        />
                     </div>
                 </CardContent>
                 <CardContent className="ml-auto min-w-36 flex flex-col p-3">

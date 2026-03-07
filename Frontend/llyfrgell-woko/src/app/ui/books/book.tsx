@@ -9,6 +9,7 @@ import Link from 'next/link';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { DeleteBook } from '@/app/lib/books/actions';
+import StarRating from './star-rating';
 
 interface Props {
     book: Book
@@ -137,6 +138,9 @@ export default function BookComponent({ book }: Props) {
                     }}>
                     {book.genre}{book.shortStory ? " - Short Story" : ""}
                 </Typography>
+                {book.rating && book.rating > 0 && (
+                    <StarRating rating={book.rating} />
+                )}
             </CardContent>
             <CardContent className="ml-auto min-w-36 flex flex-col p-3">
                 <div className="flex justify-between">

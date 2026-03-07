@@ -10,7 +10,9 @@ export function convertToBook(result: QueryResult<QueryResultRow>) {
         dateObtained: row.dateobtained ? new Date(row.dateobtained) : null,
         dateCompleted: row.datecompleted ? new Date(row.datecompleted) : null,
         dateStartedReading: row.datestartedreading ? new Date(row.datestartedreading) : null,
-        shortStory: row.shortstory
+        shortStory: row.shortstory,
+        rating: row.rating,
+        review: row.review
       }));
 
     return books;

@@ -9,6 +9,7 @@ import { convertToBook } from './data';
 import { GetBooksRequest, GetPageCountRequest } from './sql';
 
 function getBookFromFormData(formData: FormData): Book {
+    const ratingValue = formData.get('rating');
     const book: Book = {
         title: formData.get('title') as string,
         author: formData.get('author') as string,
@@ -17,7 +18,9 @@ function getBookFromFormData(formData: FormData): Book {
         dateObtained: formData.get('dateobtained') ? new Date(formData.get('dateobtained') as string) : null,
         dateStartedReading: formData.get('datestartedreading') ? new Date(formData.get('datestartedreading') as string) : null,
         dateCompleted: formData.get('datecompleted') ? new Date(formData.get('datecompleted') as string) : null,
-        shortStory: formData.get('shortStory') != null
+        shortStory: formData.get('shortStory') != null,
+        rating: ratingValue ? Number(ratingValue) : null,
+        review: formData.get('review') as string | null,
     };
 
     return book;
@@ -28,7 +31,7 @@ export async function createBook(formData: FormData) {
 
     const book: Book = getBookFromFormData(formData);
 
-    await sql`INSERT INTO books (title, author, genre, isbn, dateobtained, datecompleted, datestartedreading, shortstory)
+    await sql`INSERT INTO books (title, author, genre, isbn, dateobtained, datecompleted, datestartedreading, shortstory, rating, review)
         VALUES (
             ${book.title}, 
             ${book.author}, 
@@ -37,7 +40,9 @@ export async function createBook(formData: FormData) {
             ${book.dateObtained ? book.dateObtained.toISOString().split('T')[0] : null}, 
             ${book.dateCompleted ? book.dateCompleted.toISOString().split('T')[0] : null}, 
             ${book.dateStartedReading ? book.dateStartedReading.toISOString().split('T')[0] : null}, 
-            ${book.shortStory});`
+            ${book.shortStory},
+            ${book.rating ?? null},
+            ${book.review ?? null});`
 
     revalidatePath('/books');
     redirect('/books');
@@ -74,7 +79,9 @@ export async function UpdateBook(id: string, formData: FormData) {
                 dateobtained = ${book.dateObtained ? book.dateObtained.toISOString().split('T')[0] : null}, 
                 datecompleted = ${book.dateCompleted ? book.dateCompleted.toISOString().split('T')[0] : null},
                 datestartedreading = ${book.dateStartedReading ? book.dateStartedReading.toISOString().split('T')[0] : null}, 
-                shortstory = ${book.shortStory}
+                shortstory = ${book.shortStory},
+                rating = ${book.rating ?? null},
+                review = ${book.review ?? null}
             WHERE id=${id};`;
 
     revalidatePath('/books');
