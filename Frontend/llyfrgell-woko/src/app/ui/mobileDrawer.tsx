@@ -6,6 +6,7 @@ import AutoStoriesIcon from '@mui/icons-material/AutoStories';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import HomeIcon from '@mui/icons-material/Home';
 import NoteAddIcon from '@mui/icons-material/NoteAdd';
+import BarChartIcon from '@mui/icons-material/BarChart';
 
 interface Props {
   isOpen: boolean,
@@ -43,6 +44,14 @@ const MobileDrawer: React.FC<Props> = ({ isOpen, onClose }) => {
             <button type="button" onClick={onClose} className="w-44 flex justify-center flex items-center text-white bg-gradient-to-r from-black to-gray-400 hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-purple-200 dark:focus:ring-purple-800 font-medium rounded-lg text-sm p-1 p-3">
               <AutoStoriesIcon className="mr-1" fontSize="small" />
               <span className="inline">Llyfr Newydd</span>
+            </button>
+          </Link>
+        </li>
+        <li className="text-xl hover:text-blue-900 hover:font-semibold">
+          <Link href="/books/stats">
+            <button type="button" onClick={onClose} className="w-44 flex justify-center flex items-center text-white bg-gradient-to-r from-black to-gray-400 hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-purple-200 dark:focus:ring-purple-800 font-medium rounded-lg text-sm p-1 p-3">
+              <BarChartIcon className="mr-1" fontSize="small" />
+              <span className="inline">Statistics</span>
             </button>
           </Link>
         </li>
