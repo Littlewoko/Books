@@ -93,13 +93,6 @@ export default function BookComponent({ book }: Props) {
         )
     }
 
-    const Delete = async () => {
-        const wantToDelete = confirm(`Are you sure you want to delete ${book.title}? This action cannot be undone`);
-        if (!wantToDelete) return;
-
-        await DeleteBook(book.id?.toString() ?? "");
-    }
-
     return (
         <Link href={`/books/${book.id}/edit`} className="block">
             <Card className="h-fit hover:bg-gray-800/50 transition-colors cursor-pointer" sx={{ minWidth: 275, display: 'flex', flexWrap: 'nowrap', backgroundColor: "rgba(0,0,0,0.75)" }}>

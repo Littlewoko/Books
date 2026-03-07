@@ -42,6 +42,7 @@ const Form: React.FC<Props> = ({ book }) => {
     };
 
     const handleDelete = async () => {
+        if (!book.id) return;
         const wantToDelete = confirm(`Are you sure you want to delete ${book.title}? This action cannot be undone`);
         if (!wantToDelete) return;
         await DeleteBook(book.id.toString());

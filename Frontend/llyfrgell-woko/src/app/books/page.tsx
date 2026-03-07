@@ -34,8 +34,18 @@ export default function Page() {
     year: yearParam ? parseInt(yearParam) : undefined,
   });
 
-  const handleApplyFilters = (newFilters: typeof filters) => {
-    setFilters(newFilters);
+  const handleApplyFilters = (newFilters: {
+    shortStory?: boolean | null;
+    genre?: string;
+    status?: string;
+    year?: number;
+  }) => {
+    setFilters({
+      shortStory: newFilters.shortStory ?? null,
+      genre: newFilters.genre,
+      status: newFilters.status,
+      year: newFilters.year,
+    });
     setPage(1);
   };
 
