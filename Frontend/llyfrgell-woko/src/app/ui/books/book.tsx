@@ -105,6 +105,11 @@ export default function BookComponent({ book }: Props) {
 
     return (
         <Card className="h-fit" sx={{ minWidth: 275, display: 'flex', flexWrap: 'nowrap', backgroundColor: "rgba(0,0,0,0.75)" }}>
+            {book.coverImageUrl && (
+                <div className="flex-shrink-0 w-24 h-32 p-2">
+                    <img src={book.coverImageUrl} alt={book.title} className="w-full h-full object-cover rounded" />
+                </div>
+            )}
             <CardContent className="p-3">
                 <Typography
                     gutterBottom
@@ -138,7 +143,7 @@ export default function BookComponent({ book }: Props) {
                     }}>
                     {book.genre}{book.shortStory ? " - Short Story" : ""}
                 </Typography>
-                {book.rating && book.rating > 0 && (
+                {book.rating != null && book.rating > 0 && (
                     <StarRating rating={book.rating} />
                 )}
             </CardContent>

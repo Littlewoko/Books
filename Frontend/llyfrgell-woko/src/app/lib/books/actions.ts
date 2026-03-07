@@ -21,6 +21,8 @@ function getBookFromFormData(formData: FormData): Book {
         shortStory: formData.get('shortStory') != null,
         rating: ratingValue ? Number(ratingValue) : null,
         review: formData.get('review') as string | null,
+        coverImageUrl: formData.get('coverImageUrl') as string | null,
+        description: formData.get('description') as string | null,
     };
 
     return book;
@@ -31,7 +33,7 @@ export async function createBook(formData: FormData) {
 
     const book: Book = getBookFromFormData(formData);
 
-    await sql`INSERT INTO books (title, author, genre, isbn, dateobtained, datecompleted, datestartedreading, shortstory, rating, review)
+    await sql`INSERT INTO books (title, author, genre, isbn, dateobtained, datecompleted, datestartedreading, shortstory, rating, review, coverimageurl, description, apidatafetchedat)
         VALUES (
             ${book.title}, 
             ${book.author}, 
@@ -42,7 +44,10 @@ export async function createBook(formData: FormData) {
             ${book.dateStartedReading ? book.dateStartedReading.toISOString().split('T')[0] : null}, 
             ${book.shortStory},
             ${book.rating ?? null},
-            ${book.review ?? null});`
+            ${book.review ?? null},
+            ${book.coverImageUrl ?? null},
+            ${book.description ?? null},
+            ${book.coverImageUrl || book.description ? new Date().toISOString() : null});`
 
     revalidatePath('/books');
     redirect('/books');
@@ -81,7 +86,10 @@ export async function UpdateBook(id: string, formData: FormData) {
                 datestartedreading = ${book.dateStartedReading ? book.dateStartedReading.toISOString().split('T')[0] : null}, 
                 shortstory = ${book.shortStory},
                 rating = ${book.rating ?? null},
-                review = ${book.review ?? null}
+                review = ${book.review ?? null},
+                coverimageurl = ${book.coverImageUrl ?? null},
+                description = ${book.description ?? null},
+                apidatafetchedat = ${book.coverImageUrl || book.description ? new Date().toISOString() : null}
             WHERE id=${id};`;
 
     revalidatePath('/books');

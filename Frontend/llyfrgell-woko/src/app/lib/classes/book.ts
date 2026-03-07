@@ -10,4 +10,7 @@ export type Book = {
     shortStory: boolean,
     rating?: number | null,
     review?: string | null,
+    coverImageUrl?: string | null,
+    description?: string | null,
+    apiDataFetchedAt?: Date | null,
 }

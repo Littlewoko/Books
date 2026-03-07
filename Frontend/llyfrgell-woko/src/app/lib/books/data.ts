@@ -12,7 +12,10 @@ export function convertToBook(result: QueryResult<QueryResultRow>) {
         dateStartedReading: row.datestartedreading ? new Date(row.datestartedreading) : null,
         shortStory: row.shortstory,
         rating: row.rating,
-        review: row.review
+        review: row.review,
+        coverImageUrl: row.coverimageurl,
+        description: row.description,
+        apiDataFetchedAt: row.apidatafetchedat ? new Date(row.apidatafetchedat) : null,
       }));
 
     return books;

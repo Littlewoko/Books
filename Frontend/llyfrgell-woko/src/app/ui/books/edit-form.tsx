@@ -7,6 +7,8 @@ import { Card, CardContent, Typography } from "@mui/material";
 import { UpdateBook } from "@/app/lib/books/actions";
 import { useState } from "react";
 import StarRating from "./star-rating";
+import BookSearch from "./book-search";
+import { BookSearchResult } from "@/app/lib/books/api-service";
 
 interface Props {
     book: Book | undefined
@@ -14,6 +16,13 @@ interface Props {
 
 const Form: React.FC<Props> = ({ book }) => {
     const [rating, setRating] = useState(book?.rating || 0);
+    const [title, setTitle] = useState(book?.title || "");
+    const [author, setAuthor] = useState(book?.author || "");
+    const [genre, setGenre] = useState(book?.genre || "");
+    const [isbn, setIsbn] = useState(book?.isbn || "");
+    const [description, setDescription] = useState(book?.description || "");
+    const [coverImageUrl, setCoverImageUrl] = useState(book?.coverImageUrl || "");
+
     if (!book || !book.id) {
         return (
             <>
@@ -22,9 +31,26 @@ const Form: React.FC<Props> = ({ book }) => {
         )
     }
 
+    const handleSelectBook = (selectedBook: BookSearchResult) => {
+        setTitle(selectedBook.title);
+        setAuthor(selectedBook.author);
+        setGenre(selectedBook.genre || "");
+        setIsbn(selectedBook.isbn || "");
+        setDescription(selectedBook.description || "");
+        setCoverImageUrl(selectedBook.coverImageUrl || "");
+    };
+
     const updateBookWithId = UpdateBook.bind(null, book.id.toString());
     return (
         <form action={updateBookWithId}>
+            <BookSearch onSelectBook={handleSelectBook} />
+            
+            {coverImageUrl && (
+                <div className="mb-3 flex justify-center">
+                    <img src={coverImageUrl} alt="Book cover" className="max-h-48 object-contain" />
+                </div>
+            )}
+
             <Card className="h-fit" sx={{ minWidth: 275, display: 'flex', flexWrap: 'nowrap', backgroundColor: "rgba(0,0,0,0.75)" }}>
                 <CardContent className="p-3 flex flex-col gap-2 flex-grow">
                     <div className="flex flex-col gap-0">
@@ -43,8 +69,9 @@ const Form: React.FC<Props> = ({ book }) => {
                             max={255}
                             placeholder="Author"
                             required
+                            value={author}
+                            onChange={(e) => setAuthor(e.target.value)}
                             className="m-0 placeholder-gray-300/80 border border-white bg-inherit text-sm focus:ring-primary-600 focus:border-primary-600 block w-full p-1 dark:focus:ring-primary-500 dark:focus:border-primary-500 text-gray-300"
-                            defaultValue={book.author}
                         />
                     </div>
                     <div>
@@ -63,8 +90,9 @@ const Form: React.FC<Props> = ({ book }) => {
                             max={255}
                             placeholder="Title"
                             required
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
                             className="placeholder-gray-300/80 border border-white bg-inherit text-sm focus:ring-primary-600 focus:border-primary-600 block w-full p-1 dark:focus:ring-primary-500 dark:focus:border-primary-500 text-orange-400"
-                            defaultValue={book.title}
                         />
                     </div>
                     <div>
@@ -83,8 +111,9 @@ const Form: React.FC<Props> = ({ book }) => {
                             max={255}
                             placeholder="Genre"
                             required
+                            value={genre}
+                            onChange={(e) => setGenre(e.target.value)}
                             className="placeholder-gray-300/80 border border-white bg-inherit text-sm focus:ring-primary-600 focus:border-primary-600 block w-full p-1 dark:focus:ring-primary-500 dark:focus:border-primary-500 text-gray-300"
-                            defaultValue={book.genre}
                         />
                     </div>
 
@@ -121,6 +150,28 @@ const Form: React.FC<Props> = ({ book }) => {
                     </div>
 
                     <div className="flex flex-col gap-1 mt-3">
+                        <label htmlFor="description">
+                            <Typography
+                                className='text-gray-300 mb-0'
+                                sx={{
+                                    fontSize: { xs: '10px', sm: '12px' }
+                                }}>
+                                Description
+                            </Typography>
+                        </label>
+                        <textarea
+                            id="description"
+                            name="description"
+                            rows={3}
+                            maxLength={2000}
+                            placeholder="Book description..."
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                            className="placeholder-gray-300/80 border border-white bg-inherit text-sm focus:ring-primary-600 focus:border-primary-600 block w-full p-1 dark:focus:ring-primary-500 dark:focus:border-primary-500 text-gray-300 resize-none"
+                        />
+                    </div>
+
+                    <div className="flex flex-col gap-1 mt-3">
                         <label htmlFor="review">
                             <Typography
                                 className='text-gray-300 mb-0'
@@ -140,6 +191,9 @@ const Form: React.FC<Props> = ({ book }) => {
                             defaultValue={book.review || ""}
                         />
                     </div>
+
+                    <input type="hidden" name="isbn" value={isbn} />
+                    <input type="hidden" name="coverImageUrl" value={coverImageUrl} />
                 </CardContent>
                 <CardContent className="ml-auto min-w-36 flex flex-col p-3">
                     <div className="flex flex-col gap-2.5">
