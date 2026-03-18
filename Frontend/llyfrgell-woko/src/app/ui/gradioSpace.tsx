@@ -23,6 +23,7 @@ const App = () => {
   const toggleChat = () => setIsOpen(!isOpen);
 
   const onPointerDown = useCallback((e: React.PointerEvent) => {
+    if (!pos) return;
     dragRef.current = { dragging: true, startX: e.clientX, startY: e.clientY, startPosX: pos.x, startPosY: pos.y, moved: false };
     (e.target as HTMLElement).setPointerCapture(e.pointerId);
   }, [pos]);
