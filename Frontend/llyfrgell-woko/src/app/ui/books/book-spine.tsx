@@ -35,15 +35,15 @@ export default function BookSpine({ book }: Props) {
 
     return (
         <Link href={`/books/${book.id}`} className="block group">
-            <div className={`relative w-[44px] sm:w-[50px] h-[220px] sm:h-[260px] rounded-sm overflow-hidden shadow-md shadow-black/40 group-hover:shadow-lg group-hover:shadow-black/60 group-hover:-translate-y-2 transition-transform duration-200 bg-gradient-to-b ${color}`}>
+            <div className={`relative h-[220px] sm:h-[260px] min-w-[44px] sm:min-w-[50px] rounded-sm overflow-hidden shadow-md shadow-black/40 group-hover:shadow-lg group-hover:shadow-black/60 group-hover:-translate-y-2 transition-transform duration-200 bg-gradient-to-b ${color} flex flex-col`}>
                 {/* Spine left edge */}
-                <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-black/25" />
+                <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-black/25 z-10" />
                 {/* Spine right edge */}
-                <div className="absolute right-0 top-0 bottom-0 w-[1px] bg-white/10" />
+                <div className="absolute right-0 top-0 bottom-0 w-[1px] bg-white/10 z-10" />
 
-                {/* Thumbnail */}
+                {/* Thumbnail pinned to top */}
                 {book.coverImageUrl && (
-                    <div className="mx-auto mt-2 w-[32px] h-[32px] sm:w-[38px] sm:h-[38px] rounded-sm overflow-hidden flex-shrink-0 border border-white/10">
+                    <div className="mx-auto mt-2 w-[32px] h-[32px] sm:w-[38px] sm:h-[38px] rounded-sm overflow-hidden flex-shrink-0 border border-white/10 z-10">
                         <img
                             src={book.coverImageUrl}
                             alt={book.title}
@@ -52,14 +52,26 @@ export default function BookSpine({ book }: Props) {
                     </div>
                 )}
 
-                {/* Title - sideways */}
-                <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[160px] sm:w-[190px]" style={{ transform: 'translate(-50%, -50%) rotate(-90deg)' }}>
-                    <p className="text-amber-100/90 text-[10px] sm:text-xs font-medium text-center truncate leading-tight">
-                        {book.title}
-                    </p>
-                    <p className="text-amber-100/50 text-[8px] sm:text-[9px] text-center truncate leading-tight mt-0.5">
-                        {book.author}
-                    </p>
+                {/* Text area - fills remaining space, text flows from bottom */}
+                <div className="flex-1 flex items-end px-1 pb-2 pt-1 overflow-hidden">
+                    <div
+                        className="w-full"
+                        style={{
+                            writingMode: 'vertical-rl',
+                            textOrientation: 'mixed',
+                            transform: 'rotate(180deg)',
+                            maxHeight: '100%',
+                            columnFill: 'auto',
+                            columnGap: '2px',
+                        }}
+                    >
+                        <p className="text-amber-100/90 text-[10px] sm:text-xs font-medium leading-tight break-words">
+                            {book.title}
+                        </p>
+                        <p className="text-amber-100/50 text-[8px] sm:text-[9px] leading-tight break-words mt-1">
+                            {book.author}
+                        </p>
+                    </div>
                 </div>
             </div>
         </Link>
