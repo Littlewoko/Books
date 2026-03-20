@@ -13,10 +13,14 @@ export async function searchBooksByTitle(title: string, author?: string, isbn?: 
     
     if (isbn) {
         query = `isbn:${isbn}`;
-    } else if (author) {
+    } else if (title && author) {
         query = `intitle:${title}+inauthor:${author}`;
-    } else {
+    } else if (title) {
         query = `intitle:${title}`;
+    } else if (author) {
+        query = `inauthor:${author}`;
+    } else {
+        return [];
     }
     
     const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=10&key=${process.env.GOOGLE_BOOKS_KEY}`;

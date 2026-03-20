@@ -23,6 +23,7 @@ export default function BookSearch({ onSelectBook, currentData }: BookSearchProp
     const [isbn, setIsbn] = useState("");
     const [results, setResults] = useState<BookSearchResult[]>([]);
     const [loading, setLoading] = useState(false);
+    const [hasSearched, setHasSearched] = useState(false);
     const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
     const [selectedBook, setSelectedBook] = useState<BookSearchResult | null>(null);
     const [showConfirm, setShowConfirm] = useState(false);
@@ -36,10 +37,11 @@ export default function BookSearch({ onSelectBook, currentData }: BookSearchProp
     });
 
     const handleSearch = async () => {
-        if (!title.trim() && !isbn.trim()) return;
+        if (!title.trim() && !author.trim() && !isbn.trim()) return;
 
         setLoading(true);
         setResults([]);
+        setHasSearched(true);
         setSelectedIndex(null);
 
         try {
@@ -144,14 +146,14 @@ export default function BookSearch({ onSelectBook, currentData }: BookSearchProp
                 />
                 <input
                     type="text"
-                    placeholder="Author (optional)"
+                    placeholder="Author"
                     value={author}
                     onChange={(e) => setAuthor(e.target.value)}
                     className="flex-1 placeholder-gray-300/80 border border-white bg-inherit text-sm p-1 text-gray-300"
                 />
                 <input
                     type="text"
-                    placeholder="ISBN (optional)"
+                    placeholder="ISBN"
                     value={isbn}
                     onChange={(e) => setIsbn(e.target.value)}
                     className="flex-1 placeholder-gray-300/80 border border-white bg-inherit text-sm p-1 text-gray-300"
@@ -159,7 +161,7 @@ export default function BookSearch({ onSelectBook, currentData }: BookSearchProp
                 <button
                     type="button"
                     onClick={handleSearch}
-                    disabled={loading || (!title.trim() && !isbn.trim())}
+                    disabled={loading || (!title.trim() && !author.trim() && !isbn.trim())}
                     className="flex items-center justify-center text-white bg-gradient-to-r from-blue-500 to-cyan-500 hover:bg-gradient-to-l disabled:opacity-50 font-small rounded-lg text-sm p-1 px-3 w-full sm:w-auto"
                 >
                     {loading ? <CircularProgress size={16} className="text-white" /> : <SearchIcon fontSize="small" />}
@@ -304,7 +306,7 @@ export default function BookSearch({ onSelectBook, currentData }: BookSearchProp
                 </div>
             )}
 
-            {results.length === 0 && !loading && (title || isbn) && (
+            {results.length === 0 && !loading && hasSearched && (
                 <Typography className="text-gray-400 text-center" sx={{ fontSize: { xs: '11px', sm: '12px' } }}>
                     No results found
                 </Typography>

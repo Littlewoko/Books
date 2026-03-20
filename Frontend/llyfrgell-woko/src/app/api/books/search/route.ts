@@ -5,8 +5,8 @@ export async function POST(request: NextRequest) {
     try {
         const { title, author, isbn } = await request.json();
 
-        if (!title && !isbn) {
-            return NextResponse.json({ error: 'Title or ISBN is required' }, { status: 400 });
+        if (!title && !isbn && !author) {
+            return NextResponse.json({ error: 'At least one search field is required' }, { status: 400 });
         }
 
         const results = await searchBooksByTitle(title, author, isbn);
