@@ -2,6 +2,7 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import BulkUpdatePanel from "@/app/ui/books/bulk-update-panel";
 import Header from "@/app/ui/books/header";
+import Breadcrumbs from "@/app/ui/breadcrumbs";
 
 export default async function AdminPage() {
     const session = await getServerSession();
@@ -11,6 +12,7 @@ export default async function AdminPage() {
 
     return (
         <main className="p-4">
+            <Breadcrumbs />
             <Header text="Admin Tools" colour="text-cyan-500" />
             <div className="max-w-4xl mx-auto mt-4">
                 <BulkUpdatePanel />

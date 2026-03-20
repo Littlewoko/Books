@@ -7,12 +7,14 @@ import StarRating from "./star-rating";
 import EditIcon from '@mui/icons-material/Edit';
 import Link from "next/link";
 import { getBookColor, isLightColor } from "@/app/utils/bookColors";
+import { BookClubNote } from "@/app/lib/classes/book-club-note";
 
 interface Props {
-    book: Book | undefined
+    book: Book | undefined;
+    bookClubNotes?: BookClubNote[];
 }
 
-export default function BookView({ book }: Props) {
+export default function BookView({ book, bookClubNotes = [] }: Props) {
     if (!book || !book.id) {
         return <div className="text-gray-300">No such book</div>;
     }
@@ -191,6 +193,39 @@ export default function BookView({ book }: Props) {
                             </Typography>
                         </div>
                     )}
+
+                    {/* Book Club Q&A */}
+                    {bookClubNotes.length > 0 && (
+                        <div style={{ marginTop: '28px' }}>
+                            <Typography
+                                className="text-stone-400"
+                                sx={{ fontSize: '18px', lineHeight: '28px', fontFamily: 'var(--font-caveat)' }}
+                            >
+                                Notes:
+                            </Typography>
+                            {bookClubNotes.map((note, i) => (
+                                <div key={note.id || i}>
+                                    <Typography
+                                        className="text-indigo-800"
+                                        sx={{ fontSize: '18px', lineHeight: '28px', fontFamily: 'var(--font-caveat)' }}
+                                    >
+                                        Q: {note.question}
+                                    </Typography>
+                                    {note.answer && (
+                                        <Typography
+                                            className="text-stone-700 whitespace-pre-wrap"
+                                            sx={{ fontSize: '18px', lineHeight: '28px', fontFamily: 'var(--font-caveat)' }}
+                                        >
+                                            A: {note.answer}
+                                        </Typography>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                    {/* Bottom margin - blank lines */}
+                    <div style={{ height: '84px' }} />
                 </div>
             </div>
 

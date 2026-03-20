@@ -7,6 +7,7 @@ import YearlyChart from "@/app/ui/books/yearly-chart";
 import GenreChart from "@/app/ui/books/genre-chart";
 import TopRatedBooks from "@/app/ui/books/top-rated-books";
 import MonthlyBooks from "@/app/ui/books/monthly-books";
+import Breadcrumbs from "@/app/ui/breadcrumbs";
 
 export default async function StatsPage() {
     const session = await getServerSession();
@@ -18,6 +19,7 @@ export default async function StatsPage() {
 
     return (
         <main className="p-4">
+            <Breadcrumbs />
             <Header text="Reading Statistics" colour="text-cyan-500" />
             <div className="max-w-7xl mx-auto mt-4">
                 <StatsOverview stats={stats.overall} avgRating={stats.avgRating} />
