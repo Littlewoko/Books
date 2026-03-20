@@ -6,10 +6,11 @@ import StarBorderIcon from '@mui/icons-material/StarBorder';
 interface StarRatingProps {
     rating: number;
     interactive?: boolean;
+    handwritten?: boolean;
     onChange?: (rating: number) => void;
 }
 
-export default function StarRating({ rating, interactive = false, onChange }: StarRatingProps) {
+export default function StarRating({ rating, interactive = false, handwritten = false, onChange }: StarRatingProps) {
     const stars = [1, 2, 3, 4, 5];
 
     const handleClick = (value: number) => {
@@ -17,6 +18,18 @@ export default function StarRating({ rating, interactive = false, onChange }: St
             onChange(value);
         }
     };
+
+    if (handwritten) {
+        return (
+            <div className="flex" style={{ fontFamily: 'var(--font-caveat)', fontSize: '16px', lineHeight: '28px' }}>
+                {stars.map((star) => (
+                    <span key={star} className={star <= rating ? "text-amber-700" : "text-stone-300"}>
+                        ★
+                    </span>
+                ))}
+            </div>
+        );
+    }
 
     return (
         <div className="flex gap-0.5">

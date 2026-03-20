@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { Caveat } from "next/font/google";
 import "./globals.css";
 import Navbar from "./ui/navbar";
 
@@ -18,6 +19,11 @@ const geistMono = localFont({
   weight: "100 900",
 });
 
+const caveat = Caveat({
+  subsets: ["latin"],
+  variable: "--font-caveat",
+});
+
 export const metadata: Metadata = {
   title: "Llyfrgell Woko",
   description: "Woko's personal library and portfolio",
@@ -33,7 +39,7 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${caveat.variable} antialiased`}
       >
         <SessionProvider session={session}>
           <Navbar />

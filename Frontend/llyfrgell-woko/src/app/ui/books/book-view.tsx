@@ -1,11 +1,12 @@
 "use client";
 
 import { Book } from "@/app/lib/classes/book";
-import { Card, CardContent, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 import formatDate from "@/app/utils/formatDate";
 import StarRating from "./star-rating";
 import EditIcon from '@mui/icons-material/Edit';
 import Link from "next/link";
+import { getBookColor } from "@/app/utils/bookColors";
 
 interface Props {
     book: Book | undefined
@@ -16,104 +17,182 @@ export default function BookView({ book }: Props) {
         return <div className="text-gray-300">No such book</div>;
     }
 
+    const color = getBookColor(book.title);
+
     const status = () => {
-        if (!!book.dateCompleted) return { text: "Completed", color: "text-yellow-500" };
-        if (!!book.dateStartedReading) return { text: "In Progress", color: "text-violet-500" };
-        if (!!book.dateObtained) return { text: "Owned", color: "text-slate-400" };
-        return { text: "Not Owned", color: "text-slate-400" };
+        if (book.dateCompleted) return { text: "Completed", color: "text-amber-700" };
+        if (book.dateStartedReading) return { text: "In Progress", color: "text-violet-700" };
+        if (book.dateObtained) return { text: "Owned", color: "text-stone-500" };
+        return { text: "Not Owned", color: "text-stone-400" };
     };
 
     const statusInfo = status();
 
     return (
-        <div className="max-w-4xl mx-auto">
-            <Card sx={{ backgroundColor: "rgba(0,0,0,0.75)" }}>
-                <CardContent className="p-4 sm:p-6">
-                    <div className="flex flex-col sm:flex-row gap-4 mb-6">
-                        {book.coverImageUrl && (
-                            <div className="flex-shrink-0 mx-auto sm:mx-0">
-                                <img src={book.coverImageUrl} alt={book.title} className="w-48 h-64 object-cover rounded shadow-lg" />
-                            </div>
-                        )}
-                        <div className="flex-1 min-w-0">
-                            <Typography className="text-gray-400" sx={{ fontSize: { xs: '12px', sm: '14px' }, mb: 1 }}>
-                                {book.author}
+        <div className="max-w-2xl mx-auto px-2">
+            {/* Book Cover */}
+            <div className={`relative rounded-sm overflow-hidden shadow-xl shadow-black/50 bg-gradient-to-b ${color}`}>
+                {/* Spine edge */}
+                <div className="absolute left-0 top-0 bottom-0 w-[6px] bg-black/30 z-10" />
+
+                <div className="px-6 sm:px-10 py-8 sm:py-12 flex flex-col items-center text-center">
+                    {/* Cover image */}
+                    {book.coverImageUrl && (
+                        <div className="mb-6 shadow-lg shadow-black/40 rounded overflow-hidden">
+                            <img
+                                src={book.coverImageUrl}
+                                alt={book.title}
+                                className="w-40 sm:w-52 object-contain"
+                            />
+                        </div>
+                    )}
+
+                    {/* Title */}
+                    <Typography
+                        className="text-amber-100/95 break-words mb-2"
+                        sx={{
+                            fontSize: { xs: '22px', sm: '30px' },
+                            fontWeight: 600,
+                            lineHeight: 1.2,
+                            wordBreak: 'break-word',
+                            fontFamily: 'Georgia, serif',
+                        }}
+                    >
+                        {book.title}
+                    </Typography>
+
+                    {/* Author */}
+                    <Typography
+                        className="text-amber-100/60 mb-4"
+                        sx={{
+                            fontSize: { xs: '14px', sm: '18px' },
+                            fontFamily: 'Georgia, serif',
+                            fontStyle: 'italic',
+                        }}
+                    >
+                        {book.author}
+                    </Typography>
+
+                    {/* Genre & Short Story */}
+                    <Typography className="text-amber-100/40" sx={{ fontSize: { xs: '11px', sm: '13px' }, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+                        {book.genre}{book.shortStory ? " · Short Story" : ""}
+                    </Typography>
+
+                    {/* ISBN */}
+                    {book.isbn && (
+                        <Typography className="text-amber-100/25 mt-2" sx={{ fontSize: { xs: '10px', sm: '11px' } }}>
+                            ISBN {book.isbn}
+                        </Typography>
+                    )}
+                </div>
+
+                {/* Description - back of the book feel */}
+                {book.description && (
+                    <div className="px-6 sm:px-10 pb-8 sm:pb-12">
+                        <div className="border-t border-amber-100/10 pt-5">
+                            <Typography
+                                className="text-amber-100/60 whitespace-pre-wrap"
+                                sx={{
+                                    fontSize: { xs: '11px', sm: '13px' },
+                                    lineHeight: 1.7,
+                                    fontFamily: 'Georgia, serif',
+                                }}
+                            >
+                                {book.description}
                             </Typography>
-                            <Typography variant="h4" className="text-orange-400 break-words mb-2" sx={{ fontSize: { xs: '20px', sm: '28px' }, wordBreak: 'break-word' }}>
-                                {book.title}
-                            </Typography>
-                            <Typography className="text-gray-300 mb-3" sx={{ fontSize: { xs: '12px', sm: '14px' } }}>
-                                {book.genre}{book.shortStory ? " - Short Story" : ""}
-                            </Typography>
-                            {book.isbn && (
-                                <Typography className="text-gray-400 mb-3" sx={{ fontSize: { xs: '11px', sm: '12px' } }}>
-                                    ISBN: {book.isbn}
-                                </Typography>
-                            )}
-                            {book.rating != null && book.rating > 0 && (
-                                <div className="mb-4">
-                                    <StarRating rating={book.rating} />
-                                </div>
-                            )}
-                            <div className="flex flex-wrap gap-4 text-sm">
-                                <div>
-                                    <Typography className="text-slate-400" sx={{ fontSize: { xs: '11px', sm: '12px' } }}>Status:</Typography>
-                                    <Typography className={statusInfo.color} sx={{ fontSize: { xs: '12px', sm: '14px' } }}>{statusInfo.text}</Typography>
-                                </div>
-                                {book.dateObtained && (
-                                    <div>
-                                        <Typography className="text-slate-400" sx={{ fontSize: { xs: '11px', sm: '12px' } }}>Obtained:</Typography>
-                                        <Typography className="text-gray-300" sx={{ fontSize: { xs: '12px', sm: '14px' } }}>{formatDate(book.dateObtained.toISOString())}</Typography>
-                                    </div>
-                                )}
-                                {book.dateStartedReading && (
-                                    <div>
-                                        <Typography className="text-slate-400" sx={{ fontSize: { xs: '11px', sm: '12px' } }}>Began:</Typography>
-                                        <Typography className="text-gray-300" sx={{ fontSize: { xs: '12px', sm: '14px' } }}>{formatDate(book.dateStartedReading.toISOString())}</Typography>
-                                    </div>
-                                )}
-                                {book.dateCompleted && (
-                                    <div>
-                                        <Typography className="text-slate-400" sx={{ fontSize: { xs: '11px', sm: '12px' } }}>Completed:</Typography>
-                                        <Typography className="text-gray-300" sx={{ fontSize: { xs: '12px', sm: '14px' } }}>{formatDate(book.dateCompleted.toISOString())}</Typography>
-                                    </div>
-                                )}
-                            </div>
                         </div>
                     </div>
+                )}
+            </div>
 
+            {/* Notes / Journal */}
+            <div className="mt-6 rounded-sm overflow-hidden shadow-lg shadow-black/30">
+                {/* Notebook header line */}
+                <div className="h-[3px] bg-gradient-to-r from-amber-800/40 via-amber-700/60 to-amber-800/40" />
+
+                <div
+                    className="relative pl-12 sm:pl-16 pr-5 sm:pr-8"
+                    style={{
+                        backgroundColor: '#f5f0e1',
+                        backgroundImage: 'repeating-linear-gradient(transparent, transparent 27px, #c9b99a40 27px, #c9b99a40 28px)',
+                        backgroundPosition: '0 0',
+                        paddingTop: '8px',
+                        paddingBottom: '8px',
+                    }}
+                >
+                    {/* Red margin line */}
+                    <div className="absolute left-8 sm:left-12 top-0 bottom-0 w-[1px] bg-rose-400/50" />
+
+                    {/* Rating & Status row */}
+                    <div className="flex items-center gap-4" style={{ height: '28px' }}>
+                        {book.rating != null && book.rating > 0 && (
+                            <StarRating rating={book.rating} handwritten />
+                        )}
+                        <Typography className={statusInfo.color} sx={{ fontSize: '18px', lineHeight: '28px', fontFamily: 'var(--font-caveat)' }}>
+                            {statusInfo.text}
+                        </Typography>
+                    </div>
+
+                    {/* Dates */}
+                    <div className="flex flex-wrap gap-x-6">
+                        {book.dateObtained && (
+                            <div style={{ height: '28px' }}>
+                                <Typography className="text-stone-700" sx={{ fontSize: '18px', lineHeight: '28px', fontFamily: 'var(--font-caveat)' }}>
+                                    <span className="text-stone-400">Obtained: </span>{formatDate(book.dateObtained.toISOString())}
+                                </Typography>
+                            </div>
+                        )}
+                        {book.dateStartedReading && (
+                            <div style={{ height: '28px' }}>
+                                <Typography className="text-stone-700" sx={{ fontSize: '18px', lineHeight: '28px', fontFamily: 'var(--font-caveat)' }}>
+                                    <span className="text-stone-400">Began: </span>{formatDate(book.dateStartedReading.toISOString())}
+                                </Typography>
+                            </div>
+                        )}
+                        {book.dateCompleted && (
+                            <div style={{ height: '28px' }}>
+                                <Typography className="text-stone-700" sx={{ fontSize: '18px', lineHeight: '28px', fontFamily: 'var(--font-caveat)' }}>
+                                    <span className="text-stone-400">Completed: </span>{formatDate(book.dateCompleted.toISOString())}
+                                </Typography>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Review */}
                     {book.review && (
-                        <div className="mb-6">
-                            <Typography variant="h6" className="text-orange-400 mb-2" sx={{ fontSize: { xs: '16px', sm: '18px' } }}>
-                                My Review
+                        <div>
+                            <Typography
+                                component="span"
+                                className="text-stone-400"
+                                sx={{ fontSize: '18px', lineHeight: '28px', fontFamily: 'var(--font-caveat)' }}
+                            >
+                                Review:{' '}
                             </Typography>
-                            <Typography className="text-gray-300 whitespace-pre-wrap" sx={{ fontSize: { xs: '12px', sm: '14px' } }}>
+                            <Typography
+                                component="span"
+                                className="text-stone-800 whitespace-pre-wrap"
+                                sx={{
+                                    fontSize: '18px',
+                                    lineHeight: '28px',
+                                    fontFamily: 'var(--font-caveat)',
+                                }}
+                            >
                                 {book.review}
                             </Typography>
                         </div>
                     )}
+                </div>
+            </div>
 
-                    {book.description && (
-                        <div className="mb-6">
-                            <Typography variant="h6" className="text-orange-400 mb-2" sx={{ fontSize: { xs: '16px', sm: '18px' } }}>
-                                Description
-                            </Typography>
-                            <Typography className="text-gray-300 whitespace-pre-wrap" sx={{ fontSize: { xs: '12px', sm: '14px' } }}>
-                                {book.description}
-                            </Typography>
-                        </div>
-                    )}
-
-                    <div className="flex justify-end mt-6">
-                        <Link href={`/books/${book.id}/edit`}>
-                            <button className="flex items-center text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:bg-gradient-to-l font-small rounded-lg text-sm p-2 px-4">
-                                <EditIcon className="mr-1" fontSize="small" />
-                                Edit Book
-                            </button>
-                        </Link>
-                    </div>
-                </CardContent>
-            </Card>
+            {/* Edit - subtle, at the bottom */}
+            <div className="mt-8 mb-6 flex justify-center">
+                <Link href={`/books/${book.id}/edit`}>
+                    <button className="flex items-center text-stone-600 hover:text-stone-300 transition-colors text-sm gap-1">
+                        <EditIcon sx={{ fontSize: '14px' }} />
+                        Edit
+                    </button>
+                </Link>
+            </div>
         </div>
     );
 }
