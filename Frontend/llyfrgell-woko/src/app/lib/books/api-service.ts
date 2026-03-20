@@ -19,7 +19,7 @@ export async function searchBooksByTitle(title: string, author?: string, isbn?: 
         query = `intitle:${title}`;
     }
     
-    const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=10`;
+    const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=10&key=${process.env.GOOGLE_BOOKS_KEY}`;
 
     try {
         const response = await fetch(url, {
