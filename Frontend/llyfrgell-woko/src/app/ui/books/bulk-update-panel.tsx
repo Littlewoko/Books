@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Typography, CircularProgress, LinearProgress } from "@mui/material";
-import { getBooksWithMissingData, updateSingleBook, BulkUpdateResult } from "@/app/lib/books/bulk-update";
+import { getBooksWithMissingData, updateSingleBook, BulkUpdateResult, getBooksWithMissingSpineColor, updateSpineColor } from "@/app/lib/books/bulk-update";
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ErrorIcon from '@mui/icons-material/Error';
 import InfoIcon from '@mui/icons-material/Info';
@@ -15,6 +15,10 @@ export default function BulkUpdatePanel() {
     const [showPreview, setShowPreview] = useState(false);
     const [currentBook, setCurrentBook] = useState<string>("");
     const [progress, setProgress] = useState({ current: 0, total: 0 });
+
+    const [colorProgress, setColorProgress] = useState({ current: 0, total: 0 });
+    const [colorUpdating, setColorUpdating] = useState(false);
+    const [colorResults, setColorResults] = useState<{ title: string; success: boolean; color?: string; error?: string }[]>([]);
 
     const handlePreview = async () => {
         setLoading(true);
@@ -49,6 +53,26 @@ export default function BulkUpdatePanel() {
         } finally {
             setUpdating(false);
             setCurrentBook("");
+        }
+    };
+
+    const handleColorBackfill = async () => {
+        setColorUpdating(true);
+        setColorResults([]);
+        try {
+            const books = await getBooksWithMissingSpineColor();
+            setColorProgress({ current: 0, total: books.length });
+
+            for (let i = 0; i < books.length; i++) {
+                const book = books[i];
+                setColorProgress({ current: i + 1, total: books.length });
+                const result = await updateSpineColor(book.id, book.coverimageurl);
+                setColorResults(prev => [...prev, { title: book.title, ...result }]);
+            }
+        } catch (error) {
+            console.error('Color backfill failed:', error);
+        } finally {
+            setColorUpdating(false);
         }
     };
 
@@ -179,6 +203,35 @@ export default function BulkUpdatePanel() {
                     </div>
                 </div>
             )}
+
+            {/* Spine Color Backfill */}
+            <div className="mt-6 pt-4 border-t border-gray-600">
+                <Typography className="text-gray-300 mb-3" sx={{ fontSize: { xs: '14px', sm: '16px' } }}>
+                    Backfill Spine Colours
+                </Typography>
+                <button
+                    type="button"
+                    onClick={handleColorBackfill}
+                    disabled={colorUpdating}
+                    className="flex items-center text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:bg-gradient-to-l disabled:opacity-50 font-small rounded-lg text-sm p-2 px-4"
+                >
+                    {colorUpdating ? <CircularProgress size={16} className="text-white mr-2" /> : null}
+                    {colorUpdating ? `Processing ${colorProgress.current}/${colorProgress.total}` : 'Extract Colours from Covers'}
+                </button>
+
+                {colorResults.length > 0 && !colorUpdating && (
+                    <div className="mt-3 p-3 border border-gray-500 rounded bg-gray-900/20">
+                        <Typography className="text-green-400" sx={{ fontSize: '14px' }}>
+                            ✓ {colorResults.filter(r => r.success).length} colours extracted
+                        </Typography>
+                        {colorResults.filter(r => !r.success).length > 0 && (
+                            <Typography className="text-red-400" sx={{ fontSize: '14px' }}>
+                                ✗ {colorResults.filter(r => !r.success).length} failed
+                            </Typography>
+                        )}
+                    </div>
+                )}
+            </div>
         </div>
     );
 }

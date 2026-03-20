@@ -6,7 +6,7 @@ import formatDate from "@/app/utils/formatDate";
 import StarRating from "./star-rating";
 import EditIcon from '@mui/icons-material/Edit';
 import Link from "next/link";
-import { getBookColor } from "@/app/utils/bookColors";
+import { getBookColor, isLightColor } from "@/app/utils/bookColors";
 
 interface Props {
     book: Book | undefined
@@ -17,7 +17,14 @@ export default function BookView({ book }: Props) {
         return <div className="text-gray-300">No such book</div>;
     }
 
-    const color = getBookColor(book.title);
+    const fallbackColor = getBookColor(book.title);
+    const hasCustomColor = !!book.spineColor;
+    const light = hasCustomColor && isLightColor(book.spineColor!);
+    const coverText = light ? 'text-stone-900/90' : 'text-amber-100/95';
+    const coverTextSub = light ? 'text-stone-900/60' : 'text-amber-100/60';
+    const coverTextMuted = light ? 'text-stone-900/40' : 'text-amber-100/40';
+    const coverTextFaint = light ? 'text-stone-900/25' : 'text-amber-100/25';
+    const coverBorder = light ? 'border-stone-900/10' : 'border-amber-100/10';
 
     const status = () => {
         if (book.dateCompleted) return { text: "Completed", color: "text-amber-700" };
@@ -31,7 +38,10 @@ export default function BookView({ book }: Props) {
     return (
         <div className="max-w-2xl mx-auto px-2">
             {/* Book Cover */}
-            <div className={`relative rounded-sm overflow-hidden shadow-xl shadow-black/50 bg-gradient-to-b ${color}`}>
+            <div
+                className={`relative rounded-sm overflow-hidden shadow-xl shadow-black/50 ${!hasCustomColor ? `bg-gradient-to-b ${fallbackColor}` : ''}`}
+                style={hasCustomColor ? { backgroundColor: book.spineColor! } : undefined}
+            >
                 {/* Spine edge */}
                 <div className="absolute left-0 top-0 bottom-0 w-[6px] bg-black/30 z-10" />
 
@@ -49,7 +59,7 @@ export default function BookView({ book }: Props) {
 
                     {/* Title */}
                     <Typography
-                        className="text-amber-100/95 break-words mb-2"
+                        className={`${coverText} break-words mb-2`}
                         sx={{
                             fontSize: { xs: '22px', sm: '30px' },
                             fontWeight: 600,
@@ -63,7 +73,7 @@ export default function BookView({ book }: Props) {
 
                     {/* Author */}
                     <Typography
-                        className="text-amber-100/60 mb-4"
+                        className={`${coverTextSub} mb-4`}
                         sx={{
                             fontSize: { xs: '14px', sm: '18px' },
                             fontFamily: 'Georgia, serif',
@@ -74,13 +84,13 @@ export default function BookView({ book }: Props) {
                     </Typography>
 
                     {/* Genre & Short Story */}
-                    <Typography className="text-amber-100/40" sx={{ fontSize: { xs: '11px', sm: '13px' }, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+                    <Typography className={coverTextMuted} sx={{ fontSize: { xs: '11px', sm: '13px' }, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
                         {book.genre}{book.shortStory ? " · Short Story" : ""}
                     </Typography>
 
                     {/* ISBN */}
                     {book.isbn && (
-                        <Typography className="text-amber-100/25 mt-2" sx={{ fontSize: { xs: '10px', sm: '11px' } }}>
+                        <Typography className={`${coverTextFaint} mt-2`} sx={{ fontSize: { xs: '10px', sm: '11px' } }}>
                             ISBN {book.isbn}
                         </Typography>
                     )}
@@ -89,9 +99,9 @@ export default function BookView({ book }: Props) {
                 {/* Description - back of the book feel */}
                 {book.description && (
                     <div className="px-6 sm:px-10 pb-8 sm:pb-12">
-                        <div className="border-t border-amber-100/10 pt-5">
+                        <div className={`border-t ${coverBorder} pt-5`}>
                             <Typography
-                                className="text-amber-100/60 whitespace-pre-wrap"
+                                className={`${coverTextSub} whitespace-pre-wrap`}
                                 sx={{
                                     fontSize: { xs: '11px', sm: '13px' },
                                     lineHeight: 1.7,

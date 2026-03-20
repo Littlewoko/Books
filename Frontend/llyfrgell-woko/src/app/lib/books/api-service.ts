@@ -6,6 +6,7 @@ export interface BookSearchResult {
     description?: string;
     coverImageUrl?: string;
     publishedDate?: string;
+    spineColor?: string;
 }
 
 export async function searchBooksByTitle(title: string, author?: string, isbn?: string): Promise<BookSearchResult[]> {

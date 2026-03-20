@@ -13,4 +13,5 @@ export type Book = {
     coverImageUrl?: string | null,
     description?: string | null,
     apiDataFetchedAt?: Date | null,
+    spineColor?: string | null,
 }

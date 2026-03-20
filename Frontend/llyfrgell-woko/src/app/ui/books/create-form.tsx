@@ -18,6 +18,7 @@ export default function Form() {
     const [isbn, setIsbn] = useState("");
     const [description, setDescription] = useState("");
     const [coverImageUrl, setCoverImageUrl] = useState("");
+    const [spineColor, setSpineColor] = useState("");
 
     const handleSelectBook = (book: BookSearchResult) => {
         setTitle(book.title);
@@ -26,6 +27,7 @@ export default function Form() {
         setIsbn(book.isbn || "");
         setDescription(book.description || "");
         setCoverImageUrl(book.coverImageUrl || "");
+        setSpineColor(book.spineColor || "");
     };
 
     return (
@@ -195,6 +197,7 @@ export default function Form() {
                     </div>
 
                     <input type="hidden" name="coverImageUrl" value={coverImageUrl} />
+                    <input type="hidden" name="spineColor" value={spineColor} />
                 </CardContent>
                 <CardContent className="ml-auto min-w-36 flex flex-col p-3 w-full sm:w-auto">
                     <div className="flex flex-col gap-2.5">

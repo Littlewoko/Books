@@ -2,6 +2,7 @@
 
 import { sql } from '@vercel/postgres';
 import { searchBooksByTitle } from './api-service';
+import { extractDominantColor } from '@/app/utils/extractColor';
 import ProtectRoute from '@/app/utils/protectRoute';
 
 export interface BulkUpdateResult {
@@ -11,6 +12,34 @@ export interface BulkUpdateResult {
     fieldsUpdated: string[];
     error?: string;
     progress?: { current: number; total: number };
+}
+
+export async function getBooksWithMissingSpineColor() {
+    await ProtectRoute();
+    
+    const result = await sql`
+        SELECT id, title, coverimageurl
+        FROM books
+        WHERE spinecolor IS NULL AND coverimageurl IS NOT NULL
+        ORDER BY title;
+    `;
+    
+    return result.rows;
+}
+
+export async function updateSpineColor(bookId: number, imageUrl: string): Promise<{ success: boolean; color?: string; error?: string }> {
+    try {
+        const color = await extractDominantColor(imageUrl);
+        if (!color || !/^#[0-9a-f]{6}$/i.test(color)) return { success: false, error: 'Could not extract valid colour' };
+
+        await sql`UPDATE books SET spinecolor = ${color} WHERE id = ${bookId}`;
+
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        return { success: true, color };
+    } catch (error) {
+        return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+    }
 }
 
 export async function getBooksWithMissingData() {

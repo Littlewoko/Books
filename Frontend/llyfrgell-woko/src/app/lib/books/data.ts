@@ -16,6 +16,7 @@ export function convertToBook(result: QueryResult<QueryResultRow>) {
         coverImageUrl: row.coverimageurl,
         description: row.description,
         apiDataFetchedAt: row.apidatafetchedat ? new Date(row.apidatafetchedat) : null,
+        spineColor: row.spinecolor,
       }));
 
     return books;

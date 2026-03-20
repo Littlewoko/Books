@@ -23,6 +23,7 @@ function getBookFromFormData(formData: FormData): Book {
         review: formData.get('review') as string | null,
         coverImageUrl: formData.get('coverImageUrl') as string | null,
         description: formData.get('description') as string | null,
+        spineColor: formData.get('spineColor') as string | null,
     };
 
     return book;
@@ -33,7 +34,7 @@ export async function createBook(formData: FormData) {
 
     const book: Book = getBookFromFormData(formData);
 
-    await sql`INSERT INTO books (title, author, genre, isbn, dateobtained, datecompleted, datestartedreading, shortstory, rating, review, coverimageurl, description, apidatafetchedat)
+    await sql`INSERT INTO books (title, author, genre, isbn, dateobtained, datecompleted, datestartedreading, shortstory, rating, review, coverimageurl, description, apidatafetchedat, spinecolor)
         VALUES (
             ${book.title}, 
             ${book.author}, 
@@ -47,7 +48,8 @@ export async function createBook(formData: FormData) {
             ${book.review ?? null},
             ${book.coverImageUrl ?? null},
             ${book.description ?? null},
-            ${book.coverImageUrl || book.description ? new Date().toISOString() : null});`
+            ${book.coverImageUrl || book.description ? new Date().toISOString() : null},
+            ${book.spineColor ?? null});`
 
     revalidatePath('/books');
     redirect('/books');
@@ -94,7 +96,8 @@ export async function UpdateBook(id: string, formData: FormData) {
                 review = ${book.review ?? null},
                 coverimageurl = ${book.coverImageUrl ?? null},
                 description = ${book.description ?? null},
-                apidatafetchedat = ${book.coverImageUrl || book.description ? new Date().toISOString() : null}
+                apidatafetchedat = ${book.coverImageUrl || book.description ? new Date().toISOString() : null},
+                spinecolor = ${book.spineColor ?? null}
             WHERE id=${id};`;
 
     revalidatePath('/books');

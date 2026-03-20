@@ -23,6 +23,7 @@ const Form: React.FC<Props> = ({ book }) => {
     const [isbn, setIsbn] = useState(book?.isbn || "");
     const [description, setDescription] = useState(book?.description || "");
     const [coverImageUrl, setCoverImageUrl] = useState(book?.coverImageUrl || "");
+    const [spineColor, setSpineColor] = useState(book?.spineColor || "");
 
     if (!book || !book.id) {
         return (
@@ -39,6 +40,7 @@ const Form: React.FC<Props> = ({ book }) => {
         setIsbn(selectedBook.isbn || "");
         setDescription(selectedBook.description || "");
         setCoverImageUrl(selectedBook.coverImageUrl || "");
+        setSpineColor(selectedBook.spineColor || "");
     };
 
     const handleDelete = async () => {
@@ -220,6 +222,7 @@ const Form: React.FC<Props> = ({ book }) => {
                     </div>
 
                     <input type="hidden" name="coverImageUrl" value={coverImageUrl} />
+                    <input type="hidden" name="spineColor" value={spineColor} />
                 </CardContent>
                 <CardContent className="ml-auto min-w-36 flex flex-col p-3 w-full sm:w-auto">
                     <div className="flex flex-col gap-2.5">

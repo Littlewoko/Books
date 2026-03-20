@@ -64,7 +64,22 @@ export default function BookSearch({ onSelectBook, currentData }: BookSearchProp
         }
     };
 
-    const handleSelect = (index: number) => {
+    const extractSpineColor = async (imageUrl: string | undefined): Promise<string | undefined> => {
+        if (!imageUrl) return undefined;
+        try {
+            const res = await fetch('/api/books/extract-color', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ imageUrl }),
+            });
+            const data = await res.json();
+            return data.color || undefined;
+        } catch {
+            return undefined;
+        }
+    };
+
+    const handleSelect = async (index: number) => {
         const book = results[index];
         setSelectedIndex(index);
         setSelectedBook(book);
@@ -89,13 +104,17 @@ export default function BookSearch({ onSelectBook, currentData }: BookSearchProp
             });
             setShowConfirm(true);
         } else {
-            onSelectBook(book);
+            const spineColor = await extractSpineColor(book.coverImageUrl);
+            onSelectBook({ ...book, spineColor });
             setShowConfirm(false);
         }
     };
 
-    const handleConfirm = () => {
+    const handleConfirm = async () => {
         if (selectedBook) {
+            const spineColor = await extractSpineColor(
+                overwriteFields.coverImageUrl ? selectedBook.coverImageUrl : currentData?.coverImageUrl || selectedBook.coverImageUrl
+            );
             const modifiedBook: BookSearchResult = {
                 title: overwriteFields.title ? selectedBook.title : currentData?.title || selectedBook.title,
                 author: overwriteFields.author ? selectedBook.author : currentData?.author || selectedBook.author,
@@ -104,6 +123,7 @@ export default function BookSearch({ onSelectBook, currentData }: BookSearchProp
                 description: overwriteFields.description ? selectedBook.description : currentData?.description || selectedBook.description,
                 coverImageUrl: overwriteFields.coverImageUrl ? selectedBook.coverImageUrl : currentData?.coverImageUrl || selectedBook.coverImageUrl,
                 publishedDate: selectedBook.publishedDate,
+                spineColor,
             };
             onSelectBook(modifiedBook);
         }
