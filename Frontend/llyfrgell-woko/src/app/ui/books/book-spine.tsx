@@ -43,7 +43,7 @@ export default function BookSpine({ book }: Props) {
 
                 {/* Thumbnail pinned to top */}
                 {book.coverImageUrl && (
-                    <div className="mx-auto mt-2 w-[32px] h-[32px] sm:w-[38px] sm:h-[38px] rounded-sm overflow-hidden flex-shrink-0 border border-white/10 z-10">
+                    <div className="mx-auto mt-2 w-[32px] h-[32px] sm:w-[38px] sm:h-[38px] rounded-sm overflow-hidden flex-shrink-0 z-10">
                         <img
                             src={book.coverImageUrl}
                             alt={book.title}
