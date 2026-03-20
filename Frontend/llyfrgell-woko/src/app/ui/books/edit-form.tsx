@@ -51,18 +51,6 @@ const Form: React.FC<Props> = ({ book }) => {
     const updateBookWithId = UpdateBook.bind(null, book.id.toString());
     return (
         <form action={updateBookWithId}>
-            <BookSearch 
-                onSelectBook={handleSelectBook}
-                currentData={{
-                    title,
-                    author,
-                    genre,
-                    isbn,
-                    description,
-                    coverImageUrl,
-                }}
-            />
-            
             {coverImageUrl && (
                 <div className="mb-3 flex justify-center">
                     <img src={coverImageUrl} alt="Book cover" className="max-h-48 object-contain" />
@@ -307,6 +295,18 @@ const Form: React.FC<Props> = ({ book }) => {
                     </div>
                 </CardContent>
             </Card>
+
+            <BookSearch 
+                onSelectBook={handleSelectBook}
+                currentData={{
+                    title,
+                    author,
+                    genre,
+                    isbn,
+                    description,
+                    coverImageUrl,
+                }}
+            />
         </form>
     );
 }

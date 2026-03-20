@@ -69,7 +69,6 @@ export default function BookSearch({ onSelectBook, currentData }: BookSearchProp
         setSelectedIndex(index);
         setSelectedBook(book);
         
-        // Check if any existing data will be overwritten
         const willOverwrite = (
             (currentData?.title && book.title !== currentData.title) ||
             (currentData?.author && book.author !== currentData.author) ||
@@ -80,7 +79,6 @@ export default function BookSearch({ onSelectBook, currentData }: BookSearchProp
         );
         
         if (willOverwrite) {
-            // Initialize checkboxes - default to checked for fields that would be overwritten
             setOverwriteFields({
                 title: !!(currentData?.title && book.title !== currentData.title),
                 author: !!(currentData?.author && book.author !== currentData.author),
@@ -98,7 +96,6 @@ export default function BookSearch({ onSelectBook, currentData }: BookSearchProp
 
     const handleConfirm = () => {
         if (selectedBook) {
-            // Create a modified book object with only selected fields
             const modifiedBook: BookSearchResult = {
                 title: overwriteFields.title ? selectedBook.title : currentData?.title || selectedBook.title,
                 author: overwriteFields.author ? selectedBook.author : currentData?.author || selectedBook.author,
@@ -130,10 +127,12 @@ export default function BookSearch({ onSelectBook, currentData }: BookSearchProp
         setSelectedBook(null);
     };
 
+    const inputClass = "placeholder-gray-400/60 border border-indigo-400/20 bg-indigo-950/20 text-sm block w-full p-1.5 text-gray-300 rounded focus:border-indigo-400/50 focus:outline-none transition-colors";
+
     return (
-        <div className="flex flex-col gap-2 mb-4 p-3 border border-gray-600 rounded bg-black/30">
-            <Typography className="text-gray-300" sx={{ fontSize: { xs: '12px', sm: '14px' } }}>
-                Search for Book Data
+        <div className="mt-3 mb-6 rounded-lg p-4 border border-indigo-500/10" style={{ backgroundColor: "rgba(15,10,40,0.75)" }}>
+            <Typography className="text-indigo-300/60 mb-3" sx={{ fontSize: { xs: '11px', sm: '12px' }, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+                Lookup Book Data
             </Typography>
             
             <div className="flex flex-col sm:flex-row gap-2">
@@ -142,57 +141,62 @@ export default function BookSearch({ onSelectBook, currentData }: BookSearchProp
                     placeholder="Title"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    className="flex-1 placeholder-gray-300/80 border border-white bg-inherit text-sm p-1 text-gray-300"
+                    onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleSearch())}
+                    className={`flex-1 ${inputClass}`}
                 />
                 <input
                     type="text"
                     placeholder="Author"
                     value={author}
                     onChange={(e) => setAuthor(e.target.value)}
-                    className="flex-1 placeholder-gray-300/80 border border-white bg-inherit text-sm p-1 text-gray-300"
+                    onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleSearch())}
+                    className={`flex-1 ${inputClass}`}
                 />
                 <input
                     type="text"
                     placeholder="ISBN"
                     value={isbn}
                     onChange={(e) => setIsbn(e.target.value)}
-                    className="flex-1 placeholder-gray-300/80 border border-white bg-inherit text-sm p-1 text-gray-300"
+                    onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleSearch())}
+                    className={`flex-1 ${inputClass}`}
                 />
                 <button
                     type="button"
                     onClick={handleSearch}
                     disabled={loading || (!title.trim() && !author.trim() && !isbn.trim())}
-                    className="flex items-center justify-center text-white bg-gradient-to-r from-blue-500 to-cyan-500 hover:bg-gradient-to-l disabled:opacity-50 font-small rounded-lg text-sm p-1 px-3 w-full sm:w-auto"
+                    className="flex items-center justify-center text-white bg-gradient-to-r from-indigo-500 to-purple-500 hover:bg-gradient-to-l disabled:opacity-30 rounded-lg text-sm p-1.5 px-4 w-full sm:w-auto transition-opacity"
                 >
                     {loading ? <CircularProgress size={16} className="text-white" /> : <SearchIcon fontSize="small" />}
                 </button>
             </div>
 
             {results.length > 0 && (
-                <div className="flex flex-col gap-1 mt-2 max-h-96 overflow-y-auto">
+                <div className="flex flex-col gap-1.5 mt-3 max-h-80 overflow-y-auto">
                     {results.map((result, index) => (
                         <div
                             key={index}
                             onClick={() => handleSelect(index)}
-                            className={`flex gap-2 p-2 border cursor-pointer hover:bg-gray-800/50 ${
-                                selectedIndex === index ? 'border-blue-500 bg-gray-800/50' : 'border-gray-600'
+                            className={`flex gap-3 p-2.5 rounded cursor-pointer transition-colors ${
+                                selectedIndex === index
+                                    ? 'bg-indigo-500/15 border border-indigo-400/40'
+                                    : 'bg-white/5 border border-transparent hover:bg-indigo-500/10'
                             }`}
                         >
                             {result.coverImageUrl && (
                                 <img
                                     src={result.coverImageUrl}
                                     alt={result.title}
-                                    className="w-12 h-16 object-cover"
+                                    className="w-10 h-14 object-cover rounded"
                                 />
                             )}
-                            <div className="flex-1">
-                                <Typography className="text-orange-400" sx={{ fontSize: { xs: '12px', sm: '14px' } }}>
+                            <div className="flex-1 min-w-0">
+                                <Typography className="text-orange-400 truncate" sx={{ fontSize: { xs: '12px', sm: '13px' } }}>
                                     {result.title}
                                 </Typography>
-                                <Typography className="text-gray-300" sx={{ fontSize: { xs: '10px', sm: '12px' } }}>
+                                <Typography className="text-gray-300" sx={{ fontSize: { xs: '11px', sm: '12px' } }}>
                                     {result.author}
                                 </Typography>
-                                <Typography className="text-gray-400" sx={{ fontSize: { xs: '10px', sm: '11px' } }}>
+                                <Typography className="text-gray-500" sx={{ fontSize: { xs: '10px', sm: '11px' } }}>
                                     {result.publishedDate && `${result.publishedDate} • `}
                                     {result.isbn && `ISBN: ${result.isbn}`}
                                 </Typography>
@@ -203,8 +207,8 @@ export default function BookSearch({ onSelectBook, currentData }: BookSearchProp
             )}
 
             {showConfirm && selectedBook && (
-                <div className="mt-2 p-3 border border-orange-500 rounded bg-orange-900/20">
-                    <Typography className="text-orange-300 mb-2" sx={{ fontSize: { xs: '12px', sm: '14px' } }}>
+                <div className="mt-3 p-3 border border-orange-500/40 rounded-lg bg-orange-900/15">
+                    <Typography className="text-orange-300 mb-2" sx={{ fontSize: { xs: '12px', sm: '13px' } }}>
                         ⚠️ Select fields to overwrite:
                     </Typography>
                     <div className="mb-3">
@@ -298,7 +302,7 @@ export default function BookSearch({ onSelectBook, currentData }: BookSearchProp
                         <button
                             type="button"
                             onClick={handleCancel}
-                            className="flex items-center text-white bg-gradient-to-r from-gray-500 to-gray-600 hover:bg-gradient-to-l font-small rounded-lg text-sm p-1 px-3"
+                            className="flex items-center text-gray-300 bg-white/10 hover:bg-white/20 font-small rounded-lg text-sm p-1 px-3 transition-colors"
                         >
                             Cancel
                         </button>
@@ -307,7 +311,7 @@ export default function BookSearch({ onSelectBook, currentData }: BookSearchProp
             )}
 
             {results.length === 0 && !loading && hasSearched && (
-                <Typography className="text-gray-400 text-center" sx={{ fontSize: { xs: '11px', sm: '12px' } }}>
+                <Typography className="text-indigo-300/40 text-center mt-3" sx={{ fontSize: { xs: '11px', sm: '12px' } }}>
                     No results found
                 </Typography>
             )}

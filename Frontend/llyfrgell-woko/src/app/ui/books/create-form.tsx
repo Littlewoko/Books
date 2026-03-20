@@ -30,18 +30,6 @@ export default function Form() {
 
     return (
         <form action={createBook}>
-            <BookSearch 
-                onSelectBook={handleSelectBook}
-                currentData={{
-                    title,
-                    author,
-                    genre,
-                    isbn,
-                    description,
-                    coverImageUrl,
-                }}
-            />
-            
             {coverImageUrl && (
                 <div className="mb-3 flex justify-center">
                     <img src={coverImageUrl} alt="Book cover" className="max-h-48 object-contain" />
@@ -270,6 +258,18 @@ export default function Form() {
                     </div>
                 </CardContent>
             </Card>
+
+            <BookSearch 
+                onSelectBook={handleSelectBook}
+                currentData={{
+                    title,
+                    author,
+                    genre,
+                    isbn,
+                    description,
+                    coverImageUrl,
+                }}
+            />
         </form >
     );
 }
