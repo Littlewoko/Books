@@ -1,9 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Typography, Modal, Box } from "@mui/material";
-import FilterListIcon from '@mui/icons-material/FilterList';
-import CloseIcon from '@mui/icons-material/Close';
+import { useState, useRef, useEffect } from "react";
+import { Modal, Box } from "@mui/material";
 
 interface FilterModalProps {
     onApplyFilters: (filters: {
@@ -20,10 +18,71 @@ interface FilterModalProps {
     };
 }
 
+const LINE = 28;
+const lineHeight = `${LINE}px`;
+const fontStyle: React.CSSProperties = { fontSize: '18px', lineHeight, fontFamily: 'var(--font-caveat)' };
+
+interface InlinePickerProps {
+    options: { value: string; label: string }[];
+    value: string;
+    onChange: (value: string) => void;
+}
+
+function InlinePicker({ options, value, onChange }: InlinePickerProps) {
+    const [isOpen, setIsOpen] = useState(false);
+    const ref = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const handleClick = (e: MouseEvent) => {
+            if (ref.current && !ref.current.contains(e.target as Node)) setIsOpen(false);
+        };
+        document.addEventListener('mousedown', handleClick);
+        return () => document.removeEventListener('mousedown', handleClick);
+    }, []);
+
+    const selected = options.find(o => o.value === value);
+
+    return (
+        <div ref={ref} className="relative" style={{ height: lineHeight }}>
+            <button
+                type="button"
+                onClick={() => setIsOpen(!isOpen)}
+                className="text-stone-800 hover:text-amber-800 transition-colors p-0 m-0 border-0 bg-transparent cursor-pointer flex items-center gap-1"
+                style={fontStyle}
+            >
+                {selected?.label || '—'}
+                <span className="text-stone-400" style={{ fontSize: '12px' }}>▾</span>
+            </button>
+
+            {isOpen && (
+                <div
+                    className="absolute left-0 top-[28px] z-50 rounded-sm shadow-md shadow-black/20 py-1 min-w-[180px]"
+                    style={{ backgroundColor: '#f5f0e1', border: '1px solid #c9b99a60' }}
+                >
+                    {options.map(opt => (
+                        <button
+                            key={opt.value}
+                            type="button"
+                            onClick={() => { onChange(opt.value); setIsOpen(false); }}
+                            className={`block w-full text-left px-3 py-0 m-0 border-0 bg-transparent cursor-pointer transition-colors ${
+                                opt.value === value ? 'text-amber-800' : 'text-stone-600 hover:text-amber-800'
+                            }`}
+                            style={fontStyle}
+                        >
+                            {opt.value === value && <span className="mr-1">›</span>}
+                            {opt.label}
+                        </button>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+}
+
 export default function FilterModal({ onApplyFilters, currentFilters }: FilterModalProps) {
     const [open, setOpen] = useState(false);
     const [shortStory, setShortStory] = useState<string>(
-        currentFilters.shortStory === true ? 'true' : 
+        currentFilters.shortStory === true ? 'true' :
         currentFilters.shortStory === false ? 'false' : 'all'
     );
     const [genre, setGenre] = useState(currentFilters.genre || '');
@@ -56,96 +115,130 @@ export default function FilterModal({ onApplyFilters, currentFilters }: FilterMo
         currentFilters.year,
     ].filter(Boolean).length;
 
+    const shortStoryOptions = [
+        { value: 'all', label: 'All' },
+        { value: 'true', label: 'Short Stories Only' },
+        { value: 'false', label: 'Exclude Short Stories' },
+    ];
+
+    const statusOptions = [
+        { value: '', label: 'All' },
+        { value: 'completed', label: 'Completed' },
+        { value: 'in-progress', label: 'In Progress' },
+        { value: 'owned', label: 'Owned (Not Started)' },
+        { value: 'not-owned', label: 'Not Owned' },
+    ];
+
     return (
         <>
             <button
                 type="button"
                 onClick={() => setOpen(true)}
-                className="flex items-center gap-1 text-white bg-gradient-to-r from-blue-500 to-cyan-500 hover:bg-gradient-to-l font-small rounded-lg text-sm p-1 px-3"
+                className="flex items-center gap-1.5 text-stone-600 hover:text-amber-800 transition-colors px-3 py-1"
+                style={{ fontFamily: 'var(--font-caveat)', fontSize: '20px' }}
             >
-                <FilterListIcon fontSize="small" />
+                <span>✎</span>
                 <span>Filters</span>
                 {activeFilterCount > 0 && (
-                    <span className="bg-orange-500 rounded-full px-1.5 text-xs">{activeFilterCount}</span>
+                    <span className="text-amber-800 font-bold">({activeFilterCount})</span>
                 )}
             </button>
 
             <Modal open={open} onClose={() => setOpen(false)}>
-                <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gray-900 border border-gray-600 rounded-lg p-4 w-96 max-w-[90vw]">
-                    <div className="flex justify-between items-center mb-4">
-                        <Typography className="text-gray-300" sx={{ fontSize: '18px', fontWeight: 'bold' }}>
-                            Filter Books
-                        </Typography>
-                        <button onClick={() => setOpen(false)} className="text-gray-400 hover:text-gray-200">
-                            <CloseIcon />
-                        </button>
-                    </div>
+                <Box
+                    className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-sm overflow-hidden shadow-xl shadow-black/30 w-96 max-w-[90vw]"
+                >
+                    {/* Notebook header line */}
+                    <div className="h-[3px] bg-gradient-to-r from-amber-800/40 via-amber-700/60 to-amber-800/40" />
 
-                    <div className="flex flex-col gap-4">
-                        <div>
-                            <label className="text-gray-300 text-sm mb-1 block">Short Stories</label>
-                            <select
-                                value={shortStory}
-                                onChange={(e) => setShortStory(e.target.value)}
-                                className="w-full bg-gray-800 border border-gray-600 text-gray-300 text-sm rounded p-2"
-                            >
-                                <option value="all">All</option>
-                                <option value="true">Short Stories Only</option>
-                                <option value="false">Exclude Short Stories</option>
-                            </select>
+                    <div
+                        className="relative pl-12 pr-6"
+                        style={{
+                            backgroundColor: '#f5f0e1',
+                            backgroundImage: `repeating-linear-gradient(transparent, transparent ${LINE - 1}px, #c9b99a40 ${LINE - 1}px, #c9b99a40 ${LINE}px)`,
+                            backgroundPosition: '0 0',
+                            paddingTop: '8px',
+                            paddingBottom: '8px',
+                        }}
+                    >
+                        {/* Red margin line */}
+                        <div className="absolute left-8 top-0 bottom-0 w-[1px] bg-rose-400/50" />
+
+                        {/* Title */}
+                        <div style={{ height: lineHeight }}>
+                            <span className="text-stone-800" style={fontStyle}>Filter Books</span>
                         </div>
 
-                        <div>
-                            <label className="text-gray-300 text-sm mb-1 block">Genre</label>
+                        {/* Blank line */}
+                        <div style={{ height: lineHeight }} />
+
+                        {/* Short Stories */}
+                        <div style={{ height: lineHeight }}>
+                            <span className="text-stone-400" style={fontStyle}>Short Stories:</span>
+                        </div>
+                        <InlinePicker options={shortStoryOptions} value={shortStory} onChange={setShortStory} />
+
+                        {/* Genre */}
+                        <div style={{ height: lineHeight }}>
+                            <span className="text-stone-400" style={fontStyle}>Genre:</span>
+                        </div>
+                        <div style={{ height: lineHeight }}>
                             <input
                                 type="text"
                                 value={genre}
                                 onChange={(e) => setGenre(e.target.value)}
                                 placeholder="e.g., Fantasy, Fiction"
-                                className="w-full bg-gray-800 border border-gray-600 text-gray-300 text-sm rounded p-2 placeholder-gray-500"
+                                className="bg-transparent border-0 text-stone-800 p-0 m-0 focus:outline-none focus:ring-0 w-full placeholder-stone-300"
+                                style={fontStyle}
                             />
                         </div>
 
-                        <div>
-                            <label className="text-gray-300 text-sm mb-1 block">Status</label>
-                            <select
-                                value={status}
-                                onChange={(e) => setStatus(e.target.value)}
-                                className="w-full bg-gray-800 border border-gray-600 text-gray-300 text-sm rounded p-2"
-                            >
-                                <option value="">All</option>
-                                <option value="completed">Completed</option>
-                                <option value="in-progress">In Progress</option>
-                                <option value="owned">Owned (Not Started)</option>
-                                <option value="not-owned">Not Owned</option>
-                            </select>
+                        {/* Status */}
+                        <div style={{ height: lineHeight }}>
+                            <span className="text-stone-400" style={fontStyle}>Status:</span>
                         </div>
+                        <InlinePicker options={statusOptions} value={status} onChange={setStatus} />
 
-                        <div>
-                            <label className="text-gray-300 text-sm mb-1 block">Completed Year</label>
+                        {/* Completed Year */}
+                        <div style={{ height: lineHeight }}>
+                            <span className="text-stone-400" style={fontStyle}>Completed Year:</span>
+                        </div>
+                        <div style={{ height: lineHeight }}>
                             <input
                                 type="number"
                                 value={year}
                                 onChange={(e) => setYear(e.target.value)}
                                 placeholder="e.g., 2024"
-                                className="w-full bg-gray-800 border border-gray-600 text-gray-300 text-sm rounded p-2 placeholder-gray-500"
+                                className="bg-transparent border-0 text-stone-800 p-0 m-0 focus:outline-none focus:ring-0 w-full placeholder-stone-300 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                style={fontStyle}
                             />
                         </div>
-                    </div>
 
-                    <div className="flex gap-2 mt-6">
-                        <button
-                            onClick={handleApply}
-                            className="flex-1 text-white bg-gradient-to-r from-green-500 to-emerald-500 hover:bg-gradient-to-l font-small rounded-lg text-sm p-2"
-                        >
-                            Apply Filters
-                        </button>
-                        <button
-                            onClick={handleClear}
-                            className="flex-1 text-white bg-gradient-to-r from-gray-500 to-gray-600 hover:bg-gradient-to-l font-small rounded-lg text-sm p-2"
-                        >
-                            Clear All
-                        </button>
+                        {/* Blank line */}
+                        <div style={{ height: lineHeight }} />
+
+                        {/* Actions */}
+                        <div className="flex gap-6" style={{ height: lineHeight }}>
+                            <button
+                                type="button"
+                                onClick={handleApply}
+                                className="text-amber-800 hover:text-amber-900 transition-colors p-0 m-0 border-0 bg-transparent cursor-pointer underline underline-offset-2 decoration-amber-800/40"
+                                style={fontStyle}
+                            >
+                                Apply
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleClear}
+                                className="text-stone-400 hover:text-stone-600 transition-colors p-0 m-0 border-0 bg-transparent cursor-pointer"
+                                style={fontStyle}
+                            >
+                                Clear
+                            </button>
+                        </div>
+
+                        {/* Bottom blank lines */}
+                        <div style={{ height: '56px' }} />
                     </div>
                 </Box>
             </Modal>
