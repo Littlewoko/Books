@@ -21,6 +21,12 @@ export default function Form() {
     const [spineColor, setSpineColor] = useState("");
     const [searchOpen, setSearchOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState<{ title?: string; author?: string; isbn?: string }>({});
+    const [debouncedTitle, setDebouncedTitle] = useState(title);
+
+    useEffect(() => {
+        const timer = setTimeout(() => setDebouncedTitle(title), 500);
+        return () => clearTimeout(timer);
+    }, [title]);
 
     const handleSelectBook = (book: BookSearchResult) => {
         setTitle(book.title);
@@ -38,7 +44,7 @@ export default function Form() {
     };
 
     const hasCustomColor = !!spineColor;
-    const fallbackColor = getBookColor(title || "New Book");
+    const fallbackColor = getBookColor(debouncedTitle || "New Book");
     const light = hasCustomColor && isLightColor(spineColor);
     const coverText = light ? 'text-stone-900/90' : 'text-amber-100/95';
     const coverTextSub = light ? 'text-stone-900/60' : 'text-amber-100/60';

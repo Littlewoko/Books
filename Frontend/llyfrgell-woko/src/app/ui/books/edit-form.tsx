@@ -28,6 +28,12 @@ const Form: React.FC<Props> = ({ book }) => {
     const [spineColor, setSpineColor] = useState(book?.spineColor || "");
     const [searchOpen, setSearchOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState<{ title?: string; author?: string; isbn?: string }>({});
+    const [debouncedTitle, setDebouncedTitle] = useState(title);
+
+    useEffect(() => {
+        const timer = setTimeout(() => setDebouncedTitle(title), 500);
+        return () => clearTimeout(timer);
+    }, [title]);
 
     if (!book || !book.id) {
         return <div className="text-gray-300">No such book</div>;
@@ -56,7 +62,7 @@ const Form: React.FC<Props> = ({ book }) => {
     };
 
     const hasCustomColor = !!spineColor;
-    const fallbackColor = getBookColor(title || "Book");
+    const fallbackColor = getBookColor(debouncedTitle || "Book");
     const light = hasCustomColor && isLightColor(spineColor);
     const coverText = light ? 'text-stone-900/90' : 'text-amber-100/95';
     const coverTextSub = light ? 'text-stone-900/60' : 'text-amber-100/60';

@@ -78,59 +78,63 @@ export default function BookClubEditor({ bookId, initialNotes }: Props) {
                     </div>
 
                     {notes.map((note, index) => (
-                        <div key={index} className="flex gap-2 mt-1">
+                        <div key={index} className="flex gap-2">
                             <div className="flex-1">
-                                <input
-                                    type="text"
-                                    placeholder="Question..."
-                                    value={note.question}
-                                    onChange={(e) => updateNote(index, 'question', e.target.value)}
-                                    className="w-full bg-transparent border-none text-indigo-800 placeholder-stone-300 focus:outline-none"
-                                    style={{ fontSize: '18px', lineHeight: '28px', fontFamily: 'var(--font-caveat)' }}
-                                />
+                                <div style={{ height: '28px' }}>
+                                    <input
+                                        type="text"
+                                        placeholder="Question..."
+                                        value={note.question}
+                                        onChange={(e) => updateNote(index, 'question', e.target.value)}
+                                        className="w-full bg-transparent border-none text-indigo-800 placeholder-stone-300 focus:outline-none p-0 m-0"
+                                        style={{ fontSize: '18px', height: '28px', lineHeight: '28px', fontFamily: 'var(--font-caveat)' }}
+                                    />
+                                </div>
                                 <textarea
                                     placeholder="Answer..."
                                     value={note.answer}
                                     onChange={(e) => updateNote(index, 'answer', e.target.value)}
                                     rows={2}
-                                    className="w-full bg-transparent border-none text-stone-700 placeholder-stone-300 focus:outline-none resize-none"
+                                    className="w-full bg-transparent border-none text-stone-700 placeholder-stone-300 focus:outline-none resize-none p-0 m-0 block"
                                     style={{ fontSize: '18px', lineHeight: '28px', fontFamily: 'var(--font-caveat)' }}
                                 />
                             </div>
                             <button
                                 type="button"
                                 onClick={() => removeNote(index)}
-                                className="text-rose-400/50 hover:text-rose-500 transition-colors self-start mt-1"
+                                className="text-rose-400/50 hover:text-rose-500 transition-colors self-start"
+                                style={{ height: '28px', display: 'flex', alignItems: 'center' }}
                             >
                                 <RemoveCircleIcon sx={{ fontSize: '16px' }} />
                             </button>
                         </div>
                     ))}
 
-                    {notes.length > 0 && (
-                        <div className="flex justify-center" style={{ marginTop: '28px' }}>
-                            <button
-                                type="button"
-                                onClick={handleSave}
-                                disabled={saving}
-                                className="flex items-center gap-1 text-stone-600 hover:text-stone-800 disabled:opacity-50 transition-colors"
-                                style={{ fontFamily: 'var(--font-caveat)', fontSize: '20px' }}
-                            >
-                                <SaveIcon sx={{ fontSize: '18px' }} />
-                                {saving ? 'Saving...' : 'Save Notes'}
-                            </button>
+                    {notes.length === 0 && (
+                        <div style={{ height: '28px' }}>
+                            <Typography className="text-stone-300 text-center" sx={{ fontSize: '18px', lineHeight: '28px', fontFamily: 'var(--font-caveat)' }}>
+                                No book club questions yet
+                            </Typography>
                         </div>
                     )}
 
-                    {notes.length === 0 && (
-                        <Typography className="text-stone-300 text-center" sx={{ fontSize: '18px', lineHeight: '28px', fontFamily: 'var(--font-caveat)', marginTop: '28px' }}>
-                            No book club questions yet
-                        </Typography>
-                    )}
-
-                    <div style={{ height: '56px' }} />
+                    <div style={{ height: '84px' }} />
                 </div>
             </div>
+
+            {notes.length > 0 && (
+                <div className="mt-8 mb-6 flex justify-center">
+                    <button
+                        type="button"
+                        onClick={handleSave}
+                        disabled={saving}
+                        className="flex items-center text-stone-600 hover:text-stone-300 disabled:opacity-50 transition-colors text-sm gap-1"
+                    >
+                        <SaveIcon sx={{ fontSize: '14px' }} />
+                        {saving ? 'Saving...' : 'Save Notes'}
+                    </button>
+                </div>
+            )}
         </div>
     );
 }
