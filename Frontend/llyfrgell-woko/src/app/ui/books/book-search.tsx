@@ -1,11 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Typography, CircularProgress } from "@mui/material";
 import SearchIcon from '@mui/icons-material/Search';
+import CloseIcon from '@mui/icons-material/Close';
 import { BookSearchResult } from "@/app/lib/books/api-service";
 
 interface BookSearchProps {
+    open: boolean;
+    onClose: () => void;
     onSelectBook: (book: BookSearchResult) => void;
     currentData?: {
         title?: string;
@@ -15,46 +18,53 @@ interface BookSearchProps {
         description?: string;
         coverImageUrl?: string;
     };
+    initialQuery?: { title?: string; author?: string; isbn?: string };
 }
 
-export default function BookSearch({ onSelectBook, currentData }: BookSearchProps) {
+export default function BookSearch({ open, onClose, onSelectBook, currentData, initialQuery }: BookSearchProps) {
     const [title, setTitle] = useState("");
     const [author, setAuthor] = useState("");
     const [isbn, setIsbn] = useState("");
     const [results, setResults] = useState<BookSearchResult[]>([]);
     const [loading, setLoading] = useState(false);
     const [hasSearched, setHasSearched] = useState(false);
-    const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
     const [selectedBook, setSelectedBook] = useState<BookSearchResult | null>(null);
     const [showConfirm, setShowConfirm] = useState(false);
     const [overwriteFields, setOverwriteFields] = useState({
-        title: false,
-        author: false,
-        genre: false,
-        isbn: false,
-        description: false,
-        coverImageUrl: false,
+        title: false, author: false, genre: false, isbn: false, description: false, coverImageUrl: false,
     });
+
+    useEffect(() => {
+        if (open && initialQuery) {
+            setTitle(initialQuery.title || "");
+            setAuthor(initialQuery.author || "");
+            setIsbn(initialQuery.isbn || "");
+            setResults([]);
+            setHasSearched(false);
+            setSelectedBook(null);
+            setShowConfirm(false);
+        }
+    }, [open, initialQuery]);
+
+    if (!open) return null;
 
     const handleSearch = async () => {
         if (!title.trim() && !author.trim() && !isbn.trim()) return;
-
         setLoading(true);
         setResults([]);
         setHasSearched(true);
-        setSelectedIndex(null);
-
+        setSelectedBook(null);
+        setShowConfirm(false);
         try {
             const response = await fetch('/api/books/search', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    title: title.trim() || undefined, 
+                body: JSON.stringify({
+                    title: title.trim() || undefined,
                     author: author.trim() || undefined,
                     isbn: isbn.trim() || undefined,
                 }),
             });
-
             const data = await response.json();
             setResults(data.results || []);
         } catch (error) {
@@ -79,11 +89,9 @@ export default function BookSearch({ onSelectBook, currentData }: BookSearchProp
         }
     };
 
-    const handleSelect = async (index: number) => {
-        const book = results[index];
-        setSelectedIndex(index);
+    const handleSelect = async (book: BookSearchResult) => {
         setSelectedBook(book);
-        
+
         const willOverwrite = (
             (currentData?.title && book.title !== currentData.title) ||
             (currentData?.author && book.author !== currentData.author) ||
@@ -92,7 +100,7 @@ export default function BookSearch({ onSelectBook, currentData }: BookSearchProp
             (currentData?.description && book.description) ||
             (currentData?.coverImageUrl && book.coverImageUrl)
         );
-        
+
         if (willOverwrite) {
             setOverwriteFields({
                 title: !!(currentData?.title && book.title !== currentData.title),
@@ -106,28 +114,27 @@ export default function BookSearch({ onSelectBook, currentData }: BookSearchProp
         } else {
             const spineColor = await extractSpineColor(book.coverImageUrl);
             onSelectBook({ ...book, spineColor });
-            setShowConfirm(false);
+            onClose();
         }
     };
 
     const handleConfirm = async () => {
-        if (selectedBook) {
-            const spineColor = await extractSpineColor(
-                overwriteFields.coverImageUrl ? selectedBook.coverImageUrl : currentData?.coverImageUrl || selectedBook.coverImageUrl
-            );
-            const modifiedBook: BookSearchResult = {
-                title: overwriteFields.title ? selectedBook.title : currentData?.title || selectedBook.title,
-                author: overwriteFields.author ? selectedBook.author : currentData?.author || selectedBook.author,
-                genre: overwriteFields.genre ? selectedBook.genre : currentData?.genre || selectedBook.genre,
-                isbn: overwriteFields.isbn ? selectedBook.isbn : (overwriteFields.title || overwriteFields.author ? undefined : currentData?.isbn),
-                description: overwriteFields.description ? selectedBook.description : currentData?.description || selectedBook.description,
-                coverImageUrl: overwriteFields.coverImageUrl ? selectedBook.coverImageUrl : currentData?.coverImageUrl || selectedBook.coverImageUrl,
-                publishedDate: selectedBook.publishedDate,
-                spineColor,
-            };
-            onSelectBook(modifiedBook);
-        }
-        setShowConfirm(false);
+        if (!selectedBook) return;
+        const spineColor = await extractSpineColor(
+            overwriteFields.coverImageUrl ? selectedBook.coverImageUrl : currentData?.coverImageUrl || selectedBook.coverImageUrl
+        );
+        const modifiedBook: BookSearchResult = {
+            title: overwriteFields.title ? selectedBook.title : currentData?.title || selectedBook.title,
+            author: overwriteFields.author ? selectedBook.author : currentData?.author || selectedBook.author,
+            genre: overwriteFields.genre ? selectedBook.genre : currentData?.genre || selectedBook.genre,
+            isbn: overwriteFields.isbn ? selectedBook.isbn : (overwriteFields.title || overwriteFields.author ? undefined : currentData?.isbn),
+            description: overwriteFields.description ? selectedBook.description : currentData?.description || selectedBook.description,
+            coverImageUrl: overwriteFields.coverImageUrl ? selectedBook.coverImageUrl : currentData?.coverImageUrl || selectedBook.coverImageUrl,
+            publishedDate: selectedBook.publishedDate,
+            spineColor,
+        };
+        onSelectBook(modifiedBook);
+        onClose();
     };
 
     const toggleAllFields = (checked: boolean) => {
@@ -141,200 +148,197 @@ export default function BookSearch({ onSelectBook, currentData }: BookSearchProp
         });
     };
 
-    const handleCancel = () => {
-        setShowConfirm(false);
-        setSelectedIndex(null);
-        setSelectedBook(null);
-    };
-
-    const inputClass = "placeholder-gray-400/60 border border-indigo-400/20 bg-indigo-950/20 text-sm block w-full p-1.5 text-gray-300 rounded focus:border-indigo-400/50 focus:outline-none transition-colors";
+    const inputClass = "bg-transparent border-b border-stone-300 text-stone-800 text-sm w-full pb-1 focus:outline-none focus:border-stone-500 placeholder-stone-400";
 
     return (
-        <div className="mt-3 mb-6 rounded-lg p-4 border border-indigo-500/10" style={{ backgroundColor: "rgba(15,10,40,0.75)" }}>
-            <Typography className="text-indigo-300/60 mb-3" sx={{ fontSize: { xs: '11px', sm: '12px' }, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
-                Lookup Book Data
-            </Typography>
-            
-            <div className="flex flex-col sm:flex-row gap-2">
-                <input
-                    type="text"
-                    placeholder="Title"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleSearch())}
-                    className={`flex-1 ${inputClass}`}
-                />
-                <input
-                    type="text"
-                    placeholder="Author"
-                    value={author}
-                    onChange={(e) => setAuthor(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleSearch())}
-                    className={`flex-1 ${inputClass}`}
-                />
-                <input
-                    type="text"
-                    placeholder="ISBN"
-                    value={isbn}
-                    onChange={(e) => setIsbn(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleSearch())}
-                    className={`flex-1 ${inputClass}`}
-                />
-                <button
-                    type="button"
-                    onClick={handleSearch}
-                    disabled={loading || (!title.trim() && !author.trim() && !isbn.trim())}
-                    className="flex items-center justify-center text-white bg-gradient-to-r from-indigo-500 to-purple-500 hover:bg-gradient-to-l disabled:opacity-30 rounded-lg text-sm p-1.5 px-4 w-full sm:w-auto transition-opacity"
-                >
-                    {loading ? <CircularProgress size={16} className="text-white" /> : <SearchIcon fontSize="small" />}
-                </button>
-            </div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
+            <div className="absolute inset-0 bg-black/60" />
 
-            {results.length > 0 && (
-                <div className="flex flex-col gap-1.5 mt-3 max-h-80 overflow-y-auto">
-                    {results.map((result, index) => (
-                        <div
-                            key={index}
-                            onClick={() => handleSelect(index)}
-                            className={`flex gap-3 p-2.5 rounded cursor-pointer transition-colors ${
-                                selectedIndex === index
-                                    ? 'bg-indigo-500/15 border border-indigo-400/40'
-                                    : 'bg-white/5 border border-transparent hover:bg-indigo-500/10'
-                            }`}
+            <div
+                className="relative w-full max-w-lg max-h-[85vh] overflow-hidden rounded-sm shadow-xl shadow-black/50 flex flex-col"
+                onClick={(e) => e.stopPropagation()}
+            >
+                {/* Notebook header */}
+                <div className="h-[3px] bg-gradient-to-r from-amber-800/40 via-amber-700/60 to-amber-800/40" />
+
+                <div
+                    className="relative pl-12 sm:pl-16 pr-5 sm:pr-8 overflow-y-auto flex-1"
+                    style={{
+                        backgroundColor: '#f5f0e1',
+                        backgroundImage: 'repeating-linear-gradient(transparent, transparent 27px, #c9b99a40 27px, #c9b99a40 28px)',
+                        paddingTop: '8px',
+                        paddingBottom: '24px',
+                    }}
+                >
+                    {/* Red margin line */}
+                    <div className="absolute left-8 sm:left-12 top-0 bottom-0 w-[1px] bg-rose-400/50" />
+
+                    {/* Close button */}
+                    <div className="flex justify-between items-center" style={{ height: '28px' }}>
+                        <Typography className="text-stone-400" sx={{ fontSize: '18px', lineHeight: '28px', fontFamily: 'var(--font-caveat)' }}>
+                            Lookup:
+                        </Typography>
+                        <button type="button" onClick={onClose} className="text-stone-400 hover:text-stone-600 transition-colors">
+                            <CloseIcon sx={{ fontSize: '16px' }} />
+                        </button>
+                    </div>
+
+                    {/* Search fields */}
+                    <div className="flex flex-col gap-2 mt-2 mb-3">
+                        <input type="text" placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleSearch())}
+                            className={inputClass} style={{ fontFamily: 'var(--font-caveat)', fontSize: '18px', lineHeight: '28px' }}
+                        />
+                        <input type="text" placeholder="Author" value={author} onChange={(e) => setAuthor(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleSearch())}
+                            className={inputClass} style={{ fontFamily: 'var(--font-caveat)', fontSize: '18px', lineHeight: '28px' }}
+                        />
+                        <input type="text" placeholder="ISBN" value={isbn} onChange={(e) => setIsbn(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleSearch())}
+                            className={inputClass} style={{ fontFamily: 'var(--font-caveat)', fontSize: '18px', lineHeight: '28px' }}
+                        />
+                    </div>
+
+                    <div className="flex justify-center mb-3">
+                        <button
+                            type="button"
+                            onClick={handleSearch}
+                            disabled={loading || (!title.trim() && !author.trim() && !isbn.trim())}
+                            className="flex items-center gap-1 text-stone-500 hover:text-stone-700 disabled:opacity-30 transition-colors"
+                            style={{ fontFamily: 'var(--font-caveat)', fontSize: '18px' }}
                         >
-                            {result.coverImageUrl && (
-                                <img
-                                    src={result.coverImageUrl}
-                                    alt={result.title}
-                                    className="w-10 h-14 object-cover rounded"
-                                />
-                            )}
-                            <div className="flex-1 min-w-0">
-                                <Typography className="text-orange-400 truncate" sx={{ fontSize: { xs: '12px', sm: '13px' } }}>
-                                    {result.title}
-                                </Typography>
-                                <Typography className="text-gray-300" sx={{ fontSize: { xs: '11px', sm: '12px' } }}>
-                                    {result.author}
-                                </Typography>
-                                <Typography className="text-gray-500" sx={{ fontSize: { xs: '10px', sm: '11px' } }}>
-                                    {result.publishedDate && `${result.publishedDate} • `}
-                                    {result.isbn && `ISBN: ${result.isbn}`}
-                                </Typography>
+                            {loading ? <CircularProgress size={14} className="text-stone-500" /> : <SearchIcon sx={{ fontSize: '16px' }} />}
+                            Search
+                        </button>
+                    </div>
+
+                    {/* Results */}
+                    {results.length > 0 && (
+                        <div className="flex flex-col gap-1">
+                            {results.map((result, index) => (
+                                <div
+                                    key={index}
+                                    onClick={() => handleSelect(result)}
+                                    className={`flex gap-3 p-2 rounded-sm cursor-pointer transition-colors ${
+                                        selectedBook === result ? 'bg-amber-800/10' : 'hover:bg-amber-800/5'
+                                    }`}
+                                >
+                                    {result.coverImageUrl && (
+                                        <img src={result.coverImageUrl} alt={result.title} className="w-9 h-13 object-cover rounded-sm flex-shrink-0" />
+                                    )}
+                                    <div className="flex-1 min-w-0">
+                                        <Typography className="text-stone-800 break-words" sx={{ fontSize: '17px', lineHeight: '28px', fontFamily: 'var(--font-caveat)' }}>
+                                            {result.title}
+                                        </Typography>
+                                        <Typography className="text-stone-500" sx={{ fontSize: '16px', lineHeight: '28px', fontFamily: 'var(--font-caveat)' }}>
+                                            {result.author}
+                                        </Typography>
+                                        {(result.publishedDate || result.isbn) && (
+                                            <Typography className="text-stone-400" sx={{ fontSize: '14px', lineHeight: '20px', fontFamily: 'var(--font-caveat)' }}>
+                                                {result.publishedDate && result.publishedDate}
+                                                {result.publishedDate && result.isbn && ' · '}
+                                                {result.isbn && `ISBN: ${result.isbn}`}
+                                            </Typography>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                    {results.length === 0 && !loading && hasSearched && (
+                        <Typography className="text-stone-300 text-center" sx={{ fontSize: '18px', lineHeight: '28px', fontFamily: 'var(--font-caveat)' }}>
+                            No results found
+                        </Typography>
+                    )}
+
+                    {/* Overwrite confirmation */}
+                    {showConfirm && selectedBook && (
+                        <div className="mt-3 pt-3 border-t border-rose-400/30">
+                            <Typography className="text-amber-700 mb-2" sx={{ fontSize: '17px', lineHeight: '28px', fontFamily: 'var(--font-caveat)' }}>
+                                Select fields to overwrite:
+                            </Typography>
+                            <div className="mb-3">
+                                <label className="flex items-center gap-2 cursor-pointer" style={{ height: '28px' }}>
+                                    <input type="checkbox" checked={Object.values(overwriteFields).every(v => v)}
+                                        onChange={(e) => toggleAllFields(e.target.checked)} className="accent-amber-700 cursor-pointer" />
+                                    <Typography className="text-stone-700 font-bold" sx={{ fontSize: '16px', lineHeight: '28px', fontFamily: 'var(--font-caveat)' }}>
+                                        Select All
+                                    </Typography>
+                                </label>
+                                {currentData?.title && selectedBook.title !== currentData.title && (
+                                    <label className="flex items-center gap-2 cursor-pointer" style={{ height: '28px' }}>
+                                        <input type="checkbox" checked={overwriteFields.title}
+                                            onChange={(e) => setOverwriteFields(prev => ({ ...prev, title: e.target.checked }))} className="accent-amber-700 cursor-pointer" />
+                                        <Typography className="text-stone-600" sx={{ fontSize: '16px', lineHeight: '28px', fontFamily: 'var(--font-caveat)' }}>
+                                            <span className="text-rose-500">Title:</span> {currentData.title} → {selectedBook.title}
+                                        </Typography>
+                                    </label>
+                                )}
+                                {currentData?.author && selectedBook.author !== currentData.author && (
+                                    <label className="flex items-center gap-2 cursor-pointer" style={{ height: '28px' }}>
+                                        <input type="checkbox" checked={overwriteFields.author}
+                                            onChange={(e) => setOverwriteFields(prev => ({ ...prev, author: e.target.checked }))} className="accent-amber-700 cursor-pointer" />
+                                        <Typography className="text-stone-600" sx={{ fontSize: '16px', lineHeight: '28px', fontFamily: 'var(--font-caveat)' }}>
+                                            <span className="text-rose-500">Author:</span> {currentData.author} → {selectedBook.author}
+                                        </Typography>
+                                    </label>
+                                )}
+                                {currentData?.genre && selectedBook.genre && selectedBook.genre !== currentData.genre && (
+                                    <label className="flex items-center gap-2 cursor-pointer" style={{ height: '28px' }}>
+                                        <input type="checkbox" checked={overwriteFields.genre}
+                                            onChange={(e) => setOverwriteFields(prev => ({ ...prev, genre: e.target.checked }))} className="accent-amber-700 cursor-pointer" />
+                                        <Typography className="text-stone-600" sx={{ fontSize: '16px', lineHeight: '28px', fontFamily: 'var(--font-caveat)' }}>
+                                            <span className="text-rose-500">Genre:</span> {currentData.genre} → {selectedBook.genre}
+                                        </Typography>
+                                    </label>
+                                )}
+                                {((currentData?.isbn && selectedBook.isbn && selectedBook.isbn !== currentData.isbn) || (!currentData?.isbn && selectedBook.isbn)) && (
+                                    <label className="flex items-center gap-2 cursor-pointer" style={{ height: '28px' }}>
+                                        <input type="checkbox" checked={overwriteFields.isbn}
+                                            onChange={(e) => setOverwriteFields(prev => ({ ...prev, isbn: e.target.checked }))} className="accent-amber-700 cursor-pointer" />
+                                        <Typography className="text-stone-600" sx={{ fontSize: '16px', lineHeight: '28px', fontFamily: 'var(--font-caveat)' }}>
+                                            <span className="text-rose-500">ISBN:</span> {currentData?.isbn ? `${currentData.isbn} → ${selectedBook.isbn}` : `Add ${selectedBook.isbn}`}
+                                        </Typography>
+                                    </label>
+                                )}
+                                {currentData?.description && selectedBook.description && (
+                                    <label className="flex items-center gap-2 cursor-pointer" style={{ height: '28px' }}>
+                                        <input type="checkbox" checked={overwriteFields.description}
+                                            onChange={(e) => setOverwriteFields(prev => ({ ...prev, description: e.target.checked }))} className="accent-amber-700 cursor-pointer" />
+                                        <Typography className="text-stone-600" sx={{ fontSize: '16px', lineHeight: '28px', fontFamily: 'var(--font-caveat)' }}>
+                                            <span className="text-rose-500">Description:</span> Will be replaced
+                                        </Typography>
+                                    </label>
+                                )}
+                                {currentData?.coverImageUrl && selectedBook.coverImageUrl && (
+                                    <label className="flex items-center gap-2 cursor-pointer" style={{ height: '28px' }}>
+                                        <input type="checkbox" checked={overwriteFields.coverImageUrl}
+                                            onChange={(e) => setOverwriteFields(prev => ({ ...prev, coverImageUrl: e.target.checked }))} className="accent-amber-700 cursor-pointer" />
+                                        <Typography className="text-stone-600" sx={{ fontSize: '16px', lineHeight: '28px', fontFamily: 'var(--font-caveat)' }}>
+                                            <span className="text-rose-500">Cover:</span> Will be replaced
+                                        </Typography>
+                                    </label>
+                                )}
+                            </div>
+                            <div className="flex justify-center gap-4">
+                                <button type="button" onClick={handleConfirm}
+                                    className="text-stone-600 hover:text-stone-800 transition-colors"
+                                    style={{ fontFamily: 'var(--font-caveat)', fontSize: '18px' }}>
+                                    Apply
+                                </button>
+                                <button type="button" onClick={() => { setShowConfirm(false); setSelectedBook(null); }}
+                                    className="text-stone-400 hover:text-stone-600 transition-colors"
+                                    style={{ fontFamily: 'var(--font-caveat)', fontSize: '18px' }}>
+                                    Cancel
+                                </button>
                             </div>
                         </div>
-                    ))}
-                </div>
-            )}
+                    )}
 
-            {showConfirm && selectedBook && (
-                <div className="mt-3 p-3 border border-orange-500/40 rounded-lg bg-orange-900/15">
-                    <Typography className="text-orange-300 mb-2" sx={{ fontSize: { xs: '12px', sm: '13px' } }}>
-                        ⚠️ Select fields to overwrite:
-                    </Typography>
-                    <div className="mb-3">
-                        <label className="flex items-center gap-2 text-gray-300 text-sm mb-2 cursor-pointer">
-                            <input
-                                type="checkbox"
-                                checked={Object.values(overwriteFields).every(v => v)}
-                                onChange={(e) => toggleAllFields(e.target.checked)}
-                                className="cursor-pointer"
-                            />
-                            <span className="font-bold">Select All</span>
-                        </label>
-                        {currentData?.title && selectedBook.title !== currentData.title && (
-                            <label className="flex items-center gap-2 text-gray-300 text-sm mb-1 cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    checked={overwriteFields.title}
-                                    onChange={(e) => setOverwriteFields(prev => ({ ...prev, title: e.target.checked }))}
-                                    className="cursor-pointer"
-                                />
-                                <span><span className="text-red-400">Title:</span> {currentData.title} → {selectedBook.title}</span>
-                            </label>
-                        )}
-                        {currentData?.author && selectedBook.author !== currentData.author && (
-                            <label className="flex items-center gap-2 text-gray-300 text-sm mb-1 cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    checked={overwriteFields.author}
-                                    onChange={(e) => setOverwriteFields(prev => ({ ...prev, author: e.target.checked }))}
-                                    className="cursor-pointer"
-                                />
-                                <span><span className="text-red-400">Author:</span> {currentData.author} → {selectedBook.author}</span>
-                            </label>
-                        )}
-                        {currentData?.genre && selectedBook.genre && selectedBook.genre !== currentData.genre && (
-                            <label className="flex items-center gap-2 text-gray-300 text-sm mb-1 cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    checked={overwriteFields.genre}
-                                    onChange={(e) => setOverwriteFields(prev => ({ ...prev, genre: e.target.checked }))}
-                                    className="cursor-pointer"
-                                />
-                                <span><span className="text-red-400">Genre:</span> {currentData.genre} → {selectedBook.genre}</span>
-                            </label>
-                        )}
-                        {((currentData?.isbn && selectedBook.isbn && selectedBook.isbn !== currentData.isbn) || (!currentData?.isbn && selectedBook.isbn)) && (
-                            <label className="flex items-center gap-2 text-gray-300 text-sm mb-1 cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    checked={overwriteFields.isbn}
-                                    onChange={(e) => setOverwriteFields(prev => ({ ...prev, isbn: e.target.checked }))}
-                                    className="cursor-pointer"
-                                />
-                                <span>
-                                    <span className="text-red-400">ISBN:</span> 
-                                    {currentData?.isbn ? `${currentData.isbn} → ${selectedBook.isbn}` : `Add ${selectedBook.isbn}`}
-                                </span>
-                            </label>
-                        )}
-                        {currentData?.description && selectedBook.description && (
-                            <label className="flex items-center gap-2 text-gray-300 text-sm mb-1 cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    checked={overwriteFields.description}
-                                    onChange={(e) => setOverwriteFields(prev => ({ ...prev, description: e.target.checked }))}
-                                    className="cursor-pointer"
-                                />
-                                <span><span className="text-red-400">Description:</span> Will be replaced</span>
-                            </label>
-                        )}
-                        {currentData?.coverImageUrl && selectedBook.coverImageUrl && (
-                            <label className="flex items-center gap-2 text-gray-300 text-sm mb-1 cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    checked={overwriteFields.coverImageUrl}
-                                    onChange={(e) => setOverwriteFields(prev => ({ ...prev, coverImageUrl: e.target.checked }))}
-                                    className="cursor-pointer"
-                                />
-                                <span><span className="text-red-400">Cover Image:</span> Will be replaced</span>
-                            </label>
-                        )}
-                    </div>
-                    <div className="flex gap-2">
-                        <button
-                            type="button"
-                            onClick={handleConfirm}
-                            className="flex items-center text-white bg-gradient-to-r from-orange-500 to-red-500 hover:bg-gradient-to-l font-small rounded-lg text-sm p-1 px-3"
-                        >
-                            Apply Selected
-                        </button>
-                        <button
-                            type="button"
-                            onClick={handleCancel}
-                            className="flex items-center text-gray-300 bg-white/10 hover:bg-white/20 font-small rounded-lg text-sm p-1 px-3 transition-colors"
-                        >
-                            Cancel
-                        </button>
-                    </div>
+                    <div style={{ height: '56px' }} />
                 </div>
-            )}
-
-            {results.length === 0 && !loading && hasSearched && (
-                <Typography className="text-indigo-300/40 text-center mt-3" sx={{ fontSize: { xs: '11px', sm: '12px' } }}>
-                    No results found
-                </Typography>
-            )}
+            </div>
         </div>
     );
 }
