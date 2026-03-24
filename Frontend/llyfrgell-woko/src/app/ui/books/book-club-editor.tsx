@@ -44,69 +44,93 @@ export default function BookClubEditor({ bookId, initialNotes }: Props) {
         }
     };
 
-    const inputClass = "placeholder-gray-300/80 border border-white bg-inherit text-sm block w-full p-1 text-gray-300";
-
     return (
-        <div className="mt-4 p-3 border border-gray-600 rounded bg-black/30">
-            <div className="flex items-center justify-between mb-3">
-                <Typography className="text-gray-300" sx={{ fontSize: { xs: '10px', sm: '12px' } }}>
-                    Book Club Q&A
-                </Typography>
-                <button
-                    type="button"
-                    onClick={addNote}
-                    className="flex items-center text-gray-400 hover:text-gray-200 transition-colors text-xs gap-1"
-                >
-                    <AddCircleIcon sx={{ fontSize: '14px' }} />
-                    Add Question
-                </button>
-            </div>
+        <div className="max-w-2xl mx-auto px-2 mt-6">
+            <div className="rounded-sm overflow-hidden shadow-lg shadow-black/30">
+                <div className="h-[3px] bg-gradient-to-r from-amber-800/40 via-amber-700/60 to-amber-800/40" />
 
-            {notes.map((note, index) => (
-                <div key={index} className="mb-3 flex gap-2">
-                    <div className="flex-1 flex flex-col gap-1">
-                        <input
-                            type="text"
-                            placeholder="Question"
-                            value={note.question}
-                            onChange={(e) => updateNote(index, 'question', e.target.value)}
-                            className={inputClass}
-                        />
-                        <textarea
-                            placeholder="Answer (optional)"
-                            value={note.answer}
-                            onChange={(e) => updateNote(index, 'answer', e.target.value)}
-                            rows={2}
-                            className={`${inputClass} resize-none`}
-                        />
+                <div
+                    className="relative pl-12 sm:pl-16 pr-5 sm:pr-8"
+                    style={{
+                        backgroundColor: '#f5f0e1',
+                        backgroundImage: 'repeating-linear-gradient(transparent, transparent 27px, #c9b99a40 27px, #c9b99a40 28px)',
+                        paddingTop: '8px',
+                        paddingBottom: '24px',
+                    }}
+                >
+                    {/* Red margin line */}
+                    <div className="absolute left-8 sm:left-12 top-0 bottom-0 w-[1px] bg-rose-400/50" />
+
+                    {/* Header */}
+                    <div className="flex items-center justify-between" style={{ height: '28px' }}>
+                        <Typography className="text-stone-400" sx={{ fontSize: '18px', lineHeight: '28px', fontFamily: 'var(--font-caveat)' }}>
+                            Notes:
+                        </Typography>
+                        <button
+                            type="button"
+                            onClick={addNote}
+                            className="flex items-center gap-1 text-stone-400 hover:text-stone-600 transition-colors"
+                            style={{ fontFamily: 'var(--font-caveat)', fontSize: '16px' }}
+                        >
+                            <AddCircleIcon sx={{ fontSize: '14px' }} />
+                            Add Question
+                        </button>
                     </div>
-                    <button
-                        type="button"
-                        onClick={() => removeNote(index)}
-                        className="text-red-500/60 hover:text-red-400 transition-colors self-start mt-1"
-                    >
-                        <RemoveCircleIcon sx={{ fontSize: '16px' }} />
-                    </button>
+
+                    {notes.map((note, index) => (
+                        <div key={index} className="flex gap-2 mt-1">
+                            <div className="flex-1">
+                                <input
+                                    type="text"
+                                    placeholder="Question..."
+                                    value={note.question}
+                                    onChange={(e) => updateNote(index, 'question', e.target.value)}
+                                    className="w-full bg-transparent border-none text-indigo-800 placeholder-stone-300 focus:outline-none"
+                                    style={{ fontSize: '18px', lineHeight: '28px', fontFamily: 'var(--font-caveat)' }}
+                                />
+                                <textarea
+                                    placeholder="Answer..."
+                                    value={note.answer}
+                                    onChange={(e) => updateNote(index, 'answer', e.target.value)}
+                                    rows={2}
+                                    className="w-full bg-transparent border-none text-stone-700 placeholder-stone-300 focus:outline-none resize-none"
+                                    style={{ fontSize: '18px', lineHeight: '28px', fontFamily: 'var(--font-caveat)' }}
+                                />
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => removeNote(index)}
+                                className="text-rose-400/50 hover:text-rose-500 transition-colors self-start mt-1"
+                            >
+                                <RemoveCircleIcon sx={{ fontSize: '16px' }} />
+                            </button>
+                        </div>
+                    ))}
+
+                    {notes.length > 0 && (
+                        <div className="flex justify-center" style={{ marginTop: '28px' }}>
+                            <button
+                                type="button"
+                                onClick={handleSave}
+                                disabled={saving}
+                                className="flex items-center gap-1 text-stone-600 hover:text-stone-800 disabled:opacity-50 transition-colors"
+                                style={{ fontFamily: 'var(--font-caveat)', fontSize: '20px' }}
+                            >
+                                <SaveIcon sx={{ fontSize: '18px' }} />
+                                {saving ? 'Saving...' : 'Save Notes'}
+                            </button>
+                        </div>
+                    )}
+
+                    {notes.length === 0 && (
+                        <Typography className="text-stone-300 text-center" sx={{ fontSize: '18px', lineHeight: '28px', fontFamily: 'var(--font-caveat)', marginTop: '28px' }}>
+                            No book club questions yet
+                        </Typography>
+                    )}
+
+                    <div style={{ height: '56px' }} />
                 </div>
-            ))}
-
-            {notes.length > 0 && (
-                <button
-                    type="button"
-                    onClick={handleSave}
-                    disabled={saving}
-                    className="flex items-center text-white bg-gradient-to-r from-amber-600 to-orange-600 hover:bg-gradient-to-l disabled:opacity-50 font-small rounded-lg text-sm p-1 px-3"
-                >
-                    <SaveIcon className="mr-1" sx={{ fontSize: '14px' }} />
-                    {saving ? 'Saving...' : 'Save Notes'}
-                </button>
-            )}
-
-            {notes.length === 0 && (
-                <Typography className="text-gray-500 text-center" sx={{ fontSize: '11px' }}>
-                    No book club questions yet
-                </Typography>
-            )}
+            </div>
         </div>
     );
 }
