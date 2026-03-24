@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Typography, CircularProgress } from "@mui/material";
 import SearchIcon from '@mui/icons-material/Search';
 import CloseIcon from '@mui/icons-material/Close';
@@ -21,6 +21,11 @@ interface BookSearchProps {
     initialQuery?: { title?: string; author?: string; isbn?: string };
 }
 
+const lineH = '28px';
+const caveat = { fontFamily: 'var(--font-caveat)', fontSize: '18px', lineHeight: lineH };
+const caveatSm = { fontFamily: 'var(--font-caveat)', fontSize: '16px', lineHeight: lineH };
+const inputClass = "bg-transparent border-none text-stone-800 w-full focus:outline-none placeholder-stone-400 p-0 m-0";
+
 export default function BookSearch({ open, onClose, onSelectBook, currentData, initialQuery }: BookSearchProps) {
     const [title, setTitle] = useState("");
     const [author, setAuthor] = useState("");
@@ -28,11 +33,13 @@ export default function BookSearch({ open, onClose, onSelectBook, currentData, i
     const [results, setResults] = useState<BookSearchResult[]>([]);
     const [loading, setLoading] = useState(false);
     const [hasSearched, setHasSearched] = useState(false);
+    const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
     const [selectedBook, setSelectedBook] = useState<BookSearchResult | null>(null);
     const [showConfirm, setShowConfirm] = useState(false);
     const [overwriteFields, setOverwriteFields] = useState({
         title: false, author: false, genre: false, isbn: false, description: false, coverImageUrl: false,
     });
+    const confirmRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         if (open && initialQuery) {
@@ -42,9 +49,16 @@ export default function BookSearch({ open, onClose, onSelectBook, currentData, i
             setResults([]);
             setHasSearched(false);
             setSelectedBook(null);
+            setSelectedIndex(null);
             setShowConfirm(false);
         }
     }, [open, initialQuery]);
+
+    useEffect(() => {
+        if (showConfirm && confirmRef.current) {
+            confirmRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    }, [showConfirm]);
 
     if (!open) return null;
 
@@ -54,6 +68,7 @@ export default function BookSearch({ open, onClose, onSelectBook, currentData, i
         setResults([]);
         setHasSearched(true);
         setSelectedBook(null);
+        setSelectedIndex(null);
         setShowConfirm(false);
         try {
             const response = await fetch('/api/books/search', {
@@ -89,8 +104,9 @@ export default function BookSearch({ open, onClose, onSelectBook, currentData, i
         }
     };
 
-    const handleSelect = async (book: BookSearchResult) => {
+    const handleSelect = async (book: BookSearchResult, index: number) => {
         setSelectedBook(book);
+        setSelectedIndex(index);
 
         const willOverwrite = (
             (currentData?.title && book.title !== currentData.title) ||
@@ -148,7 +164,87 @@ export default function BookSearch({ open, onClose, onSelectBook, currentData, i
         });
     };
 
-    const inputClass = "bg-transparent border-b border-stone-300 text-stone-800 text-sm w-full pb-1 focus:outline-none focus:border-stone-500 placeholder-stone-400";
+    const renderConfirm = () => {
+        if (!showConfirm || !selectedBook) return null;
+        return (
+            <div ref={confirmRef} className="border-t border-rose-400/30">
+                <div style={{ height: lineH }} className="flex items-center">
+                    <Typography className="text-amber-700" sx={caveat}>
+                        Overwrite fields:
+                    </Typography>
+                </div>
+                <label className="flex items-center gap-2 cursor-pointer" style={{ height: lineH }}>
+                    <input type="checkbox" checked={Object.values(overwriteFields).every(v => v)}
+                        onChange={(e) => toggleAllFields(e.target.checked)} className="accent-amber-700 cursor-pointer" />
+                    <Typography className="text-stone-700 font-bold" sx={caveatSm}>Select All</Typography>
+                </label>
+                {currentData?.title && selectedBook.title !== currentData.title && (
+                    <label className="flex items-center gap-2 cursor-pointer" style={{ height: lineH }}>
+                        <input type="checkbox" checked={overwriteFields.title}
+                            onChange={(e) => setOverwriteFields(prev => ({ ...prev, title: e.target.checked }))} className="accent-amber-700 cursor-pointer" />
+                        <Typography className="text-stone-600 truncate" sx={caveatSm}>
+                            <span className="text-rose-500">Title:</span> {currentData.title} → {selectedBook.title}
+                        </Typography>
+                    </label>
+                )}
+                {currentData?.author && selectedBook.author !== currentData.author && (
+                    <label className="flex items-center gap-2 cursor-pointer" style={{ height: lineH }}>
+                        <input type="checkbox" checked={overwriteFields.author}
+                            onChange={(e) => setOverwriteFields(prev => ({ ...prev, author: e.target.checked }))} className="accent-amber-700 cursor-pointer" />
+                        <Typography className="text-stone-600 truncate" sx={caveatSm}>
+                            <span className="text-rose-500">Author:</span> {currentData.author} → {selectedBook.author}
+                        </Typography>
+                    </label>
+                )}
+                {currentData?.genre && selectedBook.genre && selectedBook.genre !== currentData.genre && (
+                    <label className="flex items-center gap-2 cursor-pointer" style={{ height: lineH }}>
+                        <input type="checkbox" checked={overwriteFields.genre}
+                            onChange={(e) => setOverwriteFields(prev => ({ ...prev, genre: e.target.checked }))} className="accent-amber-700 cursor-pointer" />
+                        <Typography className="text-stone-600 truncate" sx={caveatSm}>
+                            <span className="text-rose-500">Genre:</span> {currentData.genre} → {selectedBook.genre}
+                        </Typography>
+                    </label>
+                )}
+                {((currentData?.isbn && selectedBook.isbn && selectedBook.isbn !== currentData.isbn) || (!currentData?.isbn && selectedBook.isbn)) && (
+                    <label className="flex items-center gap-2 cursor-pointer" style={{ height: lineH }}>
+                        <input type="checkbox" checked={overwriteFields.isbn}
+                            onChange={(e) => setOverwriteFields(prev => ({ ...prev, isbn: e.target.checked }))} className="accent-amber-700 cursor-pointer" />
+                        <Typography className="text-stone-600 truncate" sx={caveatSm}>
+                            <span className="text-rose-500">ISBN:</span> {currentData?.isbn ? `${currentData.isbn} → ${selectedBook.isbn}` : `Add ${selectedBook.isbn}`}
+                        </Typography>
+                    </label>
+                )}
+                {currentData?.description && selectedBook.description && (
+                    <label className="flex items-center gap-2 cursor-pointer" style={{ height: lineH }}>
+                        <input type="checkbox" checked={overwriteFields.description}
+                            onChange={(e) => setOverwriteFields(prev => ({ ...prev, description: e.target.checked }))} className="accent-amber-700 cursor-pointer" />
+                        <Typography className="text-stone-600" sx={caveatSm}>
+                            <span className="text-rose-500">Description:</span> Will be replaced
+                        </Typography>
+                    </label>
+                )}
+                {currentData?.coverImageUrl && selectedBook.coverImageUrl && (
+                    <label className="flex items-center gap-2 cursor-pointer" style={{ height: lineH }}>
+                        <input type="checkbox" checked={overwriteFields.coverImageUrl}
+                            onChange={(e) => setOverwriteFields(prev => ({ ...prev, coverImageUrl: e.target.checked }))} className="accent-amber-700 cursor-pointer" />
+                        <Typography className="text-stone-600" sx={caveatSm}>
+                            <span className="text-rose-500">Cover:</span> Will be replaced
+                        </Typography>
+                    </label>
+                )}
+                <div className="flex justify-center gap-4" style={{ height: lineH }}>
+                    <button type="button" onClick={handleConfirm}
+                        className="text-stone-600 hover:text-stone-800 transition-colors" style={caveat}>
+                        Apply
+                    </button>
+                    <button type="button" onClick={() => { setShowConfirm(false); setSelectedBook(null); setSelectedIndex(null); }}
+                        className="text-stone-400 hover:text-stone-600 transition-colors" style={caveat}>
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        );
+    };
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
@@ -158,7 +254,6 @@ export default function BookSearch({ open, onClose, onSelectBook, currentData, i
                 className="relative w-full max-w-lg max-h-[85vh] overflow-hidden rounded-sm shadow-xl shadow-black/50 flex flex-col"
                 onClick={(e) => e.stopPropagation()}
             >
-                {/* Notebook header */}
                 <div className="h-[3px] bg-gradient-to-r from-amber-800/40 via-amber-700/60 to-amber-800/40" />
 
                 <div
@@ -166,46 +261,48 @@ export default function BookSearch({ open, onClose, onSelectBook, currentData, i
                     style={{
                         backgroundColor: '#f5f0e1',
                         backgroundImage: 'repeating-linear-gradient(transparent, transparent 27px, #c9b99a40 27px, #c9b99a40 28px)',
-                        paddingTop: '8px',
-                        paddingBottom: '24px',
+                        paddingTop: '0px',
+                        paddingBottom: '0px',
                     }}
                 >
-                    {/* Red margin line */}
                     <div className="absolute left-8 sm:left-12 top-0 bottom-0 w-[1px] bg-rose-400/50" />
 
-                    {/* Close button */}
-                    <div className="flex justify-between items-center" style={{ height: '28px' }}>
-                        <Typography className="text-stone-400" sx={{ fontSize: '18px', lineHeight: '28px', fontFamily: 'var(--font-caveat)' }}>
-                            Lookup:
-                        </Typography>
+                    {/* Header */}
+                    <div className="flex justify-between items-center" style={{ height: lineH }}>
+                        <Typography className="text-stone-400" sx={caveat}>Lookup:</Typography>
                         <button type="button" onClick={onClose} className="text-stone-400 hover:text-stone-600 transition-colors">
                             <CloseIcon sx={{ fontSize: '16px' }} />
                         </button>
                     </div>
 
-                    {/* Search fields */}
-                    <div className="flex flex-col gap-2 mt-2 mb-3">
-                        <input type="text" placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)}
+                    {/* Search fields — each on its own line */}
+                    <div style={{ height: lineH }}>
+                        <input type="text" placeholder="Title..." value={title} onChange={(e) => setTitle(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleSearch())}
-                            className={inputClass} style={{ fontFamily: 'var(--font-caveat)', fontSize: '18px', lineHeight: '28px' }}
+                            className={inputClass} style={{ ...caveat, height: lineH }}
                         />
-                        <input type="text" placeholder="Author" value={author} onChange={(e) => setAuthor(e.target.value)}
+                    </div>
+                    <div style={{ height: lineH }}>
+                        <input type="text" placeholder="Author..." value={author} onChange={(e) => setAuthor(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleSearch())}
-                            className={inputClass} style={{ fontFamily: 'var(--font-caveat)', fontSize: '18px', lineHeight: '28px' }}
+                            className={inputClass} style={{ ...caveat, height: lineH }}
                         />
-                        <input type="text" placeholder="ISBN" value={isbn} onChange={(e) => setIsbn(e.target.value)}
+                    </div>
+                    <div style={{ height: lineH }}>
+                        <input type="text" placeholder="ISBN..." value={isbn} onChange={(e) => setIsbn(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleSearch())}
-                            className={inputClass} style={{ fontFamily: 'var(--font-caveat)', fontSize: '18px', lineHeight: '28px' }}
+                            className={inputClass} style={{ ...caveat, height: lineH }}
                         />
                     </div>
 
-                    <div className="flex justify-center mb-3">
+                    {/* Search button */}
+                    <div className="flex justify-center" style={{ height: lineH }}>
                         <button
                             type="button"
                             onClick={handleSearch}
                             disabled={loading || (!title.trim() && !author.trim() && !isbn.trim())}
                             className="flex items-center gap-1 text-stone-500 hover:text-stone-700 disabled:opacity-30 transition-colors"
-                            style={{ fontFamily: 'var(--font-caveat)', fontSize: '18px' }}
+                            style={caveat}
                         >
                             {loading ? <CircularProgress size={14} className="text-stone-500" /> : <SearchIcon sx={{ fontSize: '16px' }} />}
                             Search
@@ -213,130 +310,47 @@ export default function BookSearch({ open, onClose, onSelectBook, currentData, i
                     </div>
 
                     {/* Results */}
-                    {results.length > 0 && (
-                        <div className="flex flex-col gap-1">
-                            {results.map((result, index) => (
-                                <div
-                                    key={index}
-                                    onClick={() => handleSelect(result)}
-                                    className={`flex gap-3 p-2 rounded-sm cursor-pointer transition-colors ${
-                                        selectedBook === result ? 'bg-amber-800/10' : 'hover:bg-amber-800/5'
-                                    }`}
-                                >
-                                    {result.coverImageUrl && (
-                                        <img src={result.coverImageUrl} alt={result.title} className="w-9 h-13 object-cover rounded-sm flex-shrink-0" />
-                                    )}
-                                    <div className="flex-1 min-w-0">
-                                        <Typography className="text-stone-800 break-words" sx={{ fontSize: '17px', lineHeight: '28px', fontFamily: 'var(--font-caveat)' }}>
+                    {results.length > 0 && results.map((result, index) => (
+                        <div key={index}>
+                            <div
+                                onClick={() => handleSelect(result, index)}
+                                className={`flex gap-2 cursor-pointer transition-colors rounded-sm ${
+                                    selectedIndex === index ? 'bg-amber-800/10' : 'hover:bg-amber-800/5'
+                                }`}
+                                style={{ minHeight: '56px' }}
+                            >
+                                {result.coverImageUrl && (
+                                    <img src={result.coverImageUrl} alt={result.title}
+                                        className="w-[40px] h-[56px] object-cover rounded-sm flex-shrink-0" />
+                                )}
+                                <div className="flex-1 min-w-0">
+                                    <div style={{ height: lineH }} className="flex items-center">
+                                        <Typography className="text-stone-800 truncate" sx={caveat}>
                                             {result.title}
                                         </Typography>
-                                        <Typography className="text-stone-500" sx={{ fontSize: '16px', lineHeight: '28px', fontFamily: 'var(--font-caveat)' }}>
+                                    </div>
+                                    <div style={{ height: lineH }} className="flex items-center">
+                                        <Typography className="text-stone-500 truncate" sx={caveatSm}>
                                             {result.author}
+                                            {result.publishedDate && ` · ${result.publishedDate}`}
+                                            {result.isbn && ` · ${result.isbn}`}
                                         </Typography>
-                                        {(result.publishedDate || result.isbn) && (
-                                            <Typography className="text-stone-400" sx={{ fontSize: '14px', lineHeight: '20px', fontFamily: 'var(--font-caveat)' }}>
-                                                {result.publishedDate && result.publishedDate}
-                                                {result.publishedDate && result.isbn && ' · '}
-                                                {result.isbn && `ISBN: ${result.isbn}`}
-                                            </Typography>
-                                        )}
                                     </div>
                                 </div>
-                            ))}
+                            </div>
+                            {/* Inline overwrite confirmation */}
+                            {selectedIndex === index && renderConfirm()}
                         </div>
-                    )}
+                    ))}
 
                     {results.length === 0 && !loading && hasSearched && (
-                        <Typography className="text-stone-300 text-center" sx={{ fontSize: '18px', lineHeight: '28px', fontFamily: 'var(--font-caveat)' }}>
-                            No results found
-                        </Typography>
-                    )}
-
-                    {/* Overwrite confirmation */}
-                    {showConfirm && selectedBook && (
-                        <div className="mt-3 pt-3 border-t border-rose-400/30">
-                            <Typography className="text-amber-700 mb-2" sx={{ fontSize: '17px', lineHeight: '28px', fontFamily: 'var(--font-caveat)' }}>
-                                Select fields to overwrite:
-                            </Typography>
-                            <div className="mb-3">
-                                <label className="flex items-center gap-2 cursor-pointer" style={{ height: '28px' }}>
-                                    <input type="checkbox" checked={Object.values(overwriteFields).every(v => v)}
-                                        onChange={(e) => toggleAllFields(e.target.checked)} className="accent-amber-700 cursor-pointer" />
-                                    <Typography className="text-stone-700 font-bold" sx={{ fontSize: '16px', lineHeight: '28px', fontFamily: 'var(--font-caveat)' }}>
-                                        Select All
-                                    </Typography>
-                                </label>
-                                {currentData?.title && selectedBook.title !== currentData.title && (
-                                    <label className="flex items-center gap-2 cursor-pointer" style={{ height: '28px' }}>
-                                        <input type="checkbox" checked={overwriteFields.title}
-                                            onChange={(e) => setOverwriteFields(prev => ({ ...prev, title: e.target.checked }))} className="accent-amber-700 cursor-pointer" />
-                                        <Typography className="text-stone-600" sx={{ fontSize: '16px', lineHeight: '28px', fontFamily: 'var(--font-caveat)' }}>
-                                            <span className="text-rose-500">Title:</span> {currentData.title} → {selectedBook.title}
-                                        </Typography>
-                                    </label>
-                                )}
-                                {currentData?.author && selectedBook.author !== currentData.author && (
-                                    <label className="flex items-center gap-2 cursor-pointer" style={{ height: '28px' }}>
-                                        <input type="checkbox" checked={overwriteFields.author}
-                                            onChange={(e) => setOverwriteFields(prev => ({ ...prev, author: e.target.checked }))} className="accent-amber-700 cursor-pointer" />
-                                        <Typography className="text-stone-600" sx={{ fontSize: '16px', lineHeight: '28px', fontFamily: 'var(--font-caveat)' }}>
-                                            <span className="text-rose-500">Author:</span> {currentData.author} → {selectedBook.author}
-                                        </Typography>
-                                    </label>
-                                )}
-                                {currentData?.genre && selectedBook.genre && selectedBook.genre !== currentData.genre && (
-                                    <label className="flex items-center gap-2 cursor-pointer" style={{ height: '28px' }}>
-                                        <input type="checkbox" checked={overwriteFields.genre}
-                                            onChange={(e) => setOverwriteFields(prev => ({ ...prev, genre: e.target.checked }))} className="accent-amber-700 cursor-pointer" />
-                                        <Typography className="text-stone-600" sx={{ fontSize: '16px', lineHeight: '28px', fontFamily: 'var(--font-caveat)' }}>
-                                            <span className="text-rose-500">Genre:</span> {currentData.genre} → {selectedBook.genre}
-                                        </Typography>
-                                    </label>
-                                )}
-                                {((currentData?.isbn && selectedBook.isbn && selectedBook.isbn !== currentData.isbn) || (!currentData?.isbn && selectedBook.isbn)) && (
-                                    <label className="flex items-center gap-2 cursor-pointer" style={{ height: '28px' }}>
-                                        <input type="checkbox" checked={overwriteFields.isbn}
-                                            onChange={(e) => setOverwriteFields(prev => ({ ...prev, isbn: e.target.checked }))} className="accent-amber-700 cursor-pointer" />
-                                        <Typography className="text-stone-600" sx={{ fontSize: '16px', lineHeight: '28px', fontFamily: 'var(--font-caveat)' }}>
-                                            <span className="text-rose-500">ISBN:</span> {currentData?.isbn ? `${currentData.isbn} → ${selectedBook.isbn}` : `Add ${selectedBook.isbn}`}
-                                        </Typography>
-                                    </label>
-                                )}
-                                {currentData?.description && selectedBook.description && (
-                                    <label className="flex items-center gap-2 cursor-pointer" style={{ height: '28px' }}>
-                                        <input type="checkbox" checked={overwriteFields.description}
-                                            onChange={(e) => setOverwriteFields(prev => ({ ...prev, description: e.target.checked }))} className="accent-amber-700 cursor-pointer" />
-                                        <Typography className="text-stone-600" sx={{ fontSize: '16px', lineHeight: '28px', fontFamily: 'var(--font-caveat)' }}>
-                                            <span className="text-rose-500">Description:</span> Will be replaced
-                                        </Typography>
-                                    </label>
-                                )}
-                                {currentData?.coverImageUrl && selectedBook.coverImageUrl && (
-                                    <label className="flex items-center gap-2 cursor-pointer" style={{ height: '28px' }}>
-                                        <input type="checkbox" checked={overwriteFields.coverImageUrl}
-                                            onChange={(e) => setOverwriteFields(prev => ({ ...prev, coverImageUrl: e.target.checked }))} className="accent-amber-700 cursor-pointer" />
-                                        <Typography className="text-stone-600" sx={{ fontSize: '16px', lineHeight: '28px', fontFamily: 'var(--font-caveat)' }}>
-                                            <span className="text-rose-500">Cover:</span> Will be replaced
-                                        </Typography>
-                                    </label>
-                                )}
-                            </div>
-                            <div className="flex justify-center gap-4">
-                                <button type="button" onClick={handleConfirm}
-                                    className="text-stone-600 hover:text-stone-800 transition-colors"
-                                    style={{ fontFamily: 'var(--font-caveat)', fontSize: '18px' }}>
-                                    Apply
-                                </button>
-                                <button type="button" onClick={() => { setShowConfirm(false); setSelectedBook(null); }}
-                                    className="text-stone-400 hover:text-stone-600 transition-colors"
-                                    style={{ fontFamily: 'var(--font-caveat)', fontSize: '18px' }}>
-                                    Cancel
-                                </button>
-                            </div>
+                        <div style={{ height: lineH }} className="flex items-center justify-center">
+                            <Typography className="text-stone-300" sx={caveat}>No results found</Typography>
                         </div>
                     )}
 
-                    <div style={{ height: '56px' }} />
+                    {/* Bottom padding — 3 blank lines */}
+                    <div style={{ height: '84px' }} />
                 </div>
             </div>
         </div>
