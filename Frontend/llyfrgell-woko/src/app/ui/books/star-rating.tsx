@@ -23,7 +23,11 @@ export default function StarRating({ rating, interactive = false, handwritten = 
         return (
             <div className="flex" style={{ fontFamily: 'var(--font-caveat)', fontSize: '16px', lineHeight: '28px' }}>
                 {stars.map((star) => (
-                    <span key={star} className={star <= rating ? "text-amber-700" : "text-stone-300"}>
+                    <span
+                        key={star}
+                        onClick={() => handleClick(star)}
+                        className={`${star <= rating ? "text-amber-700" : "text-stone-300"} ${interactive ? "cursor-pointer" : "cursor-default"}`}
+                    >
                         ★
                     </span>
                 ))}
