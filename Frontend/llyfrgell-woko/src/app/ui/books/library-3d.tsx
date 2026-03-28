@@ -694,13 +694,27 @@ function CeilingLights({ layouts }: { layouts: BookcaseLayout[] }) {
     );
 }
 
+// Shared key state for movement — both keyboard and D-pad write to this
+const movementKeys = { current: new Set<string>() };
+
+function useIsTouchDevice() {
+    const [isTouch, setIsTouch] = useState(false);
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const forced = params.get("mobile");
+        if (forced === "true") { setIsTouch(true); return; }
+        if (forced === "false") { setIsTouch(false); return; }
+        setIsTouch("ontouchstart" in window || navigator.maxTouchPoints > 0);
+    }, []);
+    return isTouch;
+}
+
 function Movement() {
     const { camera } = useThree();
-    const keys = useRef<Set<string>>(new Set());
 
     useEffect(() => {
-        const down = (e: KeyboardEvent) => keys.current.add(e.code);
-        const up = (e: KeyboardEvent) => keys.current.delete(e.code);
+        const down = (e: KeyboardEvent) => movementKeys.current.add(e.code);
+        const up = (e: KeyboardEvent) => movementKeys.current.delete(e.code);
         window.addEventListener("keydown", down);
         window.addEventListener("keyup", up);
         return () => { window.removeEventListener("keydown", down); window.removeEventListener("keyup", up); };
@@ -713,10 +727,11 @@ function Movement() {
         forward.normalize();
         const right = new THREE.Vector3().crossVectors(forward, new THREE.Vector3(0, 1, 0)).normalize();
         const dir = new THREE.Vector3();
-        if (keys.current.has("KeyW") || keys.current.has("ArrowUp")) dir.add(forward);
-        if (keys.current.has("KeyS") || keys.current.has("ArrowDown")) dir.sub(forward);
-        if (keys.current.has("KeyD") || keys.current.has("ArrowRight")) dir.add(right);
-        if (keys.current.has("KeyA") || keys.current.has("ArrowLeft")) dir.sub(right);
+        const keys = movementKeys.current;
+        if (keys.has("KeyW") || keys.has("ArrowUp")) dir.add(forward);
+        if (keys.has("KeyS") || keys.has("ArrowDown")) dir.sub(forward);
+        if (keys.has("KeyD") || keys.has("ArrowRight")) dir.add(right);
+        if (keys.has("KeyA") || keys.has("ArrowLeft")) dir.sub(right);
         if (dir.length() > 0) camera.position.add(dir.normalize().multiplyScalar(5 * delta));
         camera.position.y = 1.6;
     });
@@ -724,11 +739,59 @@ function Movement() {
     return null;
 }
 
-function Scene({ layouts, spines, tooltipRef, onViewingChange }: {
+function TouchLook({ canvasRef }: { canvasRef: React.RefObject<HTMLDivElement | null> }) {
+    const { camera } = useThree();
+    const euler = useRef(new THREE.Euler(0, 0, 0, "YXZ"));
+    const touching = useRef(false);
+    const lastTouch = useRef({ x: 0, y: 0 });
+
+    useEffect(() => {
+        const el = canvasRef.current;
+        if (!el) return;
+
+        const onStart = (e: TouchEvent) => {
+            // Only track single-finger touches not on UI buttons
+            if (e.touches.length === 1) {
+                touching.current = true;
+                lastTouch.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+            }
+        };
+        const onMove = (e: TouchEvent) => {
+            if (!touching.current || e.touches.length !== 1) return;
+            const dx = e.touches[0].clientX - lastTouch.current.x;
+            const dy = e.touches[0].clientY - lastTouch.current.y;
+            lastTouch.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+
+            euler.current.setFromQuaternion(camera.quaternion);
+            euler.current.y -= dx * 0.003;
+            euler.current.x -= dy * 0.003;
+            euler.current.x = Math.max(-Math.PI / 2.5, Math.min(Math.PI / 2.5, euler.current.x));
+            camera.quaternion.setFromEuler(euler.current);
+        };
+        const onEnd = () => { touching.current = false; };
+
+        el.addEventListener("touchstart", onStart, { passive: true });
+        el.addEventListener("touchmove", onMove, { passive: true });
+        el.addEventListener("touchend", onEnd);
+        el.addEventListener("touchcancel", onEnd);
+        return () => {
+            el.removeEventListener("touchstart", onStart);
+            el.removeEventListener("touchmove", onMove);
+            el.removeEventListener("touchend", onEnd);
+            el.removeEventListener("touchcancel", onEnd);
+        };
+    }, [camera, canvasRef]);
+
+    return null;
+}
+
+function Scene({ layouts, spines, tooltipRef, onViewingChange, isMobile, canvasRef }: {
     layouts: BookcaseLayout[];
     spines: SpineData[];
     tooltipRef: React.RefObject<HTMLDivElement | null>;
     onViewingChange: (viewing: boolean, bookId?: number) => void;
+    isMobile: boolean;
+    canvasRef: React.RefObject<HTMLDivElement | null>;
 }) {
     const groupRef = useRef<THREE.Group>(null);
     const router = useRouter();
@@ -851,7 +914,7 @@ function Scene({ layouts, spines, tooltipRef, onViewingChange }: {
             <Room layouts={layouts} />
             <CeilingLights layouts={layouts} />
             <Movement />
-            <PointerLockControls />
+            {isMobile ? <TouchLook canvasRef={canvasRef} /> : <PointerLockControls />}
             <Furniture layouts={layouts} />
             <BookSpines ref={groupRef} spines={spines} />
             <CrosshairLook
@@ -879,6 +942,8 @@ export default function Library3D({ books }: { books: Book[] }) {
     const [viewing, setViewing] = useState(false);
     const viewingIdRef = useRef<number | null>(null);
     const tooltipRef = useRef<HTMLDivElement>(null);
+    const canvasContainerRef = useRef<HTMLDivElement>(null);
+    const isMobile = useIsTouchDevice();
 
     const layouts = useMemo(() => buildLayouts(books), [books]);
     const [spines, setSpines] = useState<SpineData[] | null>(null);
@@ -907,10 +972,17 @@ export default function Library3D({ books }: { books: Book[] }) {
                     </h2>
                     <p className="text-stone-400 text-sm mb-6 text-center px-4">
                         {entered ? "Preparing the shelves..." : (
-                            <>
-                                Click to enter. WASD to move, mouse to look around.
-                                <br />Look at a book to see its title. Click to open it.
-                            </>
+                            isMobile ? (
+                                <>
+                                    Use the D-pad to move, drag to look around.
+                                    <br />Tap the select button to pick up a book.
+                                </>
+                            ) : (
+                                <>
+                                    Click to enter. WASD to move, mouse to look around.
+                                    <br />Look at a book to see its title. Click to open it.
+                                </>
+                            )
                         )}
                     </p>
                     {!entered && (
@@ -925,18 +997,22 @@ export default function Library3D({ books }: { books: Book[] }) {
                 </div>
             )}
             {showCanvas && spines && (
-                <Canvas
-                    camera={{ position: [0, 1.6, -3], near: 0.05, far: 100, fov: 75 }}
-                    gl={{ antialias: false, powerPreference: "high-performance", alpha: false }}
-                    onCreated={({ gl }) => { gl.setPixelRatio(1); }}
-                >
-                    <Scene
-                        layouts={layouts}
-                        spines={spines}
-                        tooltipRef={tooltipRef}
-                        onViewingChange={(v, id) => { setViewing(v); viewingIdRef.current = id ?? null; }}
-                    />
-                </Canvas>
+                <div ref={canvasContainerRef} className="absolute inset-0">
+                    <Canvas
+                        camera={{ position: [0, 1.6, -3], near: 0.05, far: 100, fov: 75 }}
+                        gl={{ antialias: false, powerPreference: "high-performance", alpha: false }}
+                        onCreated={({ gl }) => { gl.setPixelRatio(1); }}
+                    >
+                        <Scene
+                            layouts={layouts}
+                            spines={spines}
+                            tooltipRef={tooltipRef}
+                            onViewingChange={(v, id) => { setViewing(v); viewingIdRef.current = id ?? null; }}
+                            isMobile={isMobile}
+                            canvasRef={canvasContainerRef}
+                        />
+                    </Canvas>
+                </div>
             )}
 
             {showCanvas && (
@@ -972,6 +1048,54 @@ export default function Library3D({ books }: { books: Book[] }) {
                         </div>
                     )}
                 </div>
+            )}
+            {/* Mobile controls */}
+            {showCanvas && isMobile && !viewing && (
+                <>
+                    {/* D-pad */}
+                    <div className="absolute bottom-6 left-6 z-20 grid grid-cols-3 grid-rows-3 w-32 h-32 gap-0.5">
+                        <div />
+                        <button
+                            className="flex items-center justify-center bg-black/40 rounded-t-lg active:bg-amber-900/40 text-amber-200/60 text-lg select-none"
+                            onTouchStart={() => movementKeys.current.add("KeyW")}
+                            onTouchEnd={() => movementKeys.current.delete("KeyW")}
+                            onTouchCancel={() => movementKeys.current.delete("KeyW")}
+                        >W</button>
+                        <div />
+                        <button
+                            className="flex items-center justify-center bg-black/40 rounded-l-lg active:bg-amber-900/40 text-amber-200/60 text-lg select-none"
+                            onTouchStart={() => movementKeys.current.add("KeyA")}
+                            onTouchEnd={() => movementKeys.current.delete("KeyA")}
+                            onTouchCancel={() => movementKeys.current.delete("KeyA")}
+                        >A</button>
+                        <div className="bg-black/20 rounded-sm" />
+                        <button
+                            className="flex items-center justify-center bg-black/40 rounded-r-lg active:bg-amber-900/40 text-amber-200/60 text-lg select-none"
+                            onTouchStart={() => movementKeys.current.add("KeyD")}
+                            onTouchEnd={() => movementKeys.current.delete("KeyD")}
+                            onTouchCancel={() => movementKeys.current.delete("KeyD")}
+                        >D</button>
+                        <div />
+                        <button
+                            className="flex items-center justify-center bg-black/40 rounded-b-lg active:bg-amber-900/40 text-amber-200/60 text-lg select-none"
+                            onTouchStart={() => movementKeys.current.add("KeyS")}
+                            onTouchEnd={() => movementKeys.current.delete("KeyS")}
+                            onTouchCancel={() => movementKeys.current.delete("KeyS")}
+                        >S</button>
+                        <div />
+                    </div>
+
+                    {/* Select button */}
+                    <button
+                        className="absolute bottom-8 right-8 z-20 w-16 h-16 rounded-full bg-black/40 active:bg-amber-900/40 flex items-center justify-center select-none"
+                        onTouchStart={(e) => {
+                            e.stopPropagation();
+                            window.dispatchEvent(new MouseEvent("click"));
+                        }}
+                    >
+                        <span className="text-amber-200/60 text-xs" style={{ fontFamily: "var(--font-caveat)" }}>Select</span>
+                    </button>
+                </>
             )}
         </div>
     );
