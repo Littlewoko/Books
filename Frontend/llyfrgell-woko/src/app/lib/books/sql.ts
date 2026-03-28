@@ -78,59 +78,6 @@ export async function GetBooksRequest(
 }
 
 
-export async function GetPageCountRequest(pageSize: number, search?: string, filters?: {
-    shortStory?: boolean | null;
-    genre?: string;
-    status?: string;
-    year?: number;
-}) {
-    let query = "SELECT CEILING(COUNT(*)::numeric / $1) as count FROM books WHERE 1=1";
-    const params: (string | number | boolean)[] = [pageSize];
-    let paramIndex = 2;
-
-    if (search) {
-        query += ` AND (LOWER(title) LIKE $${paramIndex}`;
-        query += ` OR LOWER(genre) LIKE $${paramIndex}`;
-        query += ` OR LOWER(author) LIKE $${paramIndex})`;
-        params.push(`%${search.toLowerCase()}%`);
-        paramIndex++;
-    }
-
-    if (filters?.shortStory !== undefined && filters.shortStory !== null) {
-        query += ` AND shortstory = $${paramIndex}`;
-        params.push(filters.shortStory);
-        paramIndex++;
-    }
-
-    if (filters?.genre) {
-        query += ` AND LOWER(genre) = $${paramIndex}`;
-        params.push(filters.genre.toLowerCase());
-        paramIndex++;
-    }
-
-    if (filters?.status) {
-        if (filters.status === 'completed') {
-            query += ` AND datecompleted IS NOT NULL`;
-        } else if (filters.status === 'in-progress') {
-            query += ` AND datestartedreading IS NOT NULL AND datecompleted IS NULL`;
-        } else if (filters.status === 'owned') {
-            query += ` AND dateobtained IS NOT NULL AND datestartedreading IS NULL`;
-        } else if (filters.status === 'not-owned') {
-            query += ` AND dateobtained IS NULL`;
-        }
-    }
-
-    if (filters?.year) {
-        query += ` AND EXTRACT(YEAR FROM datecompleted) = $${paramIndex}`;
-        params.push(filters.year);
-        paramIndex++;
-    }
-
-    query += ";";
-
-    return sql.query(query, params);
-}
-
 export async function GetStatsRequest() {
     const currentYear = new Date().getFullYear();
     const params: (string | number)[] = [currentYear];

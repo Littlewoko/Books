@@ -6,7 +6,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import ProtectRoute from '@/app/utils/protectRoute';
 import { convertToBook } from './data';
-import { GetBooksRequest, GetPageCountRequest } from './sql';
+import { GetBooksRequest } from './sql';
 
 function getBookFromFormData(formData: FormData): Book {
     const ratingValue = formData.get('rating');
@@ -113,14 +113,3 @@ export async function DeleteBook(id: string) {
     redirect('/books');
 }
 
-export async function GetPageCount(pageSize: number, search: string = '', filters?: {
-    shortStory?: boolean | null;
-    genre?: string;
-    status?: string;
-    year?: number;
-}): Promise<number> {
-    const result: QueryResult<{ count: string }> = await GetPageCountRequest(pageSize, search, filters);
-    const firstRow = result.rows[0];
-    const countValue = firstRow ? firstRow.count : '1';
-    return Number(countValue);
-}
