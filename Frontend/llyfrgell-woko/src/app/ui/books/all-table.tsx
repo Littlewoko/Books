@@ -30,7 +30,7 @@ function HorizontalStack({ books, animateFrom, returnTo }: { books: Book[]; anim
     );
 }
 
-function Shelf({ books, animateFrom, returnTo }: { books: Book[]; animateFrom: number; returnTo?: string }) {
+export function Shelf({ books, animateFrom, returnTo }: { books: Book[]; animateFrom: number; returnTo?: string }) {
     const shelfRef = useRef<HTMLDivElement>(null);
     const [rows, setRows] = useState<Book[][]>([books]);
 

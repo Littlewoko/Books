@@ -27,3 +27,9 @@ export async function fetchBookById(id: string) {
 
     return convertToBook(result)[0];
 }
+
+export async function fetchAllBooks() {
+    const result = await sql`SELECT * FROM books ORDER BY genre ASC, author ASC;`;
+
+    return convertToBook(result);
+}

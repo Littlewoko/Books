@@ -7,6 +7,7 @@ import { Book } from "../lib/classes/book";
 import { useSearchParams } from "next/navigation";
 import SearchBar from "../ui/searchbar";
 import FilterModal from "../ui/books/filter-modal";
+import Link from "next/link";
 
 export default function Page() {
   const searchParams = useSearchParams();
@@ -81,7 +82,14 @@ export default function Page() {
         <div className="flex flex-col m-1 gap-y-1">
           <SearchBar defaultQuery={query || ''}/>
         </div>
-        <div className="flex items-center justify-end">
+        <div className="flex items-center justify-end gap-3">
+          <Link
+            href="/books/library"
+            className="text-stone-600 hover:text-amber-800 transition-colors px-3 py-1"
+            style={{ fontFamily: 'var(--font-caveat)', fontSize: '20px' }}
+          >
+            Catalogue
+          </Link>
           <FilterModal onApplyFilters={handleApplyFilters} currentFilters={filters} />
         </div>
         {loading ? (
