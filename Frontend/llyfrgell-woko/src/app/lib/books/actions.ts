@@ -82,6 +82,7 @@ export async function UpdateBook(id: string, formData: FormData) {
     await ProtectRoute();
 
     const book: Book = getBookFromFormData(formData);
+    const returnTo = formData.get('returnTo') as string | null;
 
     await sql`UPDATE books SET 
                 title = ${book.title},
@@ -101,15 +102,15 @@ export async function UpdateBook(id: string, formData: FormData) {
             WHERE id=${id};`;
 
     revalidatePath('/books');
-    redirect('/books');
+    redirect(returnTo || '/books');
 }
 
-export async function DeleteBook(id: string) {
+export async function DeleteBook(id: string, returnTo?: string) {
     await ProtectRoute();
 
     await sql`DELETE FROM books WHERE id = ${id}`;
 
     revalidatePath('/books');
-    redirect('/books');
+    redirect(returnTo || '/books');
 }
 

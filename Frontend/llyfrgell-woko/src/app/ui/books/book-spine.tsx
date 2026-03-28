@@ -7,6 +7,7 @@ import { getBookColor, isLightColor } from '@/app/utils/bookColors';
 interface Props {
     book: Book;
     horizontal?: boolean;
+    returnTo?: string;
 }
 
 function getSpineStyle(book: Book): { background: string; isCustom: boolean; light: boolean } {
@@ -16,7 +17,7 @@ function getSpineStyle(book: Book): { background: string; isCustom: boolean; lig
     return { background: getBookColor(book.title), isCustom: false, light: false };
 }
 
-export default function BookSpine({ book, horizontal = false }: Props) {
+export default function BookSpine({ book, horizontal = false, returnTo }: Props) {
     const { background, isCustom, light } = getSpineStyle(book);
     const textColor = light ? 'text-stone-900/90' : 'text-amber-100/90';
     const textColorSub = light ? 'text-stone-900/50' : 'text-amber-100/50';
@@ -66,7 +67,7 @@ export default function BookSpine({ book, horizontal = false }: Props) {
     }
 
     return (
-        <Link href={`/books/${book.id}`} className="block group">
+        <Link href={`/books/${book.id}${returnTo ? `?returnTo=${encodeURIComponent(returnTo)}` : ''}`} className="block group">
             <div className="group-hover:-translate-y-2 transition-transform duration-200 group-hover:shadow-lg group-hover:shadow-black/60">
                 <div
                     className={`relative h-[220px] sm:h-[260px] min-w-[44px] sm:min-w-[50px] rounded-sm overflow-hidden shadow-md shadow-black/40 flex flex-col ${!isCustom ? `bg-gradient-to-b ${background}` : ''}`}

@@ -15,9 +15,10 @@ import { getBookColor, isLightColor } from "@/app/utils/bookColors";
 
 interface Props {
     book: Book | undefined
+    returnTo?: string
 }
 
-const Form: React.FC<Props> = ({ book }) => {
+const Form: React.FC<Props> = ({ book, returnTo }) => {
     const [rating, setRating] = useState(book?.rating || 0);
     const [title, setTitle] = useState(book?.title || "");
     const [author, setAuthor] = useState(book?.author || "");
@@ -58,7 +59,7 @@ const Form: React.FC<Props> = ({ book }) => {
         if (!book.id) return;
         const wantToDelete = confirm(`Are you sure you want to delete ${book.title}? This action cannot be undone`);
         if (!wantToDelete) return;
-        await DeleteBook(book.id.toString());
+        await DeleteBook(book.id.toString(), returnTo);
     };
 
     const hasCustomColor = !!spineColor;
@@ -238,6 +239,7 @@ const Form: React.FC<Props> = ({ book }) => {
 
             <input type="hidden" name="coverImageUrl" value={coverImageUrl} />
             <input type="hidden" name="spineColor" value={spineColor} />
+            {returnTo && <input type="hidden" name="returnTo" value={returnTo} />}
 
             <BookSearch
                 open={searchOpen}

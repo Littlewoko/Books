@@ -7,15 +7,16 @@ import { useRef, useState, useEffect, useCallback } from "react";
 
 interface TableProps {
     books: Book[]
+    returnTo?: string
 }
 
-function HorizontalStack({ books, animateFrom }: { books: Book[]; animateFrom: number }) {
+function HorizontalStack({ books, animateFrom, returnTo }: { books: Book[]; animateFrom: number; returnTo?: string }) {
     return (
         <div className="flex flex-col items-start px-4">
             {books.map((book, i) => {
                 const isNew = i >= animateFrom;
                 return (
-                    <Link href={`/books/${book.id}`} key={book.id} className="block group">
+                    <Link href={`/books/${book.id}${returnTo ? `?returnTo=${encodeURIComponent(returnTo)}` : ''}`} key={book.id} className="block group">
                         <div
                             className={`transition-transform duration-200 group-hover:translate-x-3 ${isNew ? 'animate-shelf-drop' : ''}`}
                             style={isNew ? { animationDelay: `${(i - animateFrom) * 40}ms` } : undefined}
@@ -29,7 +30,7 @@ function HorizontalStack({ books, animateFrom }: { books: Book[]; animateFrom: n
     );
 }
 
-function Shelf({ books, animateFrom }: { books: Book[]; animateFrom: number }) {
+function Shelf({ books, animateFrom, returnTo }: { books: Book[]; animateFrom: number; returnTo?: string }) {
     const shelfRef = useRef<HTMLDivElement>(null);
     const [rows, setRows] = useState<Book[][]>([books]);
 
@@ -111,7 +112,7 @@ function Shelf({ books, animateFrom }: { books: Book[]; animateFrom: number }) {
                                             className={isNew ? 'animate-shelf-drop' : ''}
                                             style={isNew ? { animationDelay: `${delay}ms` } : undefined}
                                         >
-                                            <BookSpine book={book} />
+                                            <BookSpine book={book} returnTo={returnTo} />
                                         </div>
                                     );
                                 })}
@@ -129,7 +130,7 @@ function Shelf({ books, animateFrom }: { books: Book[]; animateFrom: number }) {
     );
 }
 
-const Table: React.FC<TableProps> = ({ books }) => {
+const Table: React.FC<TableProps> = ({ books, returnTo }) => {
     const prevCountRef = useRef(0);
     const [animateFrom, setAnimateFrom] = useState(0);
 
@@ -150,13 +151,13 @@ const Table: React.FC<TableProps> = ({ books }) => {
     return (
         <div className="flex flex-col">
             {inProgress.length > 0 && (
-                <HorizontalStack books={inProgress} animateFrom={inProgressAnimateFrom} />
+                <HorizontalStack books={inProgress} animateFrom={inProgressAnimateFrom} returnTo={returnTo} />
             )}
             {/* Bookcase top surface */}
             {shelved.length > 0 && (
                 <>
                     <div className="h-[10px] mx-2 sm:mx-0 bg-gradient-to-b from-stone-600/50 via-stone-700/60 to-stone-800/70 shadow-md shadow-black/30" />
-                    <Shelf books={shelved} animateFrom={shelvedAnimateFrom} />
+                    <Shelf books={shelved} animateFrom={shelvedAnimateFrom} returnTo={returnTo} />
                 </>
             )}
         </div>

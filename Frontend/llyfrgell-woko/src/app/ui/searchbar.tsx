@@ -1,10 +1,24 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { FormEvent } from "react";
+
 interface Props {
     defaultQuery?: string
 }
 
 export default function SearchBar({ defaultQuery = '' }: Props) {
+    const router = useRouter();
+
+    const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget);
+        const query = (formData.get('query') as string)?.trim();
+        router.push(query ? `/books?query=${encodeURIComponent(query)}` : '/books');
+    };
+
     return (
-        <form action='/books'>
+        <form onSubmit={handleSubmit}>
             <div className="flex items-center gap-2 px-1">
                 <input
                     id="query"

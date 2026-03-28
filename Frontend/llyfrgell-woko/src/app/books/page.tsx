@@ -71,6 +71,10 @@ export default function Page() {
     setPage(prev => prev + 1);
   };
 
+  const cleanParams = new URLSearchParams(searchParams.toString());
+  cleanParams.forEach((value, key) => { if (!value) cleanParams.delete(key); });
+  const returnTo = cleanParams.toString() ? `/books?${cleanParams.toString()}` : undefined;
+
   return (
     <div className="overflow-x-auto m-2 max-w-3xl mx-auto">
       <div>
@@ -92,7 +96,7 @@ export default function Page() {
           </div>
         ) : (
           <>
-            <AllTable books={books} />
+            <AllTable books={books} returnTo={returnTo} />
             {hasMore && (
               <div className="text-center py-4">
                 <button

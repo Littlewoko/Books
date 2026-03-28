@@ -12,9 +12,10 @@ import { BookClubNote } from "@/app/lib/classes/book-club-note";
 interface Props {
     book: Book | undefined;
     bookClubNotes?: BookClubNote[];
+    returnTo?: string;
 }
 
-export default function BookView({ book, bookClubNotes = [] }: Props) {
+export default function BookView({ book, bookClubNotes = [], returnTo }: Props) {
     if (!book || !book.id) {
         return <div className="text-gray-300">No such book</div>;
     }
@@ -231,7 +232,7 @@ export default function BookView({ book, bookClubNotes = [] }: Props) {
 
             {/* Edit - subtle, at the bottom */}
             <div className="mt-8 mb-6 flex justify-center">
-                <Link href={`/books/${book.id}/edit`}>
+                <Link href={`/books/${book.id}/edit${returnTo ? `?returnTo=${encodeURIComponent(returnTo)}` : ''}`}>
                     <button className="flex items-center text-stone-600 hover:text-stone-300 transition-colors text-sm gap-1">
                         <EditIcon sx={{ fontSize: '14px' }} />
                         Edit

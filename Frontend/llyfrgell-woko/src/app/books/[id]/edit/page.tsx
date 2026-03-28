@@ -6,13 +6,14 @@ import BookClubEditor from "@/app/ui/books/book-club-editor";
 import { fetchNotesByBookId } from "@/app/lib/books/book-club-actions";
 import SetBookTitle from "@/app/components/SetBookTitle";
 
-export default async function Page({ params }: { params: Promise<{ id: string }> }) {
+export default async function Page({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ returnTo?: string }> }) {
   const session = await getServerSession();
   if (!session || !session.user) {
     redirect("/api/auth/signin");
   }
 
   const { id } = await params;
+  const { returnTo } = await searchParams;
 
   const [book, notes] = await Promise.all([
     fetchBookById(id),
@@ -22,7 +23,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   return (
     <main>
       <SetBookTitle title={book?.title} />
-      <Form book={book} />
+      <Form book={book} returnTo={returnTo} />
       {book?.id && (
         <div className="mb-12">
           <BookClubEditor bookId={book.id.toString()} initialNotes={notes} />
