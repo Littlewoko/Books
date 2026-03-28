@@ -2,8 +2,7 @@ import Link from 'next/link';
 import MobileAuthButton from './mobileAuthButton';
 import AutoStoriesIcon from '@mui/icons-material/AutoStories';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
-import HomeIcon from '@mui/icons-material/Home';
-import NoteAddIcon from '@mui/icons-material/NoteAdd';
+import WorkIcon from '@mui/icons-material/Work';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import CloseIcon from '@mui/icons-material/Close';
 
@@ -13,11 +12,10 @@ interface Props {
 }
 
 const navItems = [
-  { href: '/', label: 'Adre', icon: HomeIcon },
   { href: '/books', label: 'Llyfrgell', icon: LibraryBooksIcon },
   { href: '/books/create', label: 'Llyfr Newydd', icon: AutoStoriesIcon },
   { href: '/books/stats', label: 'Ystadegau', icon: BarChartIcon },
-  { href: '/portfolio/create', label: 'Portffolio Newydd', icon: NoteAddIcon },
+  { href: '/portfolio', label: 'Portffolio', icon: WorkIcon },
 ];
 
 const MobileDrawer: React.FC<Props> = ({ isOpen, onClose }) => {

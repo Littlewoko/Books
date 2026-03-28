@@ -76,7 +76,7 @@ function Shelf({ books, animateFrom }: { books: Book[]; animateFrom: number }) {
     }, [calculateRows]);
 
     // Track the global index of each book for animation offset
-    const bookGlobalIndex = new Map<string, number>();
+    const bookGlobalIndex = new Map<number | undefined, number>();
     let idx = 0;
     for (const row of rows) {
         for (const book of row) {

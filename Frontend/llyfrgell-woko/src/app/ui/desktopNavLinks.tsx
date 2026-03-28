@@ -2,14 +2,14 @@ import Link from 'next/link';
 import AuthButton from './authButton';
 import AutoStoriesIcon from '@mui/icons-material/AutoStories';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
-import NoteAddIcon from '@mui/icons-material/NoteAdd';
+import WorkIcon from '@mui/icons-material/Work';
 import BarChartIcon from '@mui/icons-material/BarChart';
 
 const navItems = [
   { href: '/books', label: 'Llyfrgell', icon: LibraryBooksIcon },
   { href: '/books/create', label: 'Llyfr Newydd', icon: AutoStoriesIcon },
   { href: '/books/stats', label: 'Ystadegau', icon: BarChartIcon },
-  { href: '/portfolio/create', label: 'Portffolio Newydd', icon: NoteAddIcon },
+  { href: '/portfolio', label: 'Portffolio', icon: WorkIcon },
 ];
 
 const linkClass = "flex items-center gap-1 text-amber-100/70 hover:text-amber-100 transition-colors";
