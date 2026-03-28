@@ -18,7 +18,8 @@ const MAX_SHELVES = 2;
 const MAX_BOOKS_PER_CASE = BOOKS_PER_SHELF * MAX_SHELVES;
 const BOOKCASE_WIDTH = BOOKS_PER_SHELF * (SPINE_WIDTH + 0.02) + 0.3;
 const CASE_SPACING = BOOKCASE_WIDTH + 0.4;
-const AISLE_HALF = 4;
+const ROW_SPACING = 3.5; // distance between rows (aisle width)
+const CASES_PER_ROW = 4; // bookcases per side of a row
 
 const spineColorHexes = [
     "#5c2d0e", "#1a3a1a", "#6b1c1c", "#1c1c4b", "#4a3728",
@@ -140,37 +141,36 @@ function buildLayouts(books: Book[]): BookcaseLayout[] {
     }
     const genres = Array.from(map.entries()).sort(([a], [b]) => a.localeCompare(b));
 
-    const leftCases: { genre: string; books: Book[] }[] = [];
-    const rightCases: { genre: string; books: Book[] }[] = [];
-    let currentSide = leftCases;
-
+    // Split large genres into bookcase-sized chunks
+    const cases: { genre: string; books: Book[] }[] = [];
     for (const [genre, genreBooks] of genres) {
-        const chunks: { genre: string; books: Book[] }[] = [];
         for (let i = 0; i < genreBooks.length; i += MAX_BOOKS_PER_CASE) {
             const chunk = genreBooks.slice(i, i + MAX_BOOKS_PER_CASE);
-            const label = chunks.length === 0 ? genre : `${genre} (cont.)`;
-            chunks.push({ genre: label, books: chunk });
+            const label = i === 0 ? genre : `${genre} (cont.)`;
+            cases.push({ genre: label, books: chunk });
         }
-        currentSide.push(...chunks);
-        currentSide = currentSide === leftCases ? rightCases : leftCases;
     }
 
+    // Arrange into double-sided rows
+    // Each row has CASES_PER_ROW bookcases on the front and CASES_PER_ROW on the back
+    const casesPerRow = CASES_PER_ROW * 2;
     const layouts: BookcaseLayout[] = [];
-    const totalCols = Math.max(leftCases.length, rightCases.length);
-    const offsetX = ((totalCols - 1) * CASE_SPACING) / 2;
+    const rowWidth = (CASES_PER_ROW - 1) * CASE_SPACING;
 
-    for (let i = 0; i < leftCases.length; i++) {
+    for (let i = 0; i < cases.length; i++) {
+        const rowIndex = Math.floor(i / casesPerRow);
+        const posInRow = i % casesPerRow;
+        const side = posInRow < CASES_PER_ROW ? 0 : 1; // 0 = front, 1 = back
+        const col = posInRow < CASES_PER_ROW ? posInRow : posInRow - CASES_PER_ROW;
+
+        const x = col * CASE_SPACING - rowWidth / 2;
+        const z = rowIndex * (ROW_SPACING + SHELF_DEPTH * 2) + (side === 0 ? -0.5 : 0.5);
+        const rotation = side === 0 ? Math.PI : 0;
+
         layouts.push({
-            ...leftCases[i],
-            position: [i * CASE_SPACING - offsetX, 0, -AISLE_HALF],
-            rotation: 0,
-        });
-    }
-    for (let i = 0; i < rightCases.length; i++) {
-        layouts.push({
-            ...rightCases[i],
-            position: [i * CASE_SPACING - offsetX, 0, AISLE_HALF],
-            rotation: Math.PI,
+            ...cases[i],
+            position: [x, 0, z],
+            rotation,
         });
     }
 
@@ -326,13 +326,15 @@ function Furniture({ layouts }: { layouts: BookcaseLayout[] }) {
             const gm = new THREE.Matrix4().makeRotationY(rotation).setPosition(...position);
             const backH = shelfCount * SHELF_GAP + 0.5;
 
+            // Back panel — full height from floor
             geos.push(new THREE.BoxGeometry(width + 0.2, backH, 0.05));
-            mats.push(new THREE.Matrix4().setPosition(0, backH / 2 + 0.2, -SHELF_DEPTH / 2 + 0.02).premultiply(gm));
+            mats.push(new THREE.Matrix4().setPosition(0, backH / 2, -SHELF_DEPTH / 2 + 0.02).premultiply(gm));
             cols.push(backColor);
 
+            // Side panels — full height from floor
             for (const side of [-1, 1]) {
                 geos.push(new THREE.BoxGeometry(0.1, backH, SHELF_DEPTH));
-                mats.push(new THREE.Matrix4().setPosition(side * (width / 2 + 0.05), backH / 2 + 0.2, -0.05).premultiply(gm));
+                mats.push(new THREE.Matrix4().setPosition(side * (width / 2 + 0.05), backH / 2, -0.05).premultiply(gm));
                 cols.push(sideColor);
             }
             for (let s = 0; s <= shelfCount; s++) {
@@ -403,16 +405,110 @@ function GenreLabels({ layouts }: { layouts: BookcaseLayout[] }) {
     );
 }
 
-function Room() {
+function Room({ layouts }: { layouts: BookcaseLayout[] }) {
+    // Calculate room size from layout bounds
+    const bounds = useMemo(() => {
+        let minX = Infinity, maxX = -Infinity, minZ = Infinity, maxZ = -Infinity;
+        for (const l of layouts) {
+            minX = Math.min(minX, l.position[0] - BOOKCASE_WIDTH);
+            maxX = Math.max(maxX, l.position[0] + BOOKCASE_WIDTH);
+            minZ = Math.min(minZ, l.position[2] - 2);
+            maxZ = Math.max(maxZ, l.position[2] + 2);
+        }
+        const pad = 4;
+        return {
+            w: (maxX - minX) + pad * 2,
+            d: (maxZ - minZ) + pad * 2,
+            cx: (minX + maxX) / 2,
+            cz: (minZ + maxZ) / 2,
+        };
+    }, [layouts]);
+
+    const wallH = 4.5;
+    const wallColor = "#3a2a1a";
+    const wallColorLight = "#4a3828";
+
     return (
         <group>
-            <mesh rotation={[-Math.PI / 2, 0, 0]}>
-                <planeGeometry args={[60, 60]} />
-                <meshBasicMaterial color="#4a3828" />
+            {/* Floor */}
+            <mesh rotation={[-Math.PI / 2, 0, 0]} position={[bounds.cx, 0, bounds.cz]}>
+                <planeGeometry args={[bounds.w, bounds.d]} />
+                <meshStandardMaterial color="#5a4430" />
             </mesh>
-            <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 7, 0]}>
-                <planeGeometry args={[60, 60]} />
-                <meshBasicMaterial color="#2a2018" />
+            {/* Ceiling */}
+            <mesh rotation={[Math.PI / 2, 0, 0]} position={[bounds.cx, wallH, bounds.cz]}>
+                <planeGeometry args={[bounds.w, bounds.d]} />
+                <meshStandardMaterial color="#2a2018" />
+            </mesh>
+            {/* Back wall (-Z) */}
+            <mesh position={[bounds.cx, wallH / 2, bounds.cz - bounds.d / 2]}>
+                <planeGeometry args={[bounds.w, wallH]} />
+                <meshStandardMaterial color={wallColor} />
+            </mesh>
+            {/* Front wall (+Z) */}
+            <mesh position={[bounds.cx, wallH / 2, bounds.cz + bounds.d / 2]} rotation={[0, Math.PI, 0]}>
+                <planeGeometry args={[bounds.w, wallH]} />
+                <meshStandardMaterial color={wallColor} />
+            </mesh>
+            {/* Left wall (-X) */}
+            <mesh position={[bounds.cx - bounds.w / 2, wallH / 2, bounds.cz]} rotation={[0, Math.PI / 2, 0]}>
+                <planeGeometry args={[bounds.d, wallH]} />
+                <meshStandardMaterial color={wallColorLight} />
+            </mesh>
+            {/* Right wall (+X) */}
+            <mesh position={[bounds.cx + bounds.w / 2, wallH / 2, bounds.cz]} rotation={[0, -Math.PI / 2, 0]}>
+                <planeGeometry args={[bounds.d, wallH]} />
+                <meshStandardMaterial color={wallColorLight} />
+            </mesh>
+
+            {/* Windows on left wall */}
+            {[-0.25, 0.25].map((frac, i) => {
+                const wz = bounds.cz + bounds.d * frac;
+                const wx = bounds.cx - bounds.w / 2 + 0.01;
+                return (
+                    <group key={`win-${i}`}>
+                        <mesh position={[wx, 2.8, wz]} rotation={[0, Math.PI / 2, 0]}>
+                            <planeGeometry args={[2.5, 1.8]} />
+                            <meshBasicMaterial color="#b8cce0" />
+                        </mesh>
+                        {/* Cross frame */}
+                        <mesh position={[wx + 0.01, 2.8, wz]} rotation={[0, Math.PI / 2, 0]}>
+                            <boxGeometry args={[2.5, 0.06, 0.04]} />
+                            <meshStandardMaterial color="#2a1f14" />
+                        </mesh>
+                        <mesh position={[wx + 0.01, 2.8, wz]} rotation={[0, Math.PI / 2, 0]}>
+                            <boxGeometry args={[0.06, 1.8, 0.04]} />
+                            <meshStandardMaterial color="#2a1f14" />
+                        </mesh>
+                        {/* Sill */}
+                        <mesh position={[wx + 0.05, 1.9, wz]} rotation={[0, Math.PI / 2, 0]}>
+                            <boxGeometry args={[2.7, 0.06, 0.15]} />
+                            <meshStandardMaterial color="#5a4430" />
+                        </mesh>
+                    </group>
+                );
+            })}
+
+            {/* Skirting boards */}
+            {/* Back */}
+            <mesh position={[bounds.cx, 0.06, bounds.cz - bounds.d / 2 + 0.03]}>
+                <boxGeometry args={[bounds.w, 0.12, 0.06]} />
+                <meshStandardMaterial color="#3a2510" />
+            </mesh>
+            {/* Front */}
+            <mesh position={[bounds.cx, 0.06, bounds.cz + bounds.d / 2 - 0.03]}>
+                <boxGeometry args={[bounds.w, 0.12, 0.06]} />
+                <meshStandardMaterial color="#3a2510" />
+            </mesh>
+            {/* Left */}
+            <mesh position={[bounds.cx - bounds.w / 2 + 0.03, 0.06, bounds.cz]}>
+                <boxGeometry args={[0.06, 0.12, bounds.d]} />
+                <meshStandardMaterial color="#3a2510" />
+            </mesh>
+            {/* Right */}
+            <mesh position={[bounds.cx + bounds.w / 2 - 0.03, 0.06, bounds.cz]}>
+                <boxGeometry args={[0.06, 0.12, bounds.d]} />
+                <meshStandardMaterial color="#3a2510" />
             </mesh>
         </group>
     );
@@ -457,14 +553,16 @@ function Scene({ layouts, spines, tooltipRef }: {
 
     return (
         <>
-            <ambientLight intensity={1.0} />
-            <hemisphereLight args={["#ffecd2", "#4a3828", 0.8]} />
-            <pointLight position={[0, 5.5, 0]} intensity={25} color="#ffd4a0" distance={30} />
-            <pointLight position={[-15, 5.5, 0]} intensity={20} color="#ffd4a0" distance={25} />
-            <pointLight position={[15, 5.5, 0]} intensity={20} color="#ffd4a0" distance={25} />
-            <pointLight position={[0, 5.5, -3]} intensity={15} color="#ffecd2" distance={20} />
-            <pointLight position={[0, 5.5, 3]} intensity={15} color="#ffecd2" distance={20} />
-            <Room />
+            <ambientLight intensity={0.6} />
+            <hemisphereLight args={["#ffecd2", "#4a3828", 0.5]} />
+            {/* Sunlight through windows */}
+            <directionalLight position={[-10, 6, 0]} intensity={1.5} color="#ffecd2" />
+            {/* Overhead warm lights */}
+            <pointLight position={[0, 4.2, -1]} intensity={15} color="#ffd4a0" distance={15} />
+            <pointLight position={[0, 4.2, 3]} intensity={15} color="#ffd4a0" distance={15} />
+            <pointLight position={[-6, 4.2, 1]} intensity={12} color="#ffd4a0" distance={15} />
+            <pointLight position={[6, 4.2, 1]} intensity={12} color="#ffd4a0" distance={15} />
+            <Room layouts={layouts} />
             <Movement />
             <PointerLockControls />
             <Furniture layouts={layouts} />
@@ -526,7 +624,7 @@ export default function Library3D({ books }: { books: Book[] }) {
             )}
             {showCanvas && spines && (
                 <Canvas
-                    camera={{ position: [0, 1.6, 0], near: 0.05, far: 100, fov: 75 }}
+                    camera={{ position: [0, 1.6, -3], near: 0.05, far: 100, fov: 75 }}
                     gl={{ antialias: false, powerPreference: "high-performance", alpha: false }}
                     onCreated={({ gl }) => { gl.setPixelRatio(1); }}
                 >
