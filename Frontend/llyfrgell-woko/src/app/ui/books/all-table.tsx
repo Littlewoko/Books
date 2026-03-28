@@ -70,13 +70,13 @@ function Shelf({ books }: { books: Book[] }) {
     }, [calculateRows]);
 
     return (
-        <div className="relative" ref={shelfRef}>
+        <div className="relative mx-2 sm:mx-0" ref={shelfRef}>
             {/* Top shelf / ceiling */}
             <div className="relative h-[10px] bg-gradient-to-t from-stone-800/70 via-stone-900/80 to-stone-950/90 shadow-sm shadow-black/20" />
 
             {/* Side walls */}
-            <div className="absolute left-0 top-0 bottom-0 w-[6px] rounded-l bg-gradient-to-r from-stone-800/80 to-stone-700/30 z-10" />
-            <div className="absolute right-0 top-0 bottom-0 w-[6px] rounded-r bg-gradient-to-l from-stone-800/80 to-stone-700/30 z-10" />
+            <div className="absolute left-0 top-0 bottom-0 w-[8px] sm:w-[5px] bg-stone-700 z-10" />
+            <div className="absolute right-0 top-0 bottom-0 w-[8px] sm:w-[5px] bg-stone-700 z-10" />
 
             {rows.map((row, rowIndex) => (
                 <div key={rowIndex}>
@@ -96,6 +96,8 @@ function Shelf({ books }: { books: Book[] }) {
                     <div className="relative h-[10px] bg-gradient-to-b from-stone-700/60 via-stone-800/70 to-stone-900/80 shadow-md shadow-black/30" />
                 </div>
             ))}
+            {/* Bottom of bookcase */}
+            <div className="h-[6px] bg-gradient-to-b from-stone-700/70 to-stone-800/90" />
         </div>
     );
 }
@@ -112,7 +114,7 @@ const Table: React.FC<TableProps> = ({ books }) => {
             {/* Bookcase top surface */}
             {shelved.length > 0 && (
                 <>
-                    <div className="h-[10px] bg-gradient-to-b from-stone-600/50 via-stone-700/60 to-stone-800/70 shadow-md shadow-black/30" />
+                    <div className="h-[10px] mx-2 sm:mx-0 bg-gradient-to-b from-stone-600/50 via-stone-700/60 to-stone-800/70 shadow-md shadow-black/30" />
                     <Shelf books={shelved} />
                 </>
             )}
