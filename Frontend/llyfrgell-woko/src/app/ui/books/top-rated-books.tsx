@@ -1,43 +1,32 @@
-import { Card, CardContent, Typography } from "@mui/material";
-import StarIcon from '@mui/icons-material/Star';
-
 interface TopRatedBooksProps {
     books: any[];
 }
 
 export default function TopRatedBooks({ books }: TopRatedBooksProps) {
     return (
-        <Card sx={{ backgroundColor: "rgba(0,0,0,0.75)" }}>
-            <CardContent className="p-4">
-                <Typography className="text-gray-300 mb-4" sx={{ fontSize: '16px', fontWeight: 'bold' }}>
-                    Top Rated Books
-                </Typography>
-                <div className="space-y-3">
-                    {books.map((book, index) => (
-                        <div key={index} className="flex items-start gap-3 p-2 rounded hover:bg-gray-800/50 transition-colors">
-                            <div className="flex items-center gap-1 min-w-[60px]">
-                                <Typography className="text-yellow-400 font-bold" sx={{ fontSize: '18px' }}>
-                                    {book.rating}
-                                </Typography>
-                                <StarIcon className="text-yellow-400" fontSize="small" />
-                            </div>
-                            <div className="flex-1">
-                                <Typography className="text-orange-400" sx={{ fontSize: '14px' }}>
-                                    {book.title}
-                                </Typography>
-                                <Typography className="text-gray-400" sx={{ fontSize: '12px' }}>
-                                    {book.author}
-                                </Typography>
-                            </div>
+        <div className="rounded-sm bg-stone-900/60 border border-stone-700/40 p-4">
+            <h2
+                className="text-amber-200/80 text-lg mb-4"
+                style={{ fontFamily: 'var(--font-caveat)' }}
+            >
+                Top Rated Books
+            </h2>
+            <div className="space-y-3">
+                {books.map((book, index) => (
+                    <div key={index} className="flex items-start gap-3 p-2 rounded hover:bg-stone-800/50 transition-colors">
+                        <span className="text-amber-200/90 font-semibold text-lg min-w-[45px]">
+                            {book.rating} ★
+                        </span>
+                        <div className="flex-1 min-w-0">
+                            <p className="text-amber-100/80 text-sm">{book.title}</p>
+                            <p className="text-stone-400 text-xs">{book.author}</p>
                         </div>
-                    ))}
-                </div>
-                {books.length === 0 && (
-                    <Typography className="text-gray-500 text-center py-8" sx={{ fontSize: '14px' }}>
-                        No rated books yet
-                    </Typography>
-                )}
-            </CardContent>
-        </Card>
+                    </div>
+                ))}
+            </div>
+            {books.length === 0 && (
+                <p className="text-stone-500 text-center py-8 text-sm">No rated books yet</p>
+            )}
+        </div>
     );
 }
