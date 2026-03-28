@@ -9,21 +9,27 @@ interface TableProps {
     books: Book[]
 }
 
-function HorizontalStack({ books }: { books: Book[] }) {
+function HorizontalStack({ books, animateFrom }: { books: Book[]; animateFrom: number }) {
     return (
         <div className="flex flex-col items-start px-4">
-            {books.map((book) => (
-                <Link href={`/books/${book.id}`} key={book.id} className="block group">
-                    <div className="transition-transform duration-200 group-hover:translate-x-3">
-                        <BookSpine book={book} horizontal />
-                    </div>
-                </Link>
-            ))}
+            {books.map((book, i) => {
+                const isNew = i >= animateFrom;
+                return (
+                    <Link href={`/books/${book.id}`} key={book.id} className="block group">
+                        <div
+                            className={`transition-transform duration-200 group-hover:translate-x-3 ${isNew ? 'animate-shelf-drop' : ''}`}
+                            style={isNew ? { animationDelay: `${(i - animateFrom) * 40}ms` } : undefined}
+                        >
+                            <BookSpine book={book} horizontal />
+                        </div>
+                    </Link>
+                );
+            })}
         </div>
     );
 }
 
-function Shelf({ books }: { books: Book[] }) {
+function Shelf({ books, animateFrom }: { books: Book[]; animateFrom: number }) {
     const shelfRef = useRef<HTMLDivElement>(null);
     const [rows, setRows] = useState<Book[][]>([books]);
 
@@ -69,6 +75,17 @@ function Shelf({ books }: { books: Book[] }) {
         return () => { clearTimeout(timer); observer.disconnect(); };
     }, [calculateRows]);
 
+    // Track the global index of each book for animation offset
+    const bookGlobalIndex = new Map<string, number>();
+    let idx = 0;
+    for (const row of rows) {
+        for (const book of row) {
+            bookGlobalIndex.set(book.id, idx++);
+        }
+    }
+
+    let newBookCount = 0;
+
     return (
         <div className="relative mx-2 sm:mx-0" ref={shelfRef}>
             {/* Top shelf / ceiling */}
@@ -83,11 +100,21 @@ function Shelf({ books }: { books: Book[] }) {
                     <div className="relative bg-gradient-to-b from-stone-900/60 to-stone-950/80">
                         <div className="px-4 pt-3 pb-0">
                             <div className="flex flex-wrap gap-1 items-end">
-                                {row.map((book) => (
-                                    <div key={book.id} data-spine>
-                                        <BookSpine book={book} />
-                                    </div>
-                                ))}
+                                {row.map((book) => {
+                                    const globalIdx = bookGlobalIndex.get(book.id) ?? 0;
+                                    const isNew = globalIdx >= animateFrom;
+                                    const delay = isNew ? newBookCount++ * 35 : 0;
+                                    return (
+                                        <div
+                                            key={book.id}
+                                            data-spine
+                                            className={isNew ? 'animate-shelf-drop' : ''}
+                                            style={isNew ? { animationDelay: `${delay}ms` } : undefined}
+                                        >
+                                            <BookSpine book={book} />
+                                        </div>
+                                    );
+                                })}
                             </div>
                         </div>
                     </div>
@@ -103,19 +130,33 @@ function Shelf({ books }: { books: Book[] }) {
 }
 
 const Table: React.FC<TableProps> = ({ books }) => {
+    const prevCountRef = useRef(0);
+    const [animateFrom, setAnimateFrom] = useState(0);
+
+    useEffect(() => {
+        if (books.length === prevCountRef.current) return;
+        // On first load or filter reset, animate all; on load-more, animate only new
+        setAnimateFrom(prevCountRef.current);
+        prevCountRef.current = books.length;
+    }, [books.length]);
+
     const inProgress = books.filter(b => b.dateStartedReading && !b.dateCompleted);
     const shelved = books.filter(b => !b.dateStartedReading || !!b.dateCompleted);
+
+    // Calculate how many in-progress books came before the animate threshold
+    const inProgressAnimateFrom = Math.max(0, Math.min(animateFrom, inProgress.length));
+    const shelvedAnimateFrom = Math.max(0, animateFrom - inProgress.length);
 
     return (
         <div className="flex flex-col">
             {inProgress.length > 0 && (
-                <HorizontalStack books={inProgress} />
+                <HorizontalStack books={inProgress} animateFrom={inProgressAnimateFrom} />
             )}
             {/* Bookcase top surface */}
             {shelved.length > 0 && (
                 <>
                     <div className="h-[10px] mx-2 sm:mx-0 bg-gradient-to-b from-stone-600/50 via-stone-700/60 to-stone-800/70 shadow-md shadow-black/30" />
-                    <Shelf books={shelved} />
+                    <Shelf books={shelved} animateFrom={shelvedAnimateFrom} />
                 </>
             )}
         </div>
