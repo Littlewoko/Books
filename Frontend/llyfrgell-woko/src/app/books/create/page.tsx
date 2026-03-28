@@ -1,7 +1,6 @@
 import Form from "@/app/ui/books/create-form"
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
-import Breadcrumbs from "@/app/ui/breadcrumbs";
 
 export default async function Page() {
     const session = await getServerSession();
@@ -11,7 +10,6 @@ export default async function Page() {
 
     return (
         <main>
-            <Breadcrumbs />
             <Form />
         </main>
     )

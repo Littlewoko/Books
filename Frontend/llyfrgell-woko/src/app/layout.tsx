@@ -3,6 +3,8 @@ import localFont from "next/font/local";
 import { Caveat } from "next/font/google";
 import "./globals.css";
 import Navbar from "./ui/navbar";
+import Breadcrumbs from "./ui/breadcrumbs";
+import { BreadcrumbProvider } from "./components/BreadcrumbContext";
 
 import { getServerSession } from "next-auth";
 import SessionProvider from "./components/SessionProvider";
@@ -42,9 +44,12 @@ export default async function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${caveat.variable} antialiased`}
       >
         <SessionProvider session={session}>
-          <Navbar />
-          <GradioSpace />
-          {children}
+          <BreadcrumbProvider>
+            <Navbar />
+            <GradioSpace />
+            <Breadcrumbs />
+            {children}
+          </BreadcrumbProvider>
         </SessionProvider>
       </body>
     </html>

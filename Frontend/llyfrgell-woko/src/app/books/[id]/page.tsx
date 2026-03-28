@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import BookView from "@/app/ui/books/book-view";
 import { fetchNotesByBookId } from "@/app/lib/books/book-club-actions";
-import Breadcrumbs from "@/app/ui/breadcrumbs";
+import SetBookTitle from "@/app/components/SetBookTitle";
 
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession();
@@ -19,7 +19,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
 
   return (
     <main>
-      <Breadcrumbs bookTitle={book?.title} />
+      <SetBookTitle title={book?.title} />
       <BookView book={book} bookClubNotes={notes} />
     </main>
   );

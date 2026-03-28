@@ -6,7 +6,6 @@ import YearlyChart from "@/app/ui/books/yearly-chart";
 import GenreChart from "@/app/ui/books/genre-chart";
 import TopRatedBooks from "@/app/ui/books/top-rated-books";
 import MonthlyBooks from "@/app/ui/books/monthly-books";
-import Breadcrumbs from "@/app/ui/breadcrumbs";
 
 export default async function StatsPage() {
     const session = await getServerSession();
@@ -18,7 +17,6 @@ export default async function StatsPage() {
 
     return (
         <main className="p-4">
-            <Breadcrumbs />
             <div className="max-w-5xl mx-auto mt-2">
                 <h1
                     className="text-amber-200/90 text-2xl sm:text-3xl mb-4 drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]"

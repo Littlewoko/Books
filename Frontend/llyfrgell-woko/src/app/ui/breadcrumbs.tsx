@@ -2,11 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-
-interface BreadcrumbProps {
-    bookTitle?: string;
-}
+import { useBookTitle } from "@/app/components/BreadcrumbContext";
 
 const labelMap: Record<string, string> = {
     books: "Llyfrgell",
@@ -17,8 +13,9 @@ const labelMap: Record<string, string> = {
     portfolio: "Portfolio",
 };
 
-export default function Breadcrumbs({ bookTitle }: BreadcrumbProps) {
+export default function Breadcrumbs() {
     const pathname = usePathname();
+    const { bookTitle } = useBookTitle();
     const segments = pathname.split('/').filter(Boolean);
 
     if (segments.length <= 1) return null;
@@ -30,28 +27,33 @@ export default function Breadcrumbs({ bookTitle }: BreadcrumbProps) {
         const segment = segments[i];
         path += `/${segment}`;
 
-        // Skip raw IDs — use book title instead
-        if (/^\d+$/.test(segment) && bookTitle) {
-            crumbs.push({ label: bookTitle, href: path });
-        } else {
-            crumbs.push({
-                label: labelMap[segment] || segment,
-                href: path,
-            });
+        if (/^\d+$/.test(segment)) {
+            if (bookTitle) {
+                crumbs.push({ label: bookTitle, href: path });
+            }
+            continue;
         }
+
+        crumbs.push({
+            label: labelMap[segment] || segment,
+            href: path,
+        });
     }
 
     return (
-        <nav className="flex items-center gap-1 px-2 py-2 text-xs drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+        <nav
+            className="flex items-center gap-1.5 px-3 py-2 text-sm drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]"
+            style={{ fontFamily: 'var(--font-caveat)' }}
+        >
             {crumbs.map((crumb, i) => {
                 const isLast = i === crumbs.length - 1;
                 return (
-                    <span key={crumb.href} className="flex items-center gap-1">
-                        {i > 0 && <ChevronRightIcon className="text-gray-500" sx={{ fontSize: '14px' }} />}
+                    <span key={crumb.href} className="flex items-center gap-1.5">
+                        {i > 0 && <span className="text-stone-500">/</span>}
                         {isLast ? (
-                            <span className="text-orange-500">{crumb.label}</span>
+                            <span className="text-amber-200/90">{crumb.label}</span>
                         ) : (
-                            <Link href={crumb.href} className="text-gray-500 hover:text-gray-300 transition-colors">
+                            <Link href={crumb.href} className="text-stone-300 hover:text-amber-200/80 transition-colors">
                                 {crumb.label}
                             </Link>
                         )}
