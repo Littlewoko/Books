@@ -9,7 +9,7 @@ export default function TopRatedBooks({ books }: TopRatedBooksProps) {
                 className="text-amber-200/80 text-lg mb-4"
                 style={{ fontFamily: 'var(--font-caveat)' }}
             >
-                Top Rated Books
+                Top Rated
             </h2>
             <div className="space-y-3">
                 {books.map((book, index) => (
@@ -25,7 +25,7 @@ export default function TopRatedBooks({ books }: TopRatedBooksProps) {
                 ))}
             </div>
             {books.length === 0 && (
-                <p className="text-stone-500 text-center py-8 text-sm">No rated books yet</p>
+                <p className="text-stone-500 text-center py-8 text-sm">No rated novels yet</p>
             )}
         </div>
     );

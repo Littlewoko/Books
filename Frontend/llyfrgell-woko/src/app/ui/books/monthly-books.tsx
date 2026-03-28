@@ -61,7 +61,7 @@ export default function MonthlyBooks({ data }: MonthlyBooksProps) {
                 className="text-amber-200/80 text-lg mb-4"
                 style={{ fontFamily: 'var(--font-caveat)' }}
             >
-                Books Completed in {currentYear}
+                Completed in {currentYear}
             </h2>
             <div className="space-y-6">
                 {booksByMonth.map((item) => (
@@ -76,7 +76,7 @@ export default function MonthlyBooks({ data }: MonthlyBooksProps) {
                 ))}
             </div>
             {booksByMonth.length === 0 && (
-                <p className="text-stone-500 text-center py-8 text-sm">No books completed this year</p>
+                <p className="text-stone-500 text-center py-8 text-sm">Nothing completed this year</p>
             )}
         </div>
     );

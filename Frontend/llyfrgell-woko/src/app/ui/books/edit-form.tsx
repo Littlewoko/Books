@@ -178,7 +178,7 @@ const Form: React.FC<Props> = ({ book, returnTo }) => {
                     <div className="flex items-center gap-2" style={{ height: '28px' }}>
                         <input type="checkbox" id="shortStory" name="shortStory" defaultChecked={book.shortStory} className="accent-amber-700" />
                         <Typography className="text-stone-400" sx={{ fontSize: '18px', lineHeight: '28px', fontFamily: 'var(--font-caveat)' }}>
-                            Short story
+                            Novella
                         </Typography>
                     </div>
 

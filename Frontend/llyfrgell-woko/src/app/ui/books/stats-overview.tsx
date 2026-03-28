@@ -8,8 +8,8 @@ export default function StatsOverview({ stats, avgRating }: StatsOverviewProps) 
 
     const items = [
         { label: "Total Completed", value: stats.total_completed },
-        { label: `${currentYear} Books`, value: stats.completed_this_year },
-        { label: "Short Stories", value: stats.total_short_stories },
+        { label: `${currentYear} Novels`, value: stats.completed_this_year },
+        { label: "Novellas", value: stats.total_short_stories },
         { label: "In Progress", value: stats.in_progress },
         { label: "Owned Unread", value: stats.owned_unread },
         { label: "Avg Rating", value: avgRating ? `${Number(avgRating).toFixed(1)} ★` : "N/A" },

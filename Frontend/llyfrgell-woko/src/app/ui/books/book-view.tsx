@@ -89,7 +89,7 @@ export default function BookView({ book, bookClubNotes = [], returnTo }: Props) 
 
                     {/* Genre & Short Story */}
                     <Typography className={coverTextMuted} sx={{ fontSize: { xs: '11px', sm: '13px' }, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-                        {book.genre}{book.shortStory ? " · Short Story" : ""}
+                        {book.genre}{book.shortStory ? " · Novella" : ""}
                     </Typography>
 
                     {/* ISBN */}

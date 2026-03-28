@@ -34,7 +34,7 @@ export default function StatsCard({ stats }: Props) {
                         mb: 1.5,
                         fontSize: { xs: '12px', sm: '14px' }
                     }}>
-                    <span>Shorts Read This Year:</span><span> {stats?.thisYearCompleteShort || 0}</span>
+                    <span>Novellas Read This Year:</span><span> {stats?.thisYearCompleteShort || 0}</span>
                 </Typography>
                 <Typography
                     component="div"
@@ -52,7 +52,7 @@ export default function StatsCard({ stats }: Props) {
                         mb: 1.5,
                         fontSize: { xs: '12px', sm: '14px' }
                     }}>
-                    <span>All Time Shorts Read:</span><span> {stats?.allTimeCompleteShort || 0}</span>
+                    <span>All Time Novellas Read:</span><span> {stats?.allTimeCompleteShort || 0}</span>
                 </Typography>
             </CardContent>
         </Card>
