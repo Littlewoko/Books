@@ -438,7 +438,7 @@ function Room({ layouts }: { layouts: BookcaseLayout[] }) {
             {/* Ceiling */}
             <mesh rotation={[Math.PI / 2, 0, 0]} position={[bounds.cx, wallH, bounds.cz]}>
                 <planeGeometry args={[bounds.w, bounds.d]} />
-                <meshStandardMaterial color="#2a2018" />
+                <meshStandardMaterial color="#4a3828" />
             </mesh>
             {/* Back wall (-Z) */}
             <mesh position={[bounds.cx, wallH / 2, bounds.cz - bounds.d / 2]}>
@@ -461,32 +461,33 @@ function Room({ layouts }: { layouts: BookcaseLayout[] }) {
                 <meshStandardMaterial color={wallColorLight} />
             </mesh>
 
-            {/* Windows on left wall */}
-            {[-0.25, 0.25].map((frac, i) => {
-                const wz = bounds.cz + bounds.d * frac;
-                const wx = bounds.cx - bounds.w / 2 + 0.01;
-                return (
-                    <group key={`win-${i}`}>
-                        <mesh position={[wx, 2.8, wz]} rotation={[0, Math.PI / 2, 0]}>
-                            <planeGeometry args={[2.5, 1.8]} />
-                            <meshBasicMaterial color="#b8cce0" />
-                        </mesh>
-                        {/* Cross frame */}
-                        <mesh position={[wx + 0.01, 2.8, wz]} rotation={[0, Math.PI / 2, 0]}>
-                            <boxGeometry args={[2.5, 0.06, 0.04]} />
-                            <meshStandardMaterial color="#2a1f14" />
-                        </mesh>
-                        <mesh position={[wx + 0.01, 2.8, wz]} rotation={[0, Math.PI / 2, 0]}>
-                            <boxGeometry args={[0.06, 1.8, 0.04]} />
-                            <meshStandardMaterial color="#2a1f14" />
-                        </mesh>
-                        {/* Sill */}
-                        <mesh position={[wx + 0.05, 1.9, wz]} rotation={[0, Math.PI / 2, 0]}>
-                            <boxGeometry args={[2.7, 0.06, 0.15]} />
-                            <meshStandardMaterial color="#5a4430" />
-                        </mesh>
-                    </group>
-                );
+            {/* Windows on both side walls */}
+            {[-1, 1].map((wallSide) => {
+                const wx = bounds.cx + wallSide * (bounds.w / 2 - 0.01);
+                const faceRot = wallSide === -1 ? Math.PI / 2 : -Math.PI / 2;
+                return [-0.25, 0.25].map((frac, i) => {
+                    const wz = bounds.cz + bounds.d * frac;
+                    return (
+                        <group key={`win-${wallSide}-${i}`}>
+                            <mesh position={[wx, 2.8, wz]} rotation={[0, faceRot, 0]}>
+                                <planeGeometry args={[2.5, 1.8]} />
+                                <meshBasicMaterial color="#b8cce0" />
+                            </mesh>
+                            <mesh position={[wx, 2.8, wz]} rotation={[0, faceRot, 0]}>
+                                <boxGeometry args={[2.5, 0.06, 0.04]} />
+                                <meshStandardMaterial color="#2a1f14" />
+                            </mesh>
+                            <mesh position={[wx, 2.8, wz]} rotation={[0, faceRot, 0]}>
+                                <boxGeometry args={[0.06, 1.8, 0.04]} />
+                                <meshStandardMaterial color="#2a1f14" />
+                            </mesh>
+                            <mesh position={[wx + wallSide * 0.04, 1.9, wz]} rotation={[0, faceRot, 0]}>
+                                <boxGeometry args={[2.7, 0.06, 0.15]} />
+                                <meshStandardMaterial color="#5a4430" />
+                            </mesh>
+                        </group>
+                    );
+                });
             })}
 
             {/* Skirting boards */}
@@ -511,6 +512,55 @@ function Room({ layouts }: { layouts: BookcaseLayout[] }) {
                 <meshStandardMaterial color="#3a2510" />
             </mesh>
         </group>
+    );
+}
+
+function CeilingLights({ layouts }: { layouts: BookcaseLayout[] }) {
+    // Find unique row Z positions and the X range
+    const lights = useMemo(() => {
+        const rowZs = new Set<number>();
+        let minX = Infinity, maxX = -Infinity;
+        for (const l of layouts) {
+            // Round to group front/back of same row
+            const rowZ = Math.round(l.position[2] / (ROW_SPACING + SHELF_DEPTH * 2)) * (ROW_SPACING + SHELF_DEPTH * 2);
+            rowZs.add(rowZ);
+            minX = Math.min(minX, l.position[0]);
+            maxX = Math.max(maxX, l.position[0]);
+        }
+        const cx = (minX + maxX) / 2;
+        const result: [number, number][] = [];
+        // Lights in the aisles between rows and at the edges
+        const sortedZ = Array.from(rowZs).sort((a, b) => a - b);
+        // Before first row
+        if (sortedZ.length > 0) result.push([cx, sortedZ[0] - ROW_SPACING / 2 - 0.5]);
+        // Between rows
+        for (let i = 0; i < sortedZ.length - 1; i++) {
+            result.push([cx, (sortedZ[i] + sortedZ[i + 1]) / 2]);
+        }
+        // After last row
+        if (sortedZ.length > 0) result.push([cx, sortedZ[sortedZ.length - 1] + ROW_SPACING / 2 + 0.5]);
+        return result;
+    }, [layouts]);
+
+    return (
+        <>
+            {lights.map(([x, z], i) => (
+                <group key={i}>
+                    {/* Light fixture bar */}
+                    <mesh position={[x, 4.35, z]}>
+                        <boxGeometry args={[BOOKCASE_WIDTH * 2, 0.04, 0.15]} />
+                        <meshStandardMaterial color="#2a1f14" />
+                    </mesh>
+                    {/* Glowing panel */}
+                    <mesh position={[x, 4.32, z]}>
+                        <boxGeometry args={[BOOKCASE_WIDTH * 1.8, 0.02, 0.1]} />
+                        <meshBasicMaterial color="#ffecd2" />
+                    </mesh>
+                    {/* Actual light */}
+                    <pointLight position={[x, 4.2, z]} intensity={12} color="#ffd4a0" distance={12} />
+                </group>
+            ))}
+        </>
     );
 }
 
@@ -556,13 +606,15 @@ function Scene({ layouts, spines, tooltipRef }: {
             <ambientLight intensity={0.6} />
             <hemisphereLight args={["#ffecd2", "#4a3828", 0.5]} />
             {/* Sunlight through windows */}
-            <directionalLight position={[-10, 6, 0]} intensity={1.5} color="#ffecd2" />
+            <directionalLight position={[-10, 6, 0]} intensity={1.2} color="#ffecd2" />
+            <directionalLight position={[10, 6, 0]} intensity={1.2} color="#ffecd2" />
             {/* Overhead warm lights */}
             <pointLight position={[0, 4.2, -1]} intensity={15} color="#ffd4a0" distance={15} />
             <pointLight position={[0, 4.2, 3]} intensity={15} color="#ffd4a0" distance={15} />
             <pointLight position={[-6, 4.2, 1]} intensity={12} color="#ffd4a0" distance={15} />
             <pointLight position={[6, 4.2, 1]} intensity={12} color="#ffd4a0" distance={15} />
             <Room layouts={layouts} />
+            <CeilingLights layouts={layouts} />
             <Movement />
             <PointerLockControls />
             <Furniture layouts={layouts} />
