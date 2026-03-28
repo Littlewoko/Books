@@ -8,6 +8,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import Link from "next/link";
 import { getBookColor, isLightColor } from "@/app/utils/bookColors";
 import { BookClubNote } from "@/app/lib/classes/book-club-note";
+import QuickComplete from "./quick-complete";
 
 interface Props {
     book: Book | undefined;
@@ -225,8 +226,19 @@ export default function BookView({ book, bookClubNotes = [], returnTo }: Props) 
                         </div>
                     )}
 
+                    {/* Quick Complete */}
+                    {!book.dateCompleted && (
+                        <div className="flex flex-col items-end">
+                            <QuickComplete
+                                bookId={book.id.toString()}
+                                hasStartedReading={!!book.dateStartedReading}
+                                returnTo={returnTo}
+                            />
+                        </div>
+                    )}
+
                     {/* Bottom margin - blank lines */}
-                    <div style={{ height: '84px' }} />
+                    <div style={{ height: book.dateCompleted ? '84px' : '28px' }} />
                 </div>
             </div>
 

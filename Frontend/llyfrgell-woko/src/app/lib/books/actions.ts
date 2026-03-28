@@ -102,7 +102,35 @@ export async function UpdateBook(id: string, formData: FormData) {
             WHERE id=${id};`;
 
     revalidatePath('/books');
-    redirect(returnTo || '/books');
+    redirect(returnTo || `/books/${id}`);
+}
+
+export async function QuickCompleteBook(id: string, formData: FormData) {
+    await ProtectRoute();
+
+    const dateCompleted = formData.get('dateCompleted') as string;
+    const rating = formData.get('rating') ? Number(formData.get('rating')) : null;
+    const review = (formData.get('review') as string) || null;
+    const setStarted = formData.get('setStarted') === 'true';
+    const returnTo = formData.get('returnTo') as string | null;
+
+    if (setStarted) {
+        await sql`UPDATE books SET
+            datecompleted = ${dateCompleted},
+            datestartedreading = COALESCE(datestartedreading, ${dateCompleted}),
+            rating = ${rating},
+            review = CASE WHEN ${review}::text IS NOT NULL THEN ${review} ELSE review END
+            WHERE id = ${id};`;
+    } else {
+        await sql`UPDATE books SET
+            datecompleted = ${dateCompleted},
+            rating = ${rating},
+            review = CASE WHEN ${review}::text IS NOT NULL THEN ${review} ELSE review END
+            WHERE id = ${id};`;
+    }
+
+    revalidatePath('/books');
+    redirect(returnTo || `/books/${id}`);
 }
 
 export async function DeleteBook(id: string, returnTo?: string) {

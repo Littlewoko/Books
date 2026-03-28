@@ -15,7 +15,7 @@ export default function StarRating({ rating, interactive = false, handwritten = 
 
     const handleClick = (value: number) => {
         if (interactive && onChange) {
-            onChange(value);
+            onChange(value === rating ? 0 : value);
         }
     };
 

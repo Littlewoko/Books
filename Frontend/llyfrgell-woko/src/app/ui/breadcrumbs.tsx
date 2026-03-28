@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useBookTitle } from "@/app/components/BreadcrumbContext";
+import { useBreadcrumbContext } from "@/app/components/BreadcrumbContext";
 
 const labelMap: Record<string, string> = {
     books: "Llyfrgell",
@@ -15,7 +15,7 @@ const labelMap: Record<string, string> = {
 
 export default function Breadcrumbs() {
     const pathname = usePathname();
-    const { bookTitle } = useBookTitle();
+    const { bookTitle, returnTo } = useBreadcrumbContext();
     const segments = pathname.split('/').filter(Boolean);
 
     if (segments.length <= 1) return null;
@@ -36,7 +36,7 @@ export default function Breadcrumbs() {
 
         crumbs.push({
             label: labelMap[segment] || segment,
-            href: path,
+            href: returnTo && segment === 'books' ? returnTo : path,
         });
     }
 

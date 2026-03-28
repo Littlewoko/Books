@@ -22,7 +22,7 @@ export default async function Page({ params, searchParams }: { params: Promise<{
 
   return (
     <main>
-      <SetBookTitle title={book?.title} />
+      <SetBookTitle title={book?.title} returnTo={returnTo} />
       <Form book={book} returnTo={returnTo} />
       {book?.id && (
         <div className="mb-12">

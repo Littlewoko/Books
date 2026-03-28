@@ -20,7 +20,7 @@ export default async function Page({ params, searchParams }: { params: Promise<{
 
   return (
     <main>
-      <SetBookTitle title={book?.title} />
+      <SetBookTitle title={book?.title} returnTo={returnTo} />
       <BookView book={book} bookClubNotes={notes} returnTo={returnTo} />
     </main>
   );

@@ -1,13 +1,17 @@
 "use client";
 
 import { useEffect } from "react";
-import { useBookTitle } from "./BreadcrumbContext";
+import { useBreadcrumbContext } from "./BreadcrumbContext";
 
-export default function SetBookTitle({ title }: { title?: string }) {
-    const { setBookTitle } = useBookTitle();
+export default function SetBookTitle({ title, returnTo }: { title?: string; returnTo?: string }) {
+    const { setBookTitle, setReturnTo } = useBreadcrumbContext();
     useEffect(() => {
         setBookTitle(title);
-        return () => setBookTitle(undefined);
-    }, [title, setBookTitle]);
+        setReturnTo(returnTo);
+        return () => {
+            setBookTitle(undefined);
+            setReturnTo(undefined);
+        };
+    }, [title, returnTo, setBookTitle, setReturnTo]);
     return null;
 }
