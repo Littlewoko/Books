@@ -1,7 +1,6 @@
 "use client";
 
 import { Portfolio } from "@/app/lib/classes/portfolio";
-import { deletePortfolio } from "@/app/lib/portfolio/actions";
 import Link from "next/link";
 
 interface props {
@@ -11,12 +10,6 @@ interface props {
 
 export default function PortfolioCard({ portfolioItem, isLoggedIn }: props) {
     const svgString = atob(portfolioItem.svgIcon);
-
-    const Delete = async () => {
-        const wantToDelete = confirm(`Are you sure you want to delete ${portfolioItem.title}? This action cannot be undone`);
-        if (!wantToDelete) return;
-        await deletePortfolio(portfolioItem.id?.toString() ?? "");
-    }
 
     return (
         <div className="group relative rounded-sm overflow-hidden shadow-md shadow-black/40 transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg hover:shadow-black/60 bg-gradient-to-b from-stone-700 to-stone-800 flex flex-col">
@@ -56,20 +49,13 @@ export default function PortfolioCard({ portfolioItem, isLoggedIn }: props) {
 
             {/* Actions pinned to bottom */}
             {isLoggedIn && (
-                <div className="flex justify-center gap-1 pb-3 px-3 relative z-20">
+                <div className="flex justify-center pb-3 px-3 relative z-20">
                     <Link
                         href={`/portfolio/${portfolioItem.id}/edit`}
                         className="relative z-30 text-stone-300/70 hover:text-amber-200 transition-colors text-[11px] py-1.5 px-2"
                     >
                         Edit
                     </Link>
-                    <button
-                        onClick={Delete}
-                        type="button"
-                        className="relative z-30 text-rose-300/50 hover:text-rose-300 transition-colors text-[11px] py-1.5 px-2"
-                    >
-                        Delete
-                    </button>
                 </div>
             )}
         </div>

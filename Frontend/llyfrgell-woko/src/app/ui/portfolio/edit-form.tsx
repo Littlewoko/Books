@@ -1,4 +1,6 @@
-import { editPortfolio } from "@/app/lib/portfolio/actions";
+"use client";
+
+import { editPortfolio, deletePortfolio } from "@/app/lib/portfolio/actions";
 import { Portfolio } from "@/app/lib/classes/portfolio";
 
 interface Props {
@@ -11,6 +13,13 @@ export default function Form({ portfolio }: Props) {
     }
 
     const editPortfolioWithId = editPortfolio.bind(null, portfolio.id, portfolio.userId);
+
+    const handleDelete = async () => {
+        if (!portfolio.id) return;
+        const wantToDelete = confirm(`Are you sure you want to delete ${portfolio.title}? This action cannot be undone.`);
+        if (!wantToDelete) return;
+        await deletePortfolio(portfolio.id.toString());
+    };
 
     return (
         <form action={editPortfolioWithId}>
@@ -43,7 +52,15 @@ export default function Form({ portfolio }: Props) {
                         className="w-full bg-transparent border border-stone-600 rounded-sm text-amber-100/90 text-sm p-1 focus:outline-none focus:border-amber-700 placeholder-stone-500 resize-none"
                     />
                 </div>
-                <div className="flex justify-end">
+                <div className="flex justify-between items-center">
+                    <button
+                        type="button"
+                        onClick={handleDelete}
+                        className="text-rose-400/60 hover:text-rose-300 transition-colors text-sm"
+                        style={{ fontFamily: 'var(--font-caveat)' }}
+                    >
+                        Delete
+                    </button>
                     <button
                         type="submit"
                         className="text-stone-300 hover:text-amber-200 transition-colors text-sm"
