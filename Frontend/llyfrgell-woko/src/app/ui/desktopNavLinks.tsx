@@ -5,42 +5,28 @@ import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import NoteAddIcon from '@mui/icons-material/NoteAdd';
 import BarChartIcon from '@mui/icons-material/BarChart';
 
+const navItems = [
+  { href: '/books', label: 'Llyfrgell', icon: LibraryBooksIcon },
+  { href: '/books/create', label: 'Llyfr Newydd', icon: AutoStoriesIcon },
+  { href: '/books/stats', label: 'Ystadegau', icon: BarChartIcon },
+  { href: '/portfolio/create', label: 'Portffolio Newydd', icon: NoteAddIcon },
+];
+
+const linkClass = "flex items-center gap-1 text-amber-100/70 hover:text-amber-100 transition-colors";
+const linkStyle = { fontFamily: 'var(--font-caveat)', fontSize: '18px' };
+
 export function DesktopNavLinks() {
   return (
-    <ul className="flex flex-row gap-2">
-      <li className="text-xl hover:text-blue-900 hover:font-semibold">
-        <Link href="/books">
-          <button type="button" className="flex items-center text-white bg-gradient-to-r from-black to-gray-400 hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-purple-200 dark:focus:ring-purple-800 font-small rounded-lg text-sm p-1 px-2 md:px-3 text-center text-xs md:text-sm">
-            <LibraryBooksIcon className="md:mr-1" fontSize="small" />
-            <span className="hidden md:inline">Llyfrgell</span>
-          </button>
-        </Link>
-      </li>
-      <li className="text-xl hover:text-blue-900 hover:font-semibold">
-        <Link href="/books/create">
-          <button type="button" className="flex items-center text-white bg-gradient-to-r from-black to-gray-400 hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-purple-200 dark:focus:ring-purple-800 font-small rounded-lg text-sm p-1 px-2 md:px-3 text-center text-xs md:text-sm">
-            <AutoStoriesIcon className="md:mr-1" fontSize="small" />
-            <span className="hidden md:inline">Llyfr Newydd</span>
-          </button>
-        </Link>
-      </li>
-      <li className="text-xl hover:text-blue-900 hover:font-semibold">
-        <Link href="/books/stats">
-          <button type="button" className="flex items-center text-white bg-gradient-to-r from-black to-gray-400 hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-purple-200 dark:focus:ring-purple-800 font-small rounded-lg text-sm p-1 px-2 md:px-3 text-center text-xs md:text-sm">
-            <BarChartIcon className="md:mr-1" fontSize="small" />
-            <span className="hidden md:inline">Statistics</span>
-          </button>
-        </Link>
-      </li>
-      <li className="text-xl hover:text-blue-900 hover:font-semibold">
-        <Link href="/portfolio/create">
-          <button type="button" className="flex items-center text-white bg-gradient-to-r from-black to-gray-400 hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-purple-200 dark:focus:ring-purple-800 font-small rounded-lg text-sm p-1 px-2 md:px-3 text-center text-xs md:text-sm">
-            <NoteAddIcon className="md:mr-1" fontSize="small" />
-            <span className="hidden md:inline">Portffolio Newydd</span>
-          </button>
-        </Link>
-      </li>
-      <li className="text-xl hover:text-blue-900 hover:font-semibold">
+    <ul className="flex flex-row gap-4 items-center">
+      {navItems.map(({ href, label, icon: Icon }) => (
+        <li key={href}>
+          <Link href={href} className={linkClass} style={linkStyle}>
+            <Icon sx={{ fontSize: 16, color: 'inherit' }} />
+            <span className="hidden md:inline">{label}</span>
+          </Link>
+        </li>
+      ))}
+      <li>
         <AuthButton />
       </li>
     </ul>

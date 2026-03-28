@@ -15,15 +15,19 @@ export default function Navbar() {
 
     return (
         <>
-            <div className="hidden relative mx-1 my-3 sm:flex justify-between mr-3 items-center">
-                <LogoLink />
-                <DesktopNavLinks />
-            </div>
-            <div className="sm:hidden relative flex flex-row ml-1 my-3 justify-between items-center">
-                <LogoLink />
-                <MobileMenuButton onClick={handleToggleDrawer} />
-                <MobileDrawer isOpen={isDrawerOpen} onClose={handleToggleDrawer} />
-            </div>
+            <nav className="relative bg-gradient-to-b from-stone-800/80 via-stone-900/90 to-stone-950/95 shadow-md shadow-black/30">
+                <div className="hidden sm:flex justify-between items-center px-4 py-2">
+                    <LogoLink />
+                    <DesktopNavLinks />
+                </div>
+                <div className="sm:hidden flex justify-between items-center px-3 py-2">
+                    <LogoLink />
+                    <MobileMenuButton onClick={handleToggleDrawer} />
+                    <MobileDrawer isOpen={isDrawerOpen} onClose={handleToggleDrawer} />
+                </div>
+            </nav>
+            {/* Shelf base */}
+            <div className="h-[4px] bg-gradient-to-b from-stone-700/60 via-stone-800/70 to-stone-900/40" />
         </>
     )
 }

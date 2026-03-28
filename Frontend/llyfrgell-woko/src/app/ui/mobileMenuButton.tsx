@@ -6,8 +6,8 @@ interface Props {
 
 const MobileMenuButton: React.FC<Props> = ({ onClick }) => {
   return (
-    <button className="mr-4 pb-2" onClick={onClick}>
-      <Menu className="text-3xl" sx={{color: "black"}}/>
+    <button className="text-amber-100/70 hover:text-amber-100 transition-colors" onClick={onClick}>
+      <Menu sx={{ fontSize: 26, color: 'inherit' }} />
     </button>
   );
 }

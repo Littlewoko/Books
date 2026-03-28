@@ -2,22 +2,29 @@ import { signIn, signOut, useSession } from "next-auth/react";
 import LogoutIcon from '@mui/icons-material/Logout';
 import LoginIcon from '@mui/icons-material/Login';
 
-export default function MobileAuthButton() {
+interface Props {
+    onClose?: () => void;
+}
+
+const linkClass = "flex items-center gap-2 text-stone-700 hover:text-amber-800 transition-colors";
+const linkStyle: React.CSSProperties = { fontFamily: 'var(--font-caveat)', fontSize: '24px', lineHeight: '40px' };
+
+export default function MobileAuthButton({ onClose }: Props) {
     const { data: session } = useSession();
 
     if (session) {
         return (
-            <button onClick={() => signOut()} type="button" className="w-44 flex justify-center flex items-center text-white bg-gradient-to-r from-black to-gray-400 hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-purple-200 dark:focus:ring-purple-800 font-medium rounded-lg text-sm p-1 p-3">
-                <LogoutIcon className="mr-1" fontSize="small" />
-                <span className="inline">Allgofnodi</span>
+            <button onClick={() => { signOut(); onClose?.(); }} className={linkClass} style={linkStyle}>
+                <LogoutIcon sx={{ fontSize: 20, color: 'inherit' }} />
+                Allgofnodi
             </button>
-        )
-    } else {
-        return (
-            <button onClick={() => signIn()} type="button" className="w-44 flex justify-center flex items-center text-white bg-gradient-to-r from-black to-gray-400 hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-purple-200 dark:focus:ring-purple-800 font-medium rounded-lg text-sm p-1 p-3">
-                <LoginIcon className="mr-1" fontSize="medium" />
-                <span className="inline">Mewngofnodi</span>
-            </button>
-        )
+        );
     }
+
+    return (
+        <button onClick={() => { signIn(); onClose?.(); }} className={linkClass} style={linkStyle}>
+            <LoginIcon sx={{ fontSize: 20, color: 'inherit' }} />
+            Mewngofnodi
+        </button>
+    );
 }
