@@ -38,5 +38,5 @@ body {
 }
 
 .animate-shelf-drop {
-  animation: shelf-drop 0.3s ease-out both;
+  animation: shelf-drop 0.2s ease-out both;
 }

@@ -99,11 +99,11 @@ function Shelf({ books, animateFrom }: { books: Book[]; animateFrom: number }) {
                 <div key={rowIndex}>
                     <div className="relative bg-gradient-to-b from-stone-900/60 to-stone-950/80">
                         <div className="px-4 pt-3 pb-0">
-                            <div className="flex flex-wrap gap-1 items-end">
+                            <div className="flex flex-nowrap gap-1 items-end overflow-hidden">
                                 {row.map((book) => {
                                     const globalIdx = bookGlobalIndex.get(book.id) ?? 0;
                                     const isNew = globalIdx >= animateFrom;
-                                    const delay = isNew ? newBookCount++ * 35 : 0;
+                                    const delay = isNew ? newBookCount++ * 20 : 0;
                                     return (
                                         <div
                                             key={book.id}
