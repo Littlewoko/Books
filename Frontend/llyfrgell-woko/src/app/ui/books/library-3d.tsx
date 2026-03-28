@@ -116,8 +116,130 @@ function generateSpineTexture(title: string, author: string, bgColor: string): T
     return texture;
 }
 
-interface BookcaseLayout {
-    genre: string;
+function generateCoverTexture(title: string, author: string, genre: string, bgColor: string): THREE.CanvasTexture {
+    const w = 512;
+    const h = 768;
+    const canvas = document.createElement("canvas");
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext("2d")!;
+
+    ctx.fillStyle = bgColor;
+    ctx.fillRect(0, 0, w, h);
+
+    // Spine edge
+    ctx.fillStyle = "rgba(0,0,0,0.2)";
+    ctx.fillRect(0, 0, 8, h);
+    ctx.fillStyle = "rgba(255,255,255,0.05)";
+    ctx.fillRect(w - 2, 0, 2, h);
+
+    const light = isLightColor(bgColor);
+    const textColor = light ? "rgba(40,30,20,0.9)" : "rgba(255,241,214,0.9)";
+    const subColor = light ? "rgba(40,30,20,0.5)" : "rgba(255,241,214,0.5)";
+    const mutedColor = light ? "rgba(40,30,20,0.3)" : "rgba(255,241,214,0.25)";
+
+    // Title
+    ctx.fillStyle = textColor;
+    ctx.font = "bold 36px Georgia, serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    const words = title.split(" ");
+    const lines: string[] = [];
+    let line = "";
+    for (const word of words) {
+        const test = line ? `${line} ${word}` : word;
+        if (ctx.measureText(test).width > w - 80) {
+            if (line) lines.push(line);
+            line = word;
+        } else {
+            line = test;
+        }
+    }
+    if (line) lines.push(line);
+
+    const titleY = h * 0.38;
+    const lineH = 44;
+    const startY = titleY - ((lines.length - 1) * lineH) / 2;
+    lines.forEach((l, i) => ctx.fillText(l, w / 2, startY + i * lineH));
+
+    // Divider
+    ctx.fillStyle = mutedColor;
+    ctx.fillRect(w / 2 - 60, titleY + lines.length * lineH / 2 + 20, 120, 2);
+
+    // Author
+    ctx.fillStyle = subColor;
+    ctx.font = "italic 24px Georgia, serif";
+    ctx.fillText(author, w / 2, titleY + lines.length * lineH / 2 + 55);
+
+    // Genre at bottom
+    ctx.fillStyle = mutedColor;
+    ctx.font = "14px Georgia, serif";
+    ctx.letterSpacing = "2px";
+    ctx.fillText(genre.toUpperCase(), w / 2, h - 40);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.minFilter = THREE.LinearFilter;
+    texture.magFilter = THREE.LinearFilter;
+    return texture;
+}
+
+interface ViewingState {
+    spine: SpineData;
+    coverTexture: THREE.CanvasTexture;
+    coverImageTexture: THREE.Texture | null;
+    progress: number; // 0 = on shelf, 1 = in front of camera
+}
+
+function ViewingBook({ viewing, onClose, onNavigate }: {
+    viewing: ViewingState;
+    onClose: () => void;
+    onNavigate: () => void;
+}) {
+    const { camera } = useThree();
+    const meshRef = useRef<THREE.Mesh>(null);
+    const progressRef = useRef(viewing.progress);
+    const startPos = useRef(viewing.spine.position.clone());
+
+    // Animate progress 0 -> 1
+    useFrame((_, delta) => {
+        if (!meshRef.current) return;
+        progressRef.current = Math.min(1, progressRef.current + delta * 2.5);
+        const t = progressRef.current;
+        // Ease out cubic
+        const ease = 1 - Math.pow(1 - t, 3);
+
+        // Target: 1.5 units in front of camera
+        const forward = new THREE.Vector3();
+        camera.getWorldDirection(forward);
+        const targetPos = camera.position.clone().add(forward.multiplyScalar(1.5));
+        targetPos.y = 1.5;
+
+        // Lerp position
+        meshRef.current.position.lerpVectors(startPos.current, targetPos, ease);
+
+        // Face camera
+        const lookTarget = camera.position.clone();
+        lookTarget.y = meshRef.current.position.y;
+        meshRef.current.lookAt(lookTarget);
+
+        // Scale up
+        const startScale = new THREE.Vector3(SPINE_WIDTH, viewing.spine.height, SPINE_DEPTH * 0.9);
+        const endScale = new THREE.Vector3(0.8, 1.1, 0.05);
+        meshRef.current.scale.lerpVectors(startScale, endScale, ease);
+    });
+
+    const texture = viewing.coverImageTexture || viewing.coverTexture;
+
+    return (
+        <mesh ref={meshRef} position={viewing.spine.position.clone()}>
+            <boxGeometry args={[1, 1, 1]} />
+            <meshBasicMaterial map={texture} />
+        </mesh>
+    );
+}
+
+interface BookcaseLayout {    genre: string;
     books: Book[];
     position: [number, number, number];
     rotation: number;
@@ -127,6 +249,9 @@ interface SpineData {
     bookId: number;
     bookTitle: string;
     bookAuthor: string;
+    bookGenre: string;
+    coverImageUrl: string | null;
+    bgColor: string;
     position: THREE.Vector3;
     height: number;
     texture: THREE.CanvasTexture;
@@ -196,6 +321,9 @@ function buildSpineData(layouts: BookcaseLayout[]): SpineData[] {
                 bookId: book.id!,
                 bookTitle: book.title,
                 bookAuthor: book.author,
+                bookGenre: book.genre,
+                coverImageUrl: book.coverImageUrl || null,
+                bgColor,
                 position: localPos,
                 height,
                 texture: generateSpineTexture(book.title, book.author, bgColor),
@@ -231,10 +359,12 @@ const BookSpines = forwardRef<THREE.Group, { spines: SpineData[] }>(
     }
 );
 
-function CrosshairLook({ spines, groupRef, tooltipRef }: {
+function CrosshairLook({ spines, groupRef, tooltipRef, onSelect, disabled }: {
     spines: SpineData[];
     groupRef: React.RefObject<THREE.Group | null>;
     tooltipRef: React.RefObject<HTMLDivElement | null>;
+    onSelect: (spine: SpineData) => void;
+    disabled: boolean;
 }) {
     const { camera } = useThree();
     const router = useRouter();
@@ -251,13 +381,13 @@ function CrosshairLook({ spines, groupRef, tooltipRef }: {
 
     useEffect(() => {
         const onClick = () => {
-            if (currentSpine.current) {
-                router.push(`/books/${currentSpine.current.bookId}`);
+            if (!disabled && currentSpine.current) {
+                onSelect(currentSpine.current);
             }
         };
         window.addEventListener("click", onClick);
         return () => window.removeEventListener("click", onClick);
-    }, [router]);
+    }, [router, onSelect, disabled]);
 
     useFrame(() => {
         const group = groupRef.current;
@@ -594,21 +724,126 @@ function Movement() {
     return null;
 }
 
-function Scene({ layouts, spines, tooltipRef }: {
+function Scene({ layouts, spines, tooltipRef, onViewingChange }: {
     layouts: BookcaseLayout[];
     spines: SpineData[];
     tooltipRef: React.RefObject<HTMLDivElement | null>;
+    onViewingChange: (viewing: boolean, bookId?: number) => void;
 }) {
     const groupRef = useRef<THREE.Group>(null);
+    const router = useRouter();
+    const [viewing, setViewing] = useState<ViewingState | null>(null);
+
+    const handleSelect = (spine: SpineData) => {
+        const coverTexture = generateCoverTexture(spine.bookTitle, spine.bookAuthor, spine.bookGenre, spine.bgColor);
+        const state: ViewingState = { spine, coverTexture, coverImageTexture: null, progress: 0 };
+        setViewing(state);
+        onViewingChange(true, spine.bookId);
+
+        // Load cover image async if available
+        if (spine.coverImageUrl) {
+            const img = new Image();
+            img.crossOrigin = "anonymous";
+            img.onload = () => {
+                // Draw the image onto the cover texture canvas
+                const w = 512;
+                const h = 768;
+                const canvas = document.createElement("canvas");
+                canvas.width = w;
+                canvas.height = h;
+                const ctx = canvas.getContext("2d")!;
+
+                // Background
+                ctx.fillStyle = spine.bgColor;
+                ctx.fillRect(0, 0, w, h);
+
+                // Spine edge
+                ctx.fillStyle = "rgba(0,0,0,0.2)";
+                ctx.fillRect(0, 0, 8, h);
+
+                // Draw cover image centred in upper portion
+                const imgAspect = img.width / img.height;
+                const maxW = w - 60;
+                const maxH = h * 0.55;
+                let drawW = maxW;
+                let drawH = drawW / imgAspect;
+                if (drawH > maxH) { drawH = maxH; drawW = drawH * imgAspect; }
+                const imgX = (w - drawW) / 2;
+                const imgY = 30;
+                ctx.drawImage(img, imgX, imgY, drawW, drawH);
+
+                // Title below image
+                const light = isLightColor(spine.bgColor);
+                const textColor = light ? "rgba(40,30,20,0.9)" : "rgba(255,241,214,0.9)";
+                const subColor = light ? "rgba(40,30,20,0.5)" : "rgba(255,241,214,0.5)";
+
+                ctx.fillStyle = textColor;
+                ctx.font = "bold 28px Georgia, serif";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "top";
+
+                const titleY = imgY + drawH + 20;
+                const words = spine.bookTitle.split(" ");
+                const lines: string[] = [];
+                let line = "";
+                for (const word of words) {
+                    const test = line ? `${line} ${word}` : word;
+                    if (ctx.measureText(test).width > w - 60) {
+                        if (line) lines.push(line);
+                        line = word;
+                    } else {
+                        line = test;
+                    }
+                }
+                if (line) lines.push(line);
+                lines.forEach((l, i) => ctx.fillText(l, w / 2, titleY + i * 34));
+
+                // Author
+                ctx.fillStyle = subColor;
+                ctx.font = "italic 20px Georgia, serif";
+                ctx.fillText(spine.bookAuthor, w / 2, titleY + lines.length * 34 + 10);
+
+                const tex = new THREE.CanvasTexture(canvas);
+                tex.minFilter = THREE.LinearFilter;
+                tex.magFilter = THREE.LinearFilter;
+                setViewing((prev) => prev ? { ...prev, coverImageTexture: tex } : null);
+            };
+            img.src = `/api/image-proxy?url=${encodeURIComponent(spine.coverImageUrl)}`;
+        }
+    };
+
+    const handleClose = () => {
+        if (viewing) {
+            viewing.coverTexture.dispose();
+            viewing.coverImageTexture?.dispose();
+        }
+        setViewing(null);
+        onViewingChange(false);
+    };
+
+    const handleNavigate = () => {
+        if (viewing) router.push(`/books/${viewing.spine.bookId}`);
+    };
+
+    // Q key puts the book back
+    useEffect(() => {
+        if (!viewing) return;
+        const onKey = (e: KeyboardEvent) => {
+            if (e.code === "KeyQ" || e.code === "Backspace") {
+                e.preventDefault();
+                handleClose();
+            }
+        };
+        window.addEventListener("keydown", onKey);
+        return () => window.removeEventListener("keydown", onKey);
+    }, [viewing]);
 
     return (
         <>
             <ambientLight intensity={0.6} />
             <hemisphereLight args={["#ffecd2", "#4a3828", 0.5]} />
-            {/* Sunlight through windows */}
             <directionalLight position={[-10, 6, 0]} intensity={1.2} color="#ffecd2" />
             <directionalLight position={[10, 6, 0]} intensity={1.2} color="#ffecd2" />
-            {/* Overhead warm lights */}
             <pointLight position={[0, 4.2, -1]} intensity={15} color="#ffd4a0" distance={15} />
             <pointLight position={[0, 4.2, 3]} intensity={15} color="#ffd4a0" distance={15} />
             <pointLight position={[-6, 4.2, 1]} intensity={12} color="#ffd4a0" distance={15} />
@@ -619,8 +854,21 @@ function Scene({ layouts, spines, tooltipRef }: {
             <PointerLockControls />
             <Furniture layouts={layouts} />
             <BookSpines ref={groupRef} spines={spines} />
-            <CrosshairLook spines={spines} groupRef={groupRef} tooltipRef={tooltipRef} />
+            <CrosshairLook
+                spines={spines}
+                groupRef={groupRef}
+                tooltipRef={tooltipRef}
+                onSelect={handleSelect}
+                disabled={!!viewing}
+            />
             <GenreLabels layouts={layouts} />
+            {viewing && (
+                <ViewingBook
+                    viewing={viewing}
+                    onClose={handleClose}
+                    onNavigate={handleNavigate}
+                />
+            )}
         </>
     );
 }
@@ -628,6 +876,8 @@ function Scene({ layouts, spines, tooltipRef }: {
 export default function Library3D({ books }: { books: Book[] }) {
     const [entered, setEntered] = useState(false);
     const [showCanvas, setShowCanvas] = useState(false);
+    const [viewing, setViewing] = useState(false);
+    const viewingIdRef = useRef<number | null>(null);
     const tooltipRef = useRef<HTMLDivElement>(null);
 
     const layouts = useMemo(() => buildLayouts(books), [books]);
@@ -680,18 +930,47 @@ export default function Library3D({ books }: { books: Book[] }) {
                     gl={{ antialias: false, powerPreference: "high-performance", alpha: false }}
                     onCreated={({ gl }) => { gl.setPixelRatio(1); }}
                 >
-                    <Scene layouts={layouts} spines={spines} tooltipRef={tooltipRef} />
+                    <Scene
+                        layouts={layouts}
+                        spines={spines}
+                        tooltipRef={tooltipRef}
+                        onViewingChange={(v, id) => { setViewing(v); viewingIdRef.current = id ?? null; }}
+                    />
                 </Canvas>
             )}
 
             {showCanvas && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-10">
-                    <div
-                        ref={tooltipRef}
-                        className="bg-black/80 px-3 py-1.5 rounded-sm text-center whitespace-nowrap mb-3"
-                        style={{ display: "none" }}
-                    />
-                    <div className="w-1.5 h-1.5 rounded-full bg-amber-200/60" />
+                    {!viewing && (
+                        <>
+                            <div
+                                ref={tooltipRef}
+                                className="bg-black/80 px-3 py-1.5 rounded-sm text-center whitespace-nowrap mb-3"
+                                style={{ display: "none" }}
+                            />
+                            <div className="w-1.5 h-1.5 rounded-full bg-amber-200/60" />
+                        </>
+                    )}
+                    {viewing && (
+                        <div className="absolute bottom-8 flex gap-6 pointer-events-auto">
+                            <button
+                                onClick={() => {
+                                    if (viewingIdRef.current) window.location.href = `/books/${viewingIdRef.current}`;
+                                }}
+                                className="text-amber-200/90 border border-amber-200/30 px-4 py-1.5 rounded-sm hover:bg-amber-200/10 transition-colors text-sm"
+                                style={{ fontFamily: "var(--font-caveat)" }}
+                            >
+                                Open
+                            </button>
+                            <button
+                                onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { code: 'KeyQ' }))}
+                                className="text-stone-400 hover:text-stone-300 transition-colors text-sm"
+                                style={{ fontFamily: "var(--font-caveat)" }}
+                            >
+                                Put back (Q)
+                            </button>
+                        </div>
+                    )}
                 </div>
             )}
         </div>
