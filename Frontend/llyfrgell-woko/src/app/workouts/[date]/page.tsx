@@ -1,4 +1,5 @@
 import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/utils/authOptions";
 import { redirect } from "next/navigation";
 import { getWorkoutForDateServer } from "@/app/lib/workouts/server-data";
 import DayExerciseList from "@/app/ui/workouts/day-exercise-list";
@@ -10,7 +11,7 @@ interface Props {
 }
 
 export default async function DayViewPage({ params }: Props) {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
     if (!session || !session.user) {
         redirect("/api/auth/signin");
     }

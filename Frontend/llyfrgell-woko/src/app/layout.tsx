@@ -7,6 +7,7 @@ import Breadcrumbs from "./ui/breadcrumbs";
 import { BreadcrumbProvider } from "./components/BreadcrumbContext";
 
 import { getServerSession } from "next-auth";
+import { authOptions } from "./utils/authOptions";
 import SessionProvider from "./components/SessionProvider";
 import GradioSpace from "./ui/gradioSpace";
 
@@ -36,7 +37,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await getServerSession();
+  const session = await getServerSession(authOptions);
 
   return (
     <html lang="en">

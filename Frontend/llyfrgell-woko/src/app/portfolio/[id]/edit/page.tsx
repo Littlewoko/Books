@@ -1,10 +1,11 @@
 import Form from "@/app/ui/portfolio/edit-form"
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/utils/authOptions";
 import { fetchUserPortfolioById } from "@/app/lib/portfolio/actions";
 
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
     if (!session || !session.user || !session.user.email) {
         redirect("/api/auth/signin");
     }

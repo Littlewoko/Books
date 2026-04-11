@@ -1,12 +1,13 @@
 import { fetchBookById } from "@/app/lib/books/data";
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/utils/authOptions";
 import BookView from "@/app/ui/books/book-view";
 import { fetchNotesByBookId } from "@/app/lib/books/book-club-actions";
 import SetBookTitle from "@/app/components/SetBookTitle";
 
 export default async function Page({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ returnTo?: string }> }) {
-  const session = await getServerSession();
+  const session = await getServerSession(authOptions);
   if (!session || !session.user) {
     redirect("/api/auth/signin");
   }

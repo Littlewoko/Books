@@ -1,10 +1,11 @@
 import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/utils/authOptions";
 import { redirect } from "next/navigation";
 import BulkUpdatePanel from "@/app/ui/books/bulk-update-panel";
 import Header from "@/app/ui/books/header";
 
 export default async function AdminPage() {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
     if (!session || !session.user) {
         redirect("/api/auth/signin");
     }
