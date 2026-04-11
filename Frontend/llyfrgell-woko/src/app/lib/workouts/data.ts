@@ -74,10 +74,12 @@ export async function fetchWorkoutByDate(userId: string, date: string): Promise<
 
 export async function fetchWorkoutDatesForMonth(userId: string, year: number, month: number): Promise<{ date: string; muscleGroups: string[] }[]> {
     const startDate = `${year}-${String(month).padStart(2, '0')}-01`;
-    const endDate = `${year}-${String(month + 1).padStart(2, '0')}-01`;
+    const endYear = month === 12 ? year + 1 : year;
+    const endMonth = month === 12 ? 1 : month + 1;
+    const endDate = `${endYear}-${String(endMonth).padStart(2, '0')}-01`;
 
     const result = await sql`
-        SELECT w.date, ARRAY_AGG(DISTINCT mg.name) AS muscle_groups
+        SELECT w.date::text AS date_str, ARRAY_AGG(DISTINCT mg.name) AS muscle_groups
         FROM workout w
         JOIN workout_exercise we ON we.workout_id = w.id
         JOIN exercise e ON e.id = we.exercise_id
@@ -87,7 +89,7 @@ export async function fetchWorkoutDatesForMonth(userId: string, year: number, mo
         ORDER BY w.date;
     `;
     return result.rows.map(row => ({
-        date: new Date(row.date).toISOString().split('T')[0],
+        date: row.date_str,
         muscleGroups: row.muscle_groups,
     }));
 }

@@ -4,6 +4,7 @@ import AutoStoriesIcon from '@mui/icons-material/AutoStories';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import WorkIcon from '@mui/icons-material/Work';
 import BarChartIcon from '@mui/icons-material/BarChart';
+import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
 import CloseIcon from '@mui/icons-material/Close';
 
 interface Props {
@@ -15,6 +16,7 @@ const navItems = [
   { href: '/books', label: 'Llyfrgell', icon: LibraryBooksIcon },
   { href: '/books/create', label: 'Llyfr Newydd', icon: AutoStoriesIcon },
   { href: '/books/stats', label: 'Ystadegau', icon: BarChartIcon },
+  { href: '/workouts', label: 'Ymarfer', icon: FitnessCenterIcon },
   { href: '/portfolio', label: 'Portffolio', icon: WorkIcon },
 ];
 

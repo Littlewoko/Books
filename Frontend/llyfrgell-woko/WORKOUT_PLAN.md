@@ -28,15 +28,18 @@ A workout logging module integrated into the existing llyfrgell-woko app. Shares
 - [x] Bulk insert into database
 - [x] Preserve comments as set notes
 
-## Phase 3: Navigation & Layout
-- [ ] Add "Workouts" to persistent app nav (bottom nav mobile, sidebar desktop)
-- [ ] Calendar as workout home (`/workouts`)
-- [ ] Global rest timer in header — persists across navigation
+## Phase 3: Navigation & Layout ✅
+- [x] Add "Ymarfer" (Workouts) to persistent app nav (desktop + mobile)
+- [x] Calendar as workout home (`/workouts`)
+- [x] Global rest timer in header — persists across navigation
+- [x] Breadcrumb labels for workout routes
 
-## Phase 4: Calendar View
-- [ ] Monthly calendar grid
-- [ ] Colour-coded dot indicators per day showing muscle groups hit
-- [ ] Tap day → navigate to day view
+## Phase 4: Calendar View ✅
+- [x] Monthly calendar grid with Monday start
+- [x] Colour-coded dot indicators per day showing muscle groups hit
+- [x] Tap day → navigate to day view
+- [x] Month navigation with prev/next and click-to-return-to-today
+- [x] Legend showing active muscle group colours
 
 ## Phase 5: Day View
 - [ ] Route: `/workouts/[date]`

@@ -12,6 +12,8 @@ const labelMap: Record<string, string> = {
     library: "Catalogue",
     stats: "Stats",
     portfolio: "Portfolio",
+    workouts: "Ymarfer",
+    exercises: "Exercises",
 };
 
 export default function Breadcrumbs() {
