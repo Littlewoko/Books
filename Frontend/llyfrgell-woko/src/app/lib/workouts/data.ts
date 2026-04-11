@@ -149,7 +149,7 @@ export async function fetchSetsForWorkoutExercise(workoutExerciseId: number): Pr
 
 export async function fetchExerciseHistory(userId: string, exerciseId: number, limit: number = 20): Promise<ExerciseHistory[]> {
     const result = await sql`
-        SELECT w.date, es.id, es.weight, es.weight_unit, es.reps,
+        SELECT w.date::text AS date_str, es.id, es.weight, es.weight_unit, es.reps,
                es.distance, es.distance_unit, es.duration, es.tempo, es.notes, es.sort_order
         FROM workout w
         JOIN workout_exercise we ON we.workout_id = w.id
@@ -160,9 +160,9 @@ export async function fetchExerciseHistory(userId: string, exerciseId: number, l
 
     const grouped = new Map<string, ExerciseHistory>();
     for (const row of result.rows) {
-        const dateKey = new Date(row.date).toISOString().split('T')[0];
+        const dateKey = row.date_str;
         if (!grouped.has(dateKey)) {
-            grouped.set(dateKey, { date: new Date(row.date), sets: [] });
+            grouped.set(dateKey, { date: dateKey, sets: [] });
         }
         grouped.get(dateKey)!.sets.push({
             id: row.id,
@@ -185,18 +185,41 @@ export async function fetchExerciseHistory(userId: string, exerciseId: number, l
 
 export async function fetchPersonalBests(userId: string, exerciseId: number): Promise<PersonalBest[]> {
     const result = await sql`
-        SELECT DISTINCT ON (es.reps) es.reps, es.weight, es.weight_unit, w.date
+        SELECT es.reps, MAX(es.weight) AS weight, es.weight_unit
         FROM exercise_set es
         JOIN workout_exercise we ON we.id = es.workout_exercise_id
         JOIN workout w ON w.id = we.workout_id
         WHERE w.user_id = ${userId} AND we.exercise_id = ${exerciseId}
               AND es.weight IS NOT NULL AND es.reps IS NOT NULL
-        ORDER BY es.reps ASC, es.weight DESC, w.date DESC;
+        GROUP BY es.reps, es.weight_unit
+        ORDER BY es.reps ASC;
     `;
-    return result.rows.map(row => ({
-        reps: row.reps,
-        weight: parseFloat(row.weight),
-        weightUnit: row.weight_unit,
-        date: new Date(row.date),
-    }));
+
+    // Build a map of actual bests per rep count
+    const actualBests = new Map<number, { weight: number; weightUnit: string }>();
+    for (const row of result.rows) {
+        actualBests.set(row.reps, { weight: parseFloat(row.weight), weightUnit: row.weight_unit });
+    }
+
+    if (actualBests.size === 0) return [];
+
+    const maxReps = Math.max(...actualBests.keys());
+    const defaultUnit = actualBests.values().next().value!.weightUnit;
+
+    // Propagate: if you did X kg for N reps, you can do X kg for any fewer reps
+    // Walk from highest reps down, tracking the running max
+    let runningMax = 0;
+    const propagated = new Map<number, number>();
+    for (let r = maxReps; r >= 1; r--) {
+        const actual = actualBests.get(r)?.weight ?? 0;
+        runningMax = Math.max(runningMax, actual);
+        propagated.set(r, runningMax);
+    }
+
+    // Build result from 1 to maxReps
+    const pbs: PersonalBest[] = [];
+    for (let r = 1; r <= maxReps; r++) {
+        pbs.push({ reps: r, weight: propagated.get(r)!, weightUnit: defaultUnit });
+    }
+    return pbs;
 }

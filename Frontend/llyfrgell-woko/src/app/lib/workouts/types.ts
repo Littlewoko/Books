@@ -44,7 +44,7 @@ export type ExerciseSet = {
 };
 
 export type ExerciseHistory = {
-    date: Date;
+    date: string;
     sets: ExerciseSet[];
 };
 
@@ -52,5 +52,4 @@ export type PersonalBest = {
     reps: number;
     weight: number;
     weightUnit: string;
-    date: Date;
 };

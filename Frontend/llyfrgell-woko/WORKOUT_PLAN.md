@@ -41,17 +41,18 @@ A workout logging module integrated into the existing llyfrgell-woko app. Shares
 - [x] Month navigation with prev/next and click-to-return-to-today
 - [x] Legend showing active muscle group colours
 
-## Phase 5: Day View
-- [ ] Route: `/workouts/[date]`
-- [ ] Movement cards showing exercise name + set summaries
-- [ ] Tap card → navigate to movement screen
+## Phase 5: Day View ✅
+- [x] Route: `/workouts/[date]`
+- [x] Movement cards showing exercise name, muscle group + set count
+- [x] Tap card → navigate to movement screen
+- [x] Back arrow to calendar
 
-## Phase 6: Movement Screen
-- [ ] Route: `/workouts/[date]/[exerciseId]`
-- [ ] **Track tab** — add, edit, delete sets (weight, reps, notes)
-- [ ] **History tab** — past sessions for this exercise, PB trophy indicators
-- [ ] **PBs section** — all-time rep maxes for this exercise
-- [ ] **1RM calculator** — input weight × reps, output estimated maxes across rep ranges (Epley formula)
+## Phase 6: Movement Screen ✅
+- [x] Route: `/workouts/[date]/[exerciseId]`
+- [x] **Track tab** — view sets, add new sets (weight, reps, notes), delete sets
+- [x] **History tab** — past sessions for this exercise, PB trophy indicators
+- [x] **PBs section** — all-time rep maxes for this exercise
+- [x] **1RM calculator** — input weight × reps, output estimated maxes across rep ranges (Epley formula)
 
 ## Phase 7: Slide-in Sidebar
 - [ ] Accessible from movement screen (swipe or button)
