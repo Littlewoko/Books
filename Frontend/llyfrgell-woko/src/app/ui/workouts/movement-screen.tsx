@@ -110,6 +110,7 @@ export default function MovementScreen({ date, exerciseId, initialData }: Props)
     };
 
     const handleDeleteSet = async (setId: number) => {
+        if (!confirm('Delete this set?')) return;
         await deleteSet(setId); await refreshSets(); setLoadedHistory(false); setLoadedPbs(false); setHistoryLimit(5);
     };
 

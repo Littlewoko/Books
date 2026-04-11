@@ -7,15 +7,21 @@ import { MobileDrawer } from './mobileDrawer';
 import { LogoLink } from './logoLink';
 import { DesktopNavLinks } from './desktopNavLinks';
 import RestTimer from './workouts/rest-timer';
+import WorkoutSidebar from './workouts/workout-sidebar';
 
 export default function Navbar() {
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+    const [isWorkoutSidebarOpen, setIsWorkoutSidebarOpen] = useState(false);
     const pathname = usePathname();
-    const showTimer = pathname.startsWith('/workouts');
+    const isWorkouts = pathname.startsWith('/workouts');
 
-    const handleToggleDrawer = () => {
-        setIsDrawerOpen(!isDrawerOpen);
-    }
+    const handleToggle = () => {
+        if (isWorkouts) {
+            setIsWorkoutSidebarOpen(!isWorkoutSidebarOpen);
+        } else {
+            setIsDrawerOpen(!isDrawerOpen);
+        }
+    };
 
     return (
         <>
@@ -23,21 +29,26 @@ export default function Navbar() {
                 <div className="hidden sm:flex justify-between items-center px-4 py-2">
                     <LogoLink />
                     <div className="flex items-center gap-4">
-                        {showTimer && <RestTimer />}
+                        {isWorkouts && <RestTimer />}
                         <DesktopNavLinks />
+                        {isWorkouts && (
+                            <MobileMenuButton onClick={() => setIsWorkoutSidebarOpen(true)} />
+                        )}
                     </div>
                 </div>
                 <div className="sm:hidden flex justify-between items-center px-3 py-2">
                     <LogoLink />
                     <div className="flex items-center gap-3">
-                        {showTimer && <RestTimer />}
-                        <MobileMenuButton onClick={handleToggleDrawer} />
-                        <MobileDrawer isOpen={isDrawerOpen} onClose={handleToggleDrawer} />
+                        {isWorkouts && <RestTimer />}
+                        <MobileMenuButton onClick={handleToggle} />
+                        {!isWorkouts && <MobileDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} />}
                     </div>
                 </div>
             </nav>
             {/* Shelf base */}
             <div className="h-[4px] bg-gradient-to-b from-stone-700/60 via-stone-800/70 to-stone-900/40" />
+
+            <WorkoutSidebar isOpen={isWorkoutSidebarOpen} onClose={() => setIsWorkoutSidebarOpen(false)} />
         </>
     )
 }

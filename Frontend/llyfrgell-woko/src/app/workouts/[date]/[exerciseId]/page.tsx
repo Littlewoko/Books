@@ -2,7 +2,6 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { getMovementScreenData } from "@/app/lib/workouts/movement-actions";
 import MovementScreen from "@/app/ui/workouts/movement-screen";
-import WorkoutSidebar from "@/app/ui/workouts/workout-sidebar";
 import Link from "next/link";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
@@ -22,10 +21,10 @@ export default async function MovementPage({ params }: Props) {
     if (!data) {
         return (
             <main className="p-4 max-w-2xl mx-auto">
-                <Link href={`/workouts/${date}`} className="text-neutral-500 hover:text-neutral-900 transition-colors">
+                <Link href={`/workouts/${date}`} className="text-black/50 hover:text-black transition-colors">
                     <ArrowBackIcon sx={{ fontSize: 20, color: 'inherit' }} />
                 </Link>
-                <p className="text-neutral-500 text-sm mt-4">Exercise not found for this day.</p>
+                <p className="text-black/50 text-sm mt-4">Exercise not found for this day.</p>
             </main>
         );
     }
@@ -33,7 +32,7 @@ export default async function MovementPage({ params }: Props) {
     return (
         <main className="p-4 max-w-2xl mx-auto">
             <div className="mb-2">
-                <Link href={`/workouts/${date}`} className="text-neutral-500 hover:text-neutral-900 transition-colors">
+                <Link href={`/workouts/${date}`} className="text-black/50 hover:text-black transition-colors">
                     <ArrowBackIcon sx={{ fontSize: 20, color: 'inherit' }} />
                 </Link>
             </div>
@@ -47,12 +46,6 @@ export default async function MovementPage({ params }: Props) {
                     sets: data.sets,
                     allExercises: data.allExercises,
                 }}
-            />
-            <WorkoutSidebar
-                date={date}
-                workoutId={data.workoutId}
-                currentExerciseId={parseInt(exerciseId)}
-                exercises={data.allExercises}
             />
         </main>
     );

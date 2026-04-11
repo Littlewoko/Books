@@ -22,6 +22,7 @@ export default function Breadcrumbs() {
     const segments = pathname.split('/').filter(Boolean);
 
     if (segments.length <= 1) return null;
+    if (pathname.startsWith('/workouts')) return null;
 
     const crumbs: { label: string; href: string }[] = [];
 
