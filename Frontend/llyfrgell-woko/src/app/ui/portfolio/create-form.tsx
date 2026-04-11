@@ -1,12 +1,10 @@
 'use client'
 
-import { createPortfolio } from "@/app/lib/portfolio/actions";
+import {createPortfolio} from "@/app/lib/portfolio/actions";
 
 export default function Form() {
-    const createPortfolioWithId = createPortfolio.bind(null, 'watkinsbradley01@gmail.com');
-
     return (
-        <form action={createPortfolioWithId}>
+        <form action={createPortfolio}>
             <div className="rounded-sm bg-stone-900/60 border border-stone-700/40 p-4 flex flex-col gap-4">
                 <div>
                     <label htmlFor="title" className="text-stone-400 text-xs">Title</label>
@@ -40,7 +38,7 @@ export default function Form() {
                     <button
                         type="submit"
                         className="text-stone-300 hover:text-amber-200 transition-colors text-sm"
-                        style={{ fontFamily: 'var(--font-caveat)' }}
+                        style={{fontFamily: 'var(--font-caveat)'}}
                     >
                         + Create
                     </button>

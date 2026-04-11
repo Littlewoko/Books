@@ -1,18 +1,23 @@
-import { QueryResult, QueryResultRow, sql } from "@vercel/postgres";
+import {sql} from "@vercel/postgres";
+import crypto from "crypto";
 
-interface User {
-    id: string
+interface ProviderUser {
+    id: string;
 }
 
-export default async function getUser(user: User) {
+export default async function getUser(user: ProviderUser, provider: string = "github") {
     try {
-        const result: QueryResult<QueryResultRow> =
-            await sql`SELECT * FROM USERS WHERE id=${user?.id};`;
-
+        const hash = crypto.createHash("sha256").update(user.id).digest("hex");
+        const result = await sql`
+            SELECT u.*
+            FROM users u
+                     JOIN user_provider up ON up.user_id = u.id
+            WHERE up.provider = ${provider}
+              AND up.provider_id_hash = ${hash};
+        `;
         return result.rows[0];
     } catch (error) {
         console.log(error);
         return null;
     }
-
 }

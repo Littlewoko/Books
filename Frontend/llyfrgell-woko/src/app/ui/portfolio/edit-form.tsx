@@ -1,18 +1,18 @@
 "use client";
 
-import { editPortfolio, deletePortfolio } from "@/app/lib/portfolio/actions";
-import { Portfolio } from "@/app/lib/classes/portfolio";
+import {deletePortfolio, editPortfolio} from "@/app/lib/portfolio/actions";
+import {Portfolio} from "@/app/lib/classes/portfolio";
 
 interface Props {
     portfolio: Portfolio
 }
 
-export default function Form({ portfolio }: Props) {
+export default function Form({portfolio}: Props) {
     if (!portfolio || !portfolio.id) {
         return <p className="text-stone-500">No such portfolio item</p>;
     }
 
-    const editPortfolioWithId = editPortfolio.bind(null, portfolio.id, portfolio.userId);
+    const editPortfolioWithId = editPortfolio.bind(null, portfolio.id);
 
     const handleDelete = async () => {
         if (!portfolio.id) return;
@@ -41,14 +41,16 @@ export default function Form({ portfolio }: Props) {
                 <div>
                     <label htmlFor="description" className="text-stone-400 text-xs">Description</label>
                     <input
-                        id="description" name="description" max={255} placeholder="Description" defaultValue={portfolio.description} required
+                        id="description" name="description" max={255} placeholder="Description"
+                        defaultValue={portfolio.description} required
                         className="w-full bg-transparent border-b border-stone-600 text-amber-100/90 text-sm p-1 focus:outline-none focus:border-amber-700 placeholder-stone-500"
                     />
                 </div>
                 <div>
                     <label htmlFor="svg-icon" className="text-stone-400 text-xs">Inline SVG Icon</label>
                     <textarea
-                        id="svg-icon" name="svg-icon" placeholder="SVG Icon" rows={5} defaultValue={atob(portfolio.svgIcon)} required
+                        id="svg-icon" name="svg-icon" placeholder="SVG Icon" rows={5}
+                        defaultValue={atob(portfolio.svgIcon)} required
                         className="w-full bg-transparent border border-stone-600 rounded-sm text-amber-100/90 text-sm p-1 focus:outline-none focus:border-amber-700 placeholder-stone-500 resize-none"
                     />
                 </div>
@@ -57,14 +59,14 @@ export default function Form({ portfolio }: Props) {
                         type="button"
                         onClick={handleDelete}
                         className="text-rose-400/60 hover:text-rose-300 transition-colors text-sm"
-                        style={{ fontFamily: 'var(--font-caveat)' }}
+                        style={{fontFamily: 'var(--font-caveat)'}}
                     >
                         Delete
                     </button>
                     <button
                         type="submit"
                         className="text-stone-300 hover:text-amber-200 transition-colors text-sm"
-                        style={{ fontFamily: 'var(--font-caveat)' }}
+                        style={{fontFamily: 'var(--font-caveat)'}}
                     >
                         Save
                     </button>
