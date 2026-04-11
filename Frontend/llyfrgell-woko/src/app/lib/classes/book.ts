@@ -14,4 +14,5 @@ export type Book = {
     description?: string | null,
     apiDataFetchedAt?: Date | null,
     spineColor?: string | null,
+    currentPage?: number | null,
 }

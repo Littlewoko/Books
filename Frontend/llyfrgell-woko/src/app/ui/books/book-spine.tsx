@@ -62,6 +62,12 @@ export default function BookSpine({ book, horizontal = false, returnTo }: Props)
                         </p>
                     </div>
                 </div>
+
+                {book.currentPage != null && (
+                    <div className={`flex items-center pr-3 flex-shrink-0 ${textColorSub}`}>
+                        <span className="text-[9px] sm:text-[10px] whitespace-nowrap">p. {book.currentPage}</span>
+                    </div>
+                )}
             </div>
         );
     }

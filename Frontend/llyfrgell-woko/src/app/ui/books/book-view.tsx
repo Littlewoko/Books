@@ -9,6 +9,7 @@ import Link from "next/link";
 import { getBookColor, isLightColor } from "@/app/utils/bookColors";
 import { BookClubNote } from "@/app/lib/classes/book-club-note";
 import QuickComplete from "./quick-complete";
+import QuickPageUpdate from "./quick-page-update";
 
 interface Props {
     book: Book | undefined;
@@ -171,6 +172,11 @@ export default function BookView({ book, bookClubNotes = [], returnTo }: Props) 
                             </div>
                         )}
                     </div>
+
+                    {/* Current Page - quick update for in-progress books */}
+                    {!book.dateCompleted && book.dateStartedReading && (
+                        <QuickPageUpdate bookId={book.id.toString()} currentPage={book.currentPage ?? null} />
+                    )}
 
                     {/* Review */}
                     {book.review && (

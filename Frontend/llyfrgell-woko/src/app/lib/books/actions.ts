@@ -24,6 +24,7 @@ function getBookFromFormData(formData: FormData): Book {
         coverImageUrl: formData.get('coverImageUrl') as string | null,
         description: formData.get('description') as string | null,
         spineColor: formData.get('spineColor') as string | null,
+        currentPage: formData.get('currentPage') ? Number(formData.get('currentPage')) : null,
     };
 
     return book;
@@ -34,7 +35,7 @@ export async function createBook(formData: FormData) {
 
     const book: Book = getBookFromFormData(formData);
 
-    await sql`INSERT INTO books (title, author, genre, isbn, dateobtained, datecompleted, datestartedreading, shortstory, rating, review, coverimageurl, description, apidatafetchedat, spinecolor)
+    await sql`INSERT INTO books (title, author, genre, isbn, dateobtained, datecompleted, datestartedreading, shortstory, rating, review, coverimageurl, description, apidatafetchedat, spinecolor, currentpage)
         VALUES (
             ${book.title}, 
             ${book.author}, 
@@ -49,7 +50,8 @@ export async function createBook(formData: FormData) {
             ${book.coverImageUrl ?? null},
             ${book.description ?? null},
             ${book.coverImageUrl || book.description ? new Date().toISOString() : null},
-            ${book.spineColor ?? null});`
+            ${book.spineColor ?? null},
+            ${book.currentPage ?? null});`
 
     revalidatePath('/books');
     redirect('/books');
@@ -98,7 +100,8 @@ export async function UpdateBook(id: string, formData: FormData) {
                 coverimageurl = ${book.coverImageUrl ?? null},
                 description = ${book.description ?? null},
                 apidatafetchedat = ${book.coverImageUrl || book.description ? new Date().toISOString() : null},
-                spinecolor = ${book.spineColor ?? null}
+                spinecolor = ${book.spineColor ?? null},
+                currentpage = ${book.currentPage ?? null}
             WHERE id=${id};`;
 
     revalidatePath('/books');
@@ -131,6 +134,15 @@ export async function QuickCompleteBook(id: string, formData: FormData) {
 
     revalidatePath('/books');
     redirect(returnTo || `/books/${id}`);
+}
+
+export async function UpdateCurrentPage(id: string, page: number | null) {
+    await ProtectRoute();
+
+    await sql`UPDATE books SET currentpage = ${page} WHERE id = ${id};`;
+
+    revalidatePath('/books');
+    revalidatePath(`/books/${id}`);
 }
 
 export async function DeleteBook(id: string, returnTo?: string) {

@@ -20,6 +20,7 @@ interface Props {
 
 const Form: React.FC<Props> = ({ book, returnTo }) => {
     const [rating, setRating] = useState(book?.rating || 0);
+    const [currentPage, setCurrentPage] = useState(book?.currentPage?.toString() ?? "");
     const [title, setTitle] = useState(book?.title || "");
     const [author, setAuthor] = useState(book?.author || "");
     const [genre, setGenre] = useState(book?.genre || "");
@@ -188,6 +189,19 @@ const Form: React.FC<Props> = ({ book, returnTo }) => {
                         </Typography>
                         <StarRating rating={rating} interactive onChange={setRating} handwritten />
                         <input type="hidden" name="rating" value={rating} />
+                    </div>
+
+                    <div className="flex items-center gap-3" style={{ height: '28px' }}>
+                        <Typography className="text-stone-400" sx={{ fontSize: '18px', lineHeight: '28px', fontFamily: 'var(--font-caveat)' }}>
+                            Page:
+                        </Typography>
+                        <input
+                            type="number" name="currentPage" min={0}
+                            value={currentPage} onChange={(e) => setCurrentPage(e.target.value)}
+                            placeholder="—"
+                            className="bg-transparent border-none text-stone-700 placeholder-stone-300 focus:outline-none w-20"
+                            style={{ fontSize: '18px', fontFamily: 'var(--font-caveat)', lineHeight: '28px' }}
+                        />
                     </div>
 
                     <div className="flex flex-wrap gap-x-6">
