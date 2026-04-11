@@ -1,6 +1,6 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
-import { getWorkoutForDate } from "@/app/lib/workouts/calendar-actions";
+import { getWorkoutForDateServer } from "@/app/lib/workouts/server-data";
 import DayExerciseList from "@/app/ui/workouts/day-exercise-list";
 import Link from "next/link";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -16,7 +16,7 @@ export default async function DayViewPage({ params }: Props) {
     }
 
     const { date } = await params;
-    const data = await getWorkoutForDate(date);
+    const data = await getWorkoutForDateServer(date);
 
     const displayDate = new Date(date + 'T00:00:00').toLocaleDateString("en-GB", {
         weekday: "long",

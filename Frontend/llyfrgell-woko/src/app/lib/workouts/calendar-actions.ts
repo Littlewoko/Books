@@ -2,7 +2,8 @@
 
 import { sql } from '@vercel/postgres';
 import { revalidatePath } from 'next/cache';
-import { fetchWorkoutDatesForMonth, fetchWorkoutByDate, fetchWorkoutExercises } from './data';
+import { fetchWorkoutDatesForMonth, fetchWorkoutExercises } from './data';
+import { getWorkoutForDateServer } from './server-data';
 import { getSessionUserId } from '@/app/utils/getSessionUser';
 import ProtectRoute from '@/app/utils/protectRoute';
 
@@ -14,11 +15,7 @@ export async function getWorkoutDatesForMonth(year: number, month: number) {
 
 export async function getWorkoutForDate(date: string) {
     await ProtectRoute();
-    const userId = await getSessionUserId();
-    const workout = await fetchWorkoutByDate(userId, date);
-    if (!workout) return null;
-    const exercises = await fetchWorkoutExercises(workout.id!);
-    return { workout, exercises };
+    return getWorkoutForDateServer(date);
 }
 
 export async function copyMovementsToToday(exerciseIds: number[]) {

@@ -1,6 +1,6 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
-import { getMovementScreenData } from "@/app/lib/workouts/movement-actions";
+import { getMovementScreenDataServer } from "@/app/lib/workouts/server-data";
 import MovementScreen from "@/app/ui/workouts/movement-screen";
 import Link from "next/link";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -16,7 +16,7 @@ export default async function MovementPage({ params }: Props) {
     }
 
     const { date, exerciseId } = await params;
-    const data = await getMovementScreenData(date, parseInt(exerciseId));
+    const data = await getMovementScreenDataServer(date, parseInt(exerciseId));
 
     if (!data) {
         return (

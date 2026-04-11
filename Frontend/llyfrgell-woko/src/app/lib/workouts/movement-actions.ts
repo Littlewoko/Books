@@ -1,36 +1,16 @@
 'use server';
 
 import {
-    fetchWorkoutByDate,
-    fetchWorkoutExercises,
-    fetchSetsForWorkoutExercise,
     fetchExerciseHistory,
     fetchPersonalBests,
 } from './data';
+import { getMovementScreenDataServer } from './server-data';
 import { getSessionUserId } from '@/app/utils/getSessionUser';
 import ProtectRoute from '@/app/utils/protectRoute';
 
 export async function getMovementScreenData(date: string, exerciseId: number) {
     await ProtectRoute();
-    const userId = await getSessionUserId();
-
-    const workout = await fetchWorkoutByDate(userId, date);
-    if (!workout || !workout.id) return null;
-
-    const workoutExercises = await fetchWorkoutExercises(workout.id);
-    const workoutExercise = workoutExercises.find(we => we.exerciseId === exerciseId);
-    if (!workoutExercise || !workoutExercise.id) return null;
-
-    const sets = await fetchSetsForWorkoutExercise(workoutExercise.id);
-
-    return {
-        workoutId: workout.id,
-        workoutExerciseId: workoutExercise.id,
-        exerciseName: workoutExercise.exerciseName || '',
-        muscleGroupName: workoutExercise.muscleGroupName || '',
-        sets,
-        allExercises: workoutExercises,
-    };
+    return getMovementScreenDataServer(date, exerciseId);
 }
 
 export async function getExerciseHistory(exerciseId: number, limit: number = 20) {
