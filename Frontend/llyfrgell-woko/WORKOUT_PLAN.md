@@ -54,21 +54,21 @@ A workout logging module integrated into the existing llyfrgell-woko app. Shares
 - [x] **PBs section** — all-time rep maxes for this exercise
 - [x] **1RM calculator** — input weight × reps, output estimated maxes across rep ranges (Epley formula)
 
-## Phase 7: Slide-in Sidebar
-- [ ] Accessible from movement screen (swipe or button)
-- [ ] Shows day overview: exercise count header, movement tiles (name + set count)
-- [ ] Tap tile → switch to that movement (no back navigation needed)
-- [ ] Hold + drag to reorder movements (dnd-kit or similar)
-- [ ] "Add movement" button → modal:
+## Phase 7: Slide-in Sidebar ✅
+- [x] Accessible from movement screen (floating button)
+- [x] Shows day overview: exercise count header, movement tiles (name + set count)
+- [x] Tap tile → switch to that movement (no back navigation needed)
+- [ ] Hold + drag to reorder movements (deferred — needs dnd-kit)
+- [x] "Add movement" button → modal:
   - Recents section at top
   - Select muscle group → select exercise
 - [ ] "Add new exercise" link → separate page for creating new exercises/categories
 
-## Phase 8: Exercise Management
-- [ ] Browse/manage exercise library (`/workouts/exercises`)
-- [ ] Add new exercise (name, muscle group)
-- [ ] Add new muscle group
-- [ ] Accessible from top-level nav
+## Phase 8: Exercise Management ✅
+- [x] Browse/manage exercise library (`/workouts/exercises`)
+- [x] Add new exercise (name, muscle group)
+- [x] Add new muscle group
+- [x] Accessible from top-level nav
 
 ---
 

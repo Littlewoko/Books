@@ -1,12 +1,14 @@
 'use client'
 
 import React, { useState, useRef, useCallback, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import CloseIcon from '@mui/icons-material/Close';
 
 // This component provides a floating, mobile-friendly chat window
 // that embeds a Hugging Face Gradio Space using an iframe.
 const App = () => {
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
   const defaultPos = useRef({ x: 16, y: 0 });
@@ -45,7 +47,7 @@ const App = () => {
     }
   }, [isOpen]);
 
-  if (!pos) return null;
+  if (!pos || pathname.startsWith('/workouts')) return null;
 
   return (
     <>
