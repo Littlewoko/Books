@@ -9,6 +9,10 @@ export interface BookSearchResult {
     spineColor?: string;
 }
 
+function sanitizeLog(input: string): string {
+    return input.replace(/[\r\n\t]/g, ' ').substring(0, 200);
+}
+
 export async function searchBooksByTitle(title: string, author?: string, isbn?: string): Promise<BookSearchResult[]> {
     let query: string;
     
@@ -24,10 +28,13 @@ export async function searchBooksByTitle(title: string, author?: string, isbn?: 
         return [];
     }
     
-    const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=10&key=${process.env.GOOGLE_BOOKS_KEY}`;
+    const url = new URL('https://www.googleapis.com/books/v1/volumes');
+    url.searchParams.set('q', query);
+    url.searchParams.set('maxResults', '10');
+    url.searchParams.set('key', process.env.GOOGLE_BOOKS_KEY || '');
 
     try {
-        const response = await fetch(url, {
+        const response = await fetch(url.toString(), {
             headers: {
                 'User-Agent': 'Mozilla/5.0',
             },
@@ -35,7 +42,7 @@ export async function searchBooksByTitle(title: string, author?: string, isbn?: 
         });
         
         if (!response.ok) {
-            console.error(`Google Books API error: ${response.status} ${response.statusText}`);
+            console.error(`Google Books API error: ${response.status} ${sanitizeLog(response.statusText)}`);
             return [];
         }
 

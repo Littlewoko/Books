@@ -3,6 +3,10 @@
 import { Canvas, useThree, useFrame } from "@react-three/fiber";
 import { PointerLockControls, Html } from "@react-three/drei";
 import { Book } from "@/app/lib/classes/book";
+
+function escapeHtml(str: string): string {
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
 import { useRouter } from "next/navigation";
 import { useRef, useMemo, useEffect, useState, forwardRef, useImperativeHandle } from "react";
 import * as THREE from "three";
@@ -430,7 +434,7 @@ function CrosshairLook({ spines, groupRef, tooltipRef, onSelect, disabled }: {
         if (el) {
             if (hitSpine) {
                 el.style.display = "block";
-                el.innerHTML = `<p style="color:rgba(255,241,214,0.9);font-size:14px;font-weight:500;margin:0">${hitSpine.bookTitle}</p><p style="color:rgba(168,162,158,1);font-size:12px;margin:2px 0 0">${hitSpine.bookAuthor}</p>`;
+                el.innerHTML = `<p style="color:rgba(255,241,214,0.9);font-size:14px;font-weight:500;margin:0">${escapeHtml(hitSpine.bookTitle)}</p><p style="color:rgba(168,162,158,1);font-size:12px;margin:2px 0 0">${escapeHtml(hitSpine.bookAuthor)}</p>`;
             } else {
                 el.style.display = "none";
             }

@@ -52,6 +52,11 @@ export async function createWorkout(date: string, notes?: string) {
 
 export async function addExerciseToWorkout(workoutId: number, exerciseId: number) {
     await ProtectRoute();
+    const userId = await getSessionUserId();
+
+    // Verify workout belongs to user
+    const workout = await sql`SELECT id FROM workout WHERE id = ${workoutId} AND user_id = ${userId};`;
+    if (!workout.rows[0]) throw new Error('Unauthorized');
 
     const maxOrder = await sql`
         SELECT COALESCE(MAX(sort_order), -1) + 1 AS next_order
@@ -69,16 +74,27 @@ export async function addExerciseToWorkout(workoutId: number, exerciseId: number
 
 export async function removeExerciseFromWorkout(workoutExerciseId: number) {
     await ProtectRoute();
+    const userId = await getSessionUserId();
 
-    await sql`DELETE FROM workout_exercise WHERE id = ${workoutExerciseId};`;
+    await sql`
+        DELETE FROM workout_exercise we
+        USING workout w
+        WHERE we.id = ${workoutExerciseId} AND we.workout_id = w.id AND w.user_id = ${userId};
+    `;
     revalidatePath('/workouts');
 }
 
 export async function reorderWorkoutExercises(orderedIds: number[]) {
     await ProtectRoute();
+    const userId = await getSessionUserId();
 
     for (let i = 0; i < orderedIds.length; i++) {
-        await sql`UPDATE workout_exercise SET sort_order = ${i} WHERE id = ${orderedIds[i]};`;
+        await sql`
+            UPDATE workout_exercise we
+            SET sort_order = ${i}
+            FROM workout w
+            WHERE we.id = ${orderedIds[i]} AND we.workout_id = w.id AND w.user_id = ${userId};
+        `;
     }
     revalidatePath('/workouts');
 }
@@ -87,6 +103,15 @@ export async function reorderWorkoutExercises(orderedIds: number[]) {
 
 export async function addSet(workoutExerciseId: number, weight: number | null, weightUnit: string, reps: number | null, notes?: string) {
     await ProtectRoute();
+    const userId = await getSessionUserId();
+
+    // Verify ownership through workout_exercise → workout → user
+    const ownership = await sql`
+        SELECT we.id FROM workout_exercise we
+        JOIN workout w ON w.id = we.workout_id
+        WHERE we.id = ${workoutExerciseId} AND w.user_id = ${userId};
+    `;
+    if (!ownership.rows[0]) throw new Error('Unauthorized');
 
     const maxOrder = await sql`
         SELECT COALESCE(MAX(sort_order), -1) + 1 AS next_order
@@ -104,18 +129,25 @@ export async function addSet(workoutExerciseId: number, weight: number | null, w
 
 export async function updateSet(setId: number, weight: number | null, weightUnit: string, reps: number | null, notes?: string) {
     await ProtectRoute();
+    const userId = await getSessionUserId();
 
     await sql`
-        UPDATE exercise_set
+        UPDATE exercise_set es
         SET weight = ${weight}, weight_unit = ${weightUnit}, reps = ${reps}, notes = ${notes ?? null}
-        WHERE id = ${setId};
+        FROM workout_exercise we, workout w
+        WHERE es.id = ${setId} AND es.workout_exercise_id = we.id AND we.workout_id = w.id AND w.user_id = ${userId};
     `;
     revalidatePath('/workouts');
 }
 
 export async function deleteSet(setId: number) {
     await ProtectRoute();
+    const userId = await getSessionUserId();
 
-    await sql`DELETE FROM exercise_set WHERE id = ${setId};`;
+    await sql`
+        DELETE FROM exercise_set es
+        USING workout_exercise we, workout w
+        WHERE es.id = ${setId} AND es.workout_exercise_id = we.id AND we.workout_id = w.id AND w.user_id = ${userId};
+    `;
     revalidatePath('/workouts');
 }

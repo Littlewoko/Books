@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
 import { extractDominantColor } from '@/app/utils/extractColor';
 
 export async function POST(request: NextRequest) {
     try {
+        const session = await getServerSession();
+        if (!session?.user) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
         const { imageUrl } = await request.json();
 
         if (!imageUrl) {
