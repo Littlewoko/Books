@@ -5,15 +5,18 @@ A workout logging module integrated into the existing llyfrgell-woko app. Shares
 
 ---
 
-## Phase 1: Schema & Data Layer
-- [ ] Design and create database tables:
+## Phase 1: Schema & Data Layer ✅
+- [x] Design and create database tables (exercise_set instead of set for portability):
   - `muscle_group` (id, name, user_id)
   - `exercise` (id, name, muscle_group_id, user_id)
   - `workout` (id, date, user_id, notes)
-  - `workout_exercise` (id, workout_id, exercise_id, order)
-  - `set` (id, workout_exercise_id, weight, weight_unit, reps, distance, distance_unit, duration, tempo, notes, order)
-- [ ] Add `user_id` to all tables from the start for future multi-user support
-- [ ] Create data access functions in `/lib/workouts/`
+  - `workout_exercise` (id, workout_id, exercise_id, sort_order)
+  - `exercise_set` (id, workout_exercise_id, weight, weight_unit, reps, distance, distance_unit, duration, tempo, notes, sort_order)
+- [x] Add `user_id` to all tables from the start for future multi-user support
+- [x] Create TypeScript types in `/lib/workouts/types.ts`
+- [x] Create data access functions in `/lib/workouts/data.ts`
+- [x] Create server actions in `/lib/workouts/actions.ts`
+- [x] Create session user helper in `/utils/getSessionUser.ts`
 
 ## Phase 2: CSV Import (Admin)
 - [ ] Build admin page at `/workouts/admin`
