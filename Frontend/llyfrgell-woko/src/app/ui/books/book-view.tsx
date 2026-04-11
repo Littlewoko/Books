@@ -10,6 +10,7 @@ import { getBookColor, isLightColor } from "@/app/utils/bookColors";
 import { BookClubNote } from "@/app/lib/classes/book-club-note";
 import QuickComplete from "./quick-complete";
 import QuickPageUpdate from "./quick-page-update";
+import VolumeUpIcon from '@mui/icons-material/VolumeUp';
 
 interface Props {
     book: Book | undefined;
@@ -86,6 +87,7 @@ export default function BookView({ book, bookClubNotes = [], returnTo }: Props) 
                         }}
                     >
                         {book.author}
+                        {book.audiobook && <VolumeUpIcon sx={{ fontSize: '0.8em', verticalAlign: 'middle', marginLeft: '4px' }} />}
                     </Typography>
 
                     {/* Genre & Short Story */}

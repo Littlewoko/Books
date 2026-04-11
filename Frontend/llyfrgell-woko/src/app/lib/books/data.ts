@@ -11,6 +11,7 @@ export function convertToBook(result: QueryResult<QueryResultRow>) {
         dateCompleted: row.datecompleted ? new Date(row.datecompleted) : null,
         dateStartedReading: row.datestartedreading ? new Date(row.datestartedreading) : null,
         shortStory: row.shortstory,
+        audiobook: row.audiobook ?? false,
         rating: row.rating,
         review: row.review,
         coverImageUrl: row.coverimageurl,

@@ -3,6 +3,7 @@
 import { Book } from '@/app/lib/classes/book';
 import Link from 'next/link';
 import { getBookColor, isLightColor } from '@/app/utils/bookColors';
+import VolumeUpIcon from '@mui/icons-material/VolumeUp';
 
 interface Props {
     book: Book;
@@ -58,7 +59,7 @@ export default function BookSpine({ book, horizontal = false, returnTo }: Props)
                             {book.title}
                         </p>
                         <p className={`${textColorSub} text-[8px] sm:text-[9px] leading-tight break-words mt-0.5`}>
-                            {book.author}
+                            {book.author}{book.audiobook && <> · <VolumeUpIcon sx={{ fontSize: '8px', verticalAlign: '0px' }} /></>}
                         </p>
                     </div>
                 </div>
@@ -112,7 +113,7 @@ export default function BookSpine({ book, horizontal = false, returnTo }: Props)
                                 {book.title}
                             </p>
                             <p className={`${textColorSub} text-[8px] sm:text-[9px] leading-tight break-words mt-1`}>
-                                {book.author}
+                                {book.author}{book.audiobook && <> · <VolumeUpIcon sx={{ fontSize: '8px', display: 'inline-block', verticalAlign: '0px', transform: 'rotate(90deg)' }} /></>}
                             </p>
                         </div>
                     </div>

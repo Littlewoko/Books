@@ -7,6 +7,7 @@ import { Book } from '@/app/lib/classes/book';
 import formatDate from '@/app/utils/formatDate';
 import Link from 'next/link';
 import StarRating from './star-rating';
+import VolumeUpIcon from '@mui/icons-material/VolumeUp';
 
 interface Props {
     book: Book
@@ -109,6 +110,7 @@ export default function BookComponent({ book }: Props) {
                         fontSize: { xs: '10px', sm: '13px' }
                     }}>
                     {book.author}
+                    {book.audiobook && <VolumeUpIcon sx={{ fontSize: '0.9em', verticalAlign: 'middle', marginLeft: '4px' }} />}
                 </Typography>
                 <Typography
                     gutterBottom

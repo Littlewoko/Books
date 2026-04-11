@@ -19,6 +19,7 @@ function getBookFromFormData(formData: FormData): Book {
         dateStartedReading: formData.get('datestartedreading') ? new Date(formData.get('datestartedreading') as string) : null,
         dateCompleted: formData.get('datecompleted') ? new Date(formData.get('datecompleted') as string) : null,
         shortStory: formData.get('shortStory') != null,
+        audiobook: formData.get('audiobook') != null,
         rating: ratingValue ? Number(ratingValue) : null,
         review: formData.get('review') as string | null,
         coverImageUrl: formData.get('coverImageUrl') as string | null,
@@ -35,7 +36,7 @@ export async function createBook(formData: FormData) {
 
     const book: Book = getBookFromFormData(formData);
 
-    await sql`INSERT INTO books (title, author, genre, isbn, dateobtained, datecompleted, datestartedreading, shortstory, rating, review, coverimageurl, description, apidatafetchedat, spinecolor, currentpage)
+    await sql`INSERT INTO books (title, author, genre, isbn, dateobtained, datecompleted, datestartedreading, shortstory, audiobook, rating, review, coverimageurl, description, apidatafetchedat, spinecolor, currentpage)
         VALUES (
             ${book.title}, 
             ${book.author}, 
@@ -45,6 +46,7 @@ export async function createBook(formData: FormData) {
             ${book.dateCompleted ? book.dateCompleted.toISOString().split('T')[0] : null}, 
             ${book.dateStartedReading ? book.dateStartedReading.toISOString().split('T')[0] : null}, 
             ${book.shortStory},
+            ${book.audiobook},
             ${book.rating ?? null},
             ${book.review ?? null},
             ${book.coverImageUrl ?? null},
@@ -95,6 +97,7 @@ export async function UpdateBook(id: string, formData: FormData) {
                 datecompleted = ${book.dateCompleted ? book.dateCompleted.toISOString().split('T')[0] : null},
                 datestartedreading = ${book.dateStartedReading ? book.dateStartedReading.toISOString().split('T')[0] : null}, 
                 shortstory = ${book.shortStory},
+                audiobook = ${book.audiobook},
                 rating = ${book.rating ?? null},
                 review = ${book.review ?? null},
                 coverimageurl = ${book.coverImageUrl ?? null},

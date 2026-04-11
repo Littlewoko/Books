@@ -8,6 +8,7 @@ export type Book = {
     dateCompleted?: Date | null, 
     dateStartedReading?: Date | null, 
     shortStory: boolean,
+    audiobook: boolean,
     rating?: number | null,
     review?: string | null,
     coverImageUrl?: string | null,
