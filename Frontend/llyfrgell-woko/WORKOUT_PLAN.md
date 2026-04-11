@@ -18,15 +18,15 @@ A workout logging module integrated into the existing llyfrgell-woko app. Shares
 - [x] Create server actions in `/lib/workouts/actions.ts`
 - [x] Create session user helper in `/utils/getSessionUser.ts`
 
-## Phase 2: CSV Import (Admin)
-- [ ] Build admin page at `/workouts/admin`
-- [ ] CSV upload and parse (PapaParse)
-- [ ] Extract distinct exercises and categories from CSV
-- [ ] Exercise → muscle group mapping UI (review & override CSV categories)
-- [ ] Group rows by date → create workout records
-- [ ] Assign set order based on row position within date + exercise groups
-- [ ] Bulk insert into database
-- [ ] Preserve comments as set notes
+## Phase 2: CSV Import (Admin) ✅
+- [x] Build admin page at `/workouts/admin`
+- [x] CSV upload and parse (PapaParse)
+- [x] Extract distinct exercises and categories from CSV
+- [x] Exercise → muscle group mapping UI (review & override CSV categories)
+- [x] Group rows by date → create workout records
+- [x] Assign set order based on row position within date + exercise groups
+- [x] Bulk insert into database
+- [x] Preserve comments as set notes
 
 ## Phase 3: Navigation & Layout
 - [ ] Add "Workouts" to persistent app nav (bottom nav mobile, sidebar desktop)
