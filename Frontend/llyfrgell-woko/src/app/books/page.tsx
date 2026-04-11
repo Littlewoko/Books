@@ -14,6 +14,7 @@ export default function Page() {
 
   const query = searchParams.get('query');
   const shortStoryParam = searchParams.get('shortStory');
+  const audiobookParam = searchParams.get('audiobook');
   const genreParam = searchParams.get('genre');
   const statusParam = searchParams.get('status');
   const yearParam = searchParams.get('year');
@@ -27,6 +28,7 @@ export default function Page() {
   const [page, setPage] = useState(0);
   const [filters, setFilters] = useState({
     shortStory: shortStoryParam === 'true' ? true : shortStoryParam === 'false' ? false : null,
+    audiobook: audiobookParam === 'true' ? true : audiobookParam === 'false' ? false : null,
     genre: genreParam || undefined,
     status: statusParam || undefined,
     year: yearParam ? parseInt(yearParam) : undefined,
@@ -34,12 +36,14 @@ export default function Page() {
 
   const handleApplyFilters = (newFilters: {
     shortStory?: boolean | null;
+    audiobook?: boolean | null;
     genre?: string;
     status?: string;
     year?: number;
   }) => {
     setFilters({
       shortStory: newFilters.shortStory ?? null,
+      audiobook: newFilters.audiobook ?? null,
       genre: newFilters.genre,
       status: newFilters.status,
       year: newFilters.year,

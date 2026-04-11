@@ -61,6 +61,7 @@ export async function createBook(formData: FormData) {
 
 export async function GetBooks(page: number, pageSize: number, search: string, filters?: {
     shortStory?: boolean | null;
+    audiobook?: boolean | null;
     genre?: string;
     status?: string;
     year?: number;

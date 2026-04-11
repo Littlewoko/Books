@@ -6,6 +6,7 @@ export async function GetBooksRequest(
     search?: string,
     filters?: {
         shortStory?: boolean | null;
+        audiobook?: boolean | null;
         genre?: string;
         status?: string;
         year?: number;
@@ -28,6 +29,12 @@ export async function GetBooksRequest(
     if (filters?.shortStory !== undefined && filters.shortStory !== null) {
         query += ` AND shortstory = $${paramIndex}`;
         params.push(filters.shortStory);
+        paramIndex++;
+    }
+
+    if (filters?.audiobook !== undefined && filters.audiobook !== null) {
+        query += ` AND audiobook = $${paramIndex}`;
+        params.push(filters.audiobook);
         paramIndex++;
     }
 

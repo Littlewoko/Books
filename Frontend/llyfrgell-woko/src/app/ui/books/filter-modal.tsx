@@ -6,12 +6,14 @@ import { Modal, Box } from "@mui/material";
 interface FilterModalProps {
     onApplyFilters: (filters: {
         shortStory?: boolean | null;
+        audiobook?: boolean | null;
         genre?: string;
         status?: string;
         year?: number;
     }) => void;
     currentFilters: {
         shortStory?: boolean | null;
+        audiobook?: boolean | null;
         genre?: string;
         status?: string;
         year?: number;
@@ -85,6 +87,10 @@ export default function FilterModal({ onApplyFilters, currentFilters }: FilterMo
         currentFilters.shortStory === true ? 'true' :
         currentFilters.shortStory === false ? 'false' : 'all'
     );
+    const [audiobook, setAudiobook] = useState<string>(
+        currentFilters.audiobook === true ? 'true' :
+        currentFilters.audiobook === false ? 'false' : 'all'
+    );
     const [genre, setGenre] = useState(currentFilters.genre || '');
     const [status, setStatus] = useState(currentFilters.status || '');
     const [year, setYear] = useState(currentFilters.year?.toString() || '');
@@ -92,6 +98,7 @@ export default function FilterModal({ onApplyFilters, currentFilters }: FilterMo
     const handleApply = () => {
         onApplyFilters({
             shortStory: shortStory === 'all' ? null : shortStory === 'true',
+            audiobook: audiobook === 'all' ? null : audiobook === 'true',
             genre: genre || undefined,
             status: status || undefined,
             year: year ? parseInt(year) : undefined,
@@ -101,6 +108,7 @@ export default function FilterModal({ onApplyFilters, currentFilters }: FilterMo
 
     const handleClear = () => {
         setShortStory('all');
+        setAudiobook('all');
         setGenre('');
         setStatus('');
         setYear('');
@@ -110,6 +118,7 @@ export default function FilterModal({ onApplyFilters, currentFilters }: FilterMo
 
     const activeFilterCount = [
         currentFilters.shortStory !== null && currentFilters.shortStory !== undefined,
+        currentFilters.audiobook !== null && currentFilters.audiobook !== undefined,
         currentFilters.genre,
         currentFilters.status,
         currentFilters.year,
@@ -119,6 +128,12 @@ export default function FilterModal({ onApplyFilters, currentFilters }: FilterMo
         { value: 'all', label: 'All' },
         { value: 'true', label: 'Short Stories Only' },
         { value: 'false', label: 'Exclude Short Stories' },
+    ];
+
+    const audiobookOptions = [
+        { value: 'all', label: 'All' },
+        { value: 'true', label: 'Audiobooks Only' },
+        { value: 'false', label: 'Exclude Audiobooks' },
     ];
 
     const statusOptions = [
@@ -177,6 +192,12 @@ export default function FilterModal({ onApplyFilters, currentFilters }: FilterMo
                             <span className="text-stone-400" style={fontStyle}>Short Stories:</span>
                         </div>
                         <InlinePicker options={shortStoryOptions} value={shortStory} onChange={setShortStory} />
+
+                        {/* Audiobooks */}
+                        <div style={{ height: lineHeight }}>
+                            <span className="text-stone-400" style={fontStyle}>Audiobooks:</span>
+                        </div>
+                        <InlinePicker options={audiobookOptions} value={audiobook} onChange={setAudiobook} />
 
                         {/* Genre */}
                         <div style={{ height: lineHeight }}>
