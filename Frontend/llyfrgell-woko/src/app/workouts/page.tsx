@@ -1,9 +1,5 @@
-import WorkoutCalendar from "@/app/ui/workouts/workout-calendar";
+import WorkoutRouter from "@/app/ui/workouts/workout-router";
 
 export default function WorkoutsPage() {
-    return (
-        <main className="p-4">
-            <WorkoutCalendar />
-        </main>
-    );
+    return <WorkoutRouter />;
 }
