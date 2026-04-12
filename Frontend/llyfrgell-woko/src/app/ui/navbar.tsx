@@ -1,13 +1,14 @@
 'use client';
 
-import React, { useState } from 'react';
-import { usePathname } from 'next/navigation';
-import { MobileMenuButton } from './mobileMenuButton';
-import { MobileDrawer } from './mobileDrawer';
-import { LogoLink } from './logoLink';
-import { DesktopNavLinks } from './desktopNavLinks';
+import React, {useState} from 'react';
+import {usePathname} from 'next/navigation';
+import {MobileMenuButton} from './mobileMenuButton';
+import {MobileDrawer} from './mobileDrawer';
+import {LogoLink} from './logoLink';
+import {DesktopNavLinks} from './desktopNavLinks';
 import RestTimer from './workouts/rest-timer';
 import WorkoutSidebar from './workouts/workout-sidebar';
+import SyncIndicator from './workouts/sync-indicator';
 
 export default function Navbar() {
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -25,30 +26,33 @@ export default function Navbar() {
 
     return (
         <>
-            <nav className="relative bg-gradient-to-b from-stone-800/80 via-stone-900/90 to-stone-950/95 shadow-md shadow-black/30">
+            <nav
+                className="relative bg-gradient-to-b from-stone-800/80 via-stone-900/90 to-stone-950/95 shadow-md shadow-black/30">
                 <div className="hidden sm:flex justify-between items-center px-4 py-2">
-                    <LogoLink />
+                    <LogoLink/>
                     <div className="flex items-center gap-4">
-                        {isWorkouts && <RestTimer />}
-                        <DesktopNavLinks />
+                        {isWorkouts && <SyncIndicator/>}
+                        {isWorkouts && <RestTimer/>}
+                        <DesktopNavLinks/>
                         {isWorkouts && (
-                            <MobileMenuButton onClick={() => setIsWorkoutSidebarOpen(true)} />
+                            <MobileMenuButton onClick={() => setIsWorkoutSidebarOpen(true)}/>
                         )}
                     </div>
                 </div>
                 <div className="sm:hidden flex justify-between items-center px-3 py-2">
-                    <LogoLink />
+                    <LogoLink/>
                     <div className="flex items-center gap-3">
-                        {isWorkouts && <RestTimer />}
-                        <MobileMenuButton onClick={handleToggle} />
-                        {!isWorkouts && <MobileDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} />}
+                        {isWorkouts && <SyncIndicator/>}
+                        {isWorkouts && <RestTimer/>}
+                        <MobileMenuButton onClick={handleToggle}/>
+                        {!isWorkouts && <MobileDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)}/>}
                     </div>
                 </div>
             </nav>
             {/* Shelf base */}
-            <div className="h-[4px] bg-gradient-to-b from-stone-700/60 via-stone-800/70 to-stone-900/40" />
+            <div className="h-[4px] bg-gradient-to-b from-stone-700/60 via-stone-800/70 to-stone-900/40"/>
 
-            <WorkoutSidebar isOpen={isWorkoutSidebarOpen} onClose={() => setIsWorkoutSidebarOpen(false)} />
+            <WorkoutSidebar isOpen={isWorkoutSidebarOpen} onClose={() => setIsWorkoutSidebarOpen(false)}/>
         </>
     )
 }

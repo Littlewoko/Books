@@ -41,6 +41,13 @@ export const authOptions: AuthOptions = {
                 if (result.rows[0]) {
                     token.id = result.rows[0].id;
                 }
+            } else if (!token.id && token.email) {
+                const result = await sql`
+                    SELECT id FROM users WHERE email = ${token.email};
+                `;
+                if (result.rows[0]) {
+                    token.id = result.rows[0].id;
+                }
             }
             return token;
         },
