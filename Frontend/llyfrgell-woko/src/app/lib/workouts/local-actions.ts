@@ -13,7 +13,7 @@ async function enqueue(action: 'INSERT' | 'UPDATE' | 'DELETE', table: string, re
 
 export async function localCreateMuscleGroup(name: string): Promise<number> {
     const id = await nextLocalId();
-    await db.muscleGroups.add({id, name});
+    await db.muscleGroups.add({id, name, colour: '#737373'});
     await enqueue('INSERT', 'muscle_group', id, {name});
     return id;
 }

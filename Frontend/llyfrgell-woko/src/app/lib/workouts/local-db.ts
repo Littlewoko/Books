@@ -3,6 +3,7 @@ import Dexie, {type EntityTable} from 'dexie';
 export interface LocalMuscleGroup {
     id: number;
     name: string;
+    colour: string;
 }
 
 export interface LocalExercise {

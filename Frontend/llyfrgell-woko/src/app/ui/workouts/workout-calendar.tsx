@@ -5,23 +5,10 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import Link from "next/link";
 import {localGetWorkoutDatesForMonth} from "@/app/lib/workouts/local-data";
-
-const MUSCLE_GROUP_COLORS: Record<string, string> = {
-    Chest: "#ef4444", Back: "#3b82f6", Shoulders: "#f59e0b",
-    Quads: "#22c55e", Hamstrings: "#14b8a6", Glutes: "#ec4899",
-    Legs: "#22c55e", Biceps: "#a855f7", Triceps: "#8b5cf6",
-    Abs: "#06b6d4", Calves: "#84cc16", Cardio: "#f97316",
-    "Rear Delts": "#fbbf24", "Side Delts": "#eab308", "Front Delts": "#f59e0b",
-    "Lower Back": "#60a5fa", Adductors: "#2dd4bf", Traps: "#818cf8",
-    Grip: "#78716c", Neck: "#a8a29e", Climb: "#fb923c",
-    Physio: "#4ade80", "Shoulder Prehab": "#facc15", Hinge: "#4ade80",
-};
+import {getMuscleGroupColour, loadMuscleGroupColours} from "@/app/lib/workouts/muscle-group-colours";
+import WeeklyVolume from "./weekly-volume";
 
 const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-
-function getMuscleGroupColor(name: string): string {
-    return MUSCLE_GROUP_COLORS[name] || "#737373";
-}
 
 interface WorkoutDay {
     date: string;
@@ -37,8 +24,8 @@ export default function WorkoutCalendar() {
 
     useEffect(() => {
         setLoading(true);
-        localGetWorkoutDatesForMonth(year, month)
-            .then(setWorkoutDays)
+        Promise.all([localGetWorkoutDatesForMonth(year, month), loadMuscleGroupColours()])
+            .then(([days]) => setWorkoutDays(days))
             .finally(() => setLoading(false));
     }, [year, month]);
 
@@ -113,7 +100,7 @@ export default function WorkoutCalendar() {
                                 <div className="flex gap-0.5 flex-wrap justify-center max-w-[80%]">
                                     {muscleGroups.slice(0, 4).map((mg, j) => (
                                         <div key={j} className="w-1.5 h-1.5 rounded-full"
-                                             style={{backgroundColor: getMuscleGroupColor(mg)}} title={mg}/>
+                                             style={{backgroundColor: getMuscleGroupColour(mg)}} title={mg}/>
                                     ))}
                                 </div>
                             )}
@@ -126,12 +113,14 @@ export default function WorkoutCalendar() {
                 <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1 justify-center">
                     {[...new Set(workoutDays.flatMap(d => d.muscleGroups))].sort().map(mg => (
                         <div key={mg} className="flex items-center gap-1">
-                            <div className="w-2 h-2 rounded-full" style={{backgroundColor: getMuscleGroupColor(mg)}}/>
+                            <div className="w-2 h-2 rounded-full" style={{backgroundColor: getMuscleGroupColour(mg)}}/>
                             <span className="text-black text-xs">{mg}</span>
                         </div>
                     ))}
                 </div>
             )}
+
+            <WeeklyVolume />
         </div>
     );
 }

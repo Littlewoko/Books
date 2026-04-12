@@ -19,6 +19,17 @@ export async function createMuscleGroup(name: string) {
     return result.rows[0].id as number;
 }
 
+export async function updateMuscleGroupColour(muscleGroupId: number, colour: string) {
+    await ProtectRoute();
+    const userId = await getSessionUserId();
+
+    await sql`
+        UPDATE muscle_group SET colour = ${colour}
+        WHERE id = ${muscleGroupId} AND user_id = ${userId};
+    `;
+    revalidatePath('/workouts');
+}
+
 // -- Exercises --
 
 export async function createExercise(name: string, muscleGroupId: number) {

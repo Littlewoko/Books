@@ -6,6 +6,7 @@ import { localIsHydrated, localGetSyncMeta, localSetSyncMeta } from "@/app/lib/w
 import { hydrateChunk, startAutoSync, stopAutoSync, getPendingSyncCount, flushSyncQueue } from "@/app/lib/workouts/sync";
 import { getHydrationChunk } from "@/app/lib/workouts/hydrate-action";
 import { getRecentWorkoutRoutes } from "@/app/lib/workouts/route-cache-action";
+import { invalidateColourCache } from "@/app/lib/workouts/muscle-group-colours";
 
 const STALE_THRESHOLD_MS = 60 * 60 * 1000; // 1 hour
 
@@ -63,6 +64,8 @@ export default function WorkoutOfflineProvider({ children }: { children: ReactNo
         if (session?.user?.id) {
             await localSetSyncMeta('userId', session.user.id);
         }
+
+        invalidateColourCache();
 
         // Cache HTML routes for offline access
         if (navigator.onLine) {

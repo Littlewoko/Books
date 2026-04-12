@@ -1,7 +1,7 @@
 "use client";
 
 import {useState} from "react";
-import {updateExerciseMuscleGroup, renameExercise, createMuscleGroup} from "@/app/lib/workouts/actions";
+import {updateExerciseMuscleGroup, renameExercise, createMuscleGroup, updateMuscleGroupColour} from "@/app/lib/workouts/actions";
 import EditIcon from '@mui/icons-material/Edit';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
@@ -17,6 +17,7 @@ interface ExerciseRow {
 interface MuscleGroup {
     id: number;
     name: string;
+    colour: string;
 }
 
 interface Props {
@@ -34,15 +35,21 @@ export default function ExerciseAdmin({exercises: initial, muscleGroups: initial
     const [saving, setSaving] = useState<number | null>(null);
     const [newMgName, setNewMgName] = useState("");
     const [addingMg, setAddingMg] = useState(false);
+    const [showMgEditor, setShowMgEditor] = useState(false);
 
     const handleAddMuscleGroup = async () => {
         const name = newMgName.trim();
         if (!name || mgs.some(m => m.name.toLowerCase() === name.toLowerCase())) return;
         setAddingMg(true);
         const id = await createMuscleGroup(name);
-        setMgs(prev => [...prev, {id, name}].sort((a, b) => a.name.localeCompare(b.name)));
+        setMgs(prev => [...prev, {id, name, colour: '#737373'}].sort((a, b) => a.name.localeCompare(b.name)));
         setNewMgName("");
         setAddingMg(false);
+    };
+
+    const handleColourChange = async (mgId: number, colour: string) => {
+        setMgs(prev => prev.map(m => m.id === mgId ? {...m, colour} : m));
+        await updateMuscleGroupColour(mgId, colour);
     };
 
     const filtered = exercises.filter(ex => {
@@ -81,6 +88,30 @@ export default function ExerciseAdmin({exercises: initial, muscleGroups: initial
 
     return (
         <div>
+            {/* Muscle group colours */}
+            <div className="mb-4">
+                <button type="button" onClick={() => setShowMgEditor(!showMgEditor)}
+                        className="text-amber-700 text-xs font-bold hover:text-amber-800 transition-colours">
+                    {showMgEditor ? '▾ Muscle Group Colours' : '▸ Muscle Group Colours'}
+                </button>
+                {showMgEditor && (
+                    <div className="mt-2 grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1.5">
+                        {mgs.map(mg => (
+                            <div key={mg.id} className="flex items-center gap-2">
+                                <input
+                                    type="color"
+                                    value={mg.colour}
+                                    onChange={e => handleColourChange(mg.id, e.target.value)}
+                                    className="w-6 h-6 border-0 bg-transparent cursor-pointer p-0"
+                                />
+                                <span className="text-black text-xs">{mg.name}</span>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+
+            {/* Filters */}
             <div className="flex flex-col sm:flex-row gap-2 mb-3">
                 <input
                     type="text"
@@ -102,6 +133,7 @@ export default function ExerciseAdmin({exercises: initial, muscleGroups: initial
                 <span className="text-black/40 text-xs self-end">{filtered.length} exercises</span>
             </div>
 
+            {/* Add muscle group */}
             <div className="flex gap-1 items-end mb-3">
                 <input
                     type="text"
@@ -117,6 +149,7 @@ export default function ExerciseAdmin({exercises: initial, muscleGroups: initial
                 </button>
             </div>
 
+            {/* Exercise table */}
             <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                     <thead>

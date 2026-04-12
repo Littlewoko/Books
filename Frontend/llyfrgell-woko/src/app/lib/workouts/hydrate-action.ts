@@ -16,17 +16,17 @@ export async function getHydrationChunk(beforeDate?: string) {
     const startDate = startDateObj.toISOString().split('T')[0];
 
     // Reference data only on first chunk
-    let muscleGroups: { id: number; name: string }[] = [];
+    let muscleGroups: { id: number; name: string; colour: string }[] = [];
     let exercises: { id: number; name: string; muscleGroupId: number; muscleGroupName: string }[] = [];
 
     if (!beforeDate) {
         const [mgResult, exResult] = await Promise.all([
-            sql`SELECT id, name FROM muscle_group WHERE user_id = ${userId} ORDER BY name`,
+            sql`SELECT id, name, COALESCE(colour, '#737373') AS colour FROM muscle_group WHERE user_id = ${userId} ORDER BY name`,
             sql`SELECT e.id, e.name, e.muscle_group_id, mg.name AS muscle_group_name
                 FROM exercise e JOIN muscle_group mg ON mg.id = e.muscle_group_id
                 WHERE e.user_id = ${userId} ORDER BY e.name`,
         ]);
-        muscleGroups = mgResult.rows.map(r => ({ id: r.id, name: r.name }));
+        muscleGroups = mgResult.rows.map(r => ({ id: r.id, name: r.name, colour: r.colour }));
         exercises = exResult.rows.map(r => ({
             id: r.id, name: r.name, muscleGroupId: r.muscle_group_id, muscleGroupName: r.muscle_group_name,
         }));

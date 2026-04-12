@@ -5,10 +5,11 @@ import { sql } from "@vercel/postgres";
 import { getSessionUserId } from "@/app/utils/getSessionUser";
 import ExerciseAdmin from "@/app/ui/workouts/exercise-admin";
 import CsvImport from "@/app/ui/workouts/csv-import";
+import SyncButton from "@/app/ui/workouts/sync-button";
 
 async function getAdminData(userId: string) {
     const [mgResult, exResult] = await Promise.all([
-        sql`SELECT id, name FROM muscle_group WHERE user_id = ${userId} ORDER BY name`,
+        sql`SELECT id, name, COALESCE(colour, '#737373') AS colour FROM muscle_group WHERE user_id = ${userId} ORDER BY name`,
         sql`
             SELECT e.id, e.name, e.muscle_group_id, mg.name AS muscle_group_name,
                    COALESCE(s.total, 0)::int AS total_sets
@@ -26,7 +27,7 @@ async function getAdminData(userId: string) {
     ]);
 
     return {
-        muscleGroups: mgResult.rows.map(r => ({ id: r.id as number, name: r.name as string })),
+        muscleGroups: mgResult.rows.map(r => ({ id: r.id as number, name: r.name as string, colour: r.colour as string })),
         exercises: exResult.rows.map(r => ({
             id: r.id as number,
             name: r.name as string,
@@ -51,6 +52,10 @@ export default async function WorkoutAdminPage() {
             <h1 className="text-black text-xl sm:text-2xl mb-4 font-bold" style={{ fontFamily: 'var(--font-caveat)' }}>
                 Admin
             </h1>
+
+            <div className="mb-4">
+                <SyncButton />
+            </div>
 
             <section className="mb-8">
                 <h2 className="text-amber-700 text-sm font-bold mb-2">Exercises</h2>

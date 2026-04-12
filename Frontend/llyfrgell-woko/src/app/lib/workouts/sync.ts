@@ -181,7 +181,7 @@ export async function getPendingSyncCount(): Promise<number> {
 
 // Hydrate local DB from server data
 export async function hydrateChunk(data: {
-    muscleGroups: { id: number; name: string }[];
+    muscleGroups: { id: number; name: string; colour: string }[];
     exercises: { id: number; name: string; muscleGroupId: number; muscleGroupName: string }[];
     workouts: { id: number; date: string; notes?: string | null }[];
     workoutExercises: {

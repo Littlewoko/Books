@@ -191,6 +191,50 @@ export async function localGetRecentExercises() {
     return recents;
 }
 
+export async function localGetWeeklyVolume(weekStart: string, weekEnd: string): Promise<{ muscleGroup: string; sets: number }[]> {
+    const workouts = await db.workouts
+        .where('date').between(weekStart, weekEnd, true, true)
+        .toArray();
+
+    if (workouts.length === 0) return [];
+
+    const workoutIds = workouts.map(w => w.id);
+    const wes = await db.workoutExercises.where('workoutId').anyOf(workoutIds).toArray();
+    const weIds = wes.map(we => we.id);
+    const sets = await db.exerciseSets.where('workoutExerciseId').anyOf(weIds).toArray();
+
+    const weToMg = new Map(wes.map(we => [we.id, we.muscleGroupName]));
+    const counts = new Map<string, number>();
+    for (const s of sets) {
+        const mg = weToMg.get(s.workoutExerciseId);
+        if (mg) counts.set(mg, (counts.get(mg) || 0) + 1);
+    }
+
+    return Array.from(counts.entries())
+        .map(([muscleGroup, sets]) => ({muscleGroup, sets}))
+        .sort((a, b) => b.sets - a.sets);
+}
+
+export async function localGetDayVolume(date: string): Promise<{ muscleGroup: string; sets: number }[]> {
+    const workout = await db.workouts.where('date').equals(date).first();
+    if (!workout) return [];
+
+    const wes = await db.workoutExercises.where('workoutId').equals(workout.id).toArray();
+    const weIds = wes.map(we => we.id);
+    const sets = await db.exerciseSets.where('workoutExerciseId').anyOf(weIds).toArray();
+
+    const weToMg = new Map(wes.map(we => [we.id, we.muscleGroupName]));
+    const counts = new Map<string, number>();
+    for (const s of sets) {
+        const mg = weToMg.get(s.workoutExerciseId);
+        if (mg) counts.set(mg, (counts.get(mg) || 0) + 1);
+    }
+
+    return Array.from(counts.entries())
+        .map(([muscleGroup, sets]) => ({muscleGroup, sets}))
+        .sort((a, b) => b.sets - a.sets);
+}
+
 export async function localIsHydrated(): Promise<boolean> {
     const meta = await db.syncMeta.get('lastSync');
     return !!meta;

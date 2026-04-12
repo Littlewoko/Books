@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { localGetWorkoutForDate } from "@/app/lib/workouts/local-data";
 import { WorkoutExercise } from "@/app/lib/workouts/types";
 import DayExerciseList from "@/app/ui/workouts/day-exercise-list";
+import DayVolume from "@/app/ui/workouts/day-volume";
 import Link from "next/link";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
@@ -44,6 +45,7 @@ export default function DayView({ date }: Props) {
                 </h1>
             </div>
             <DayExerciseList date={date} workoutId={workoutId} exercises={exercises} />
+            <DayVolume date={date} />
         </main>
     );
 }
