@@ -89,9 +89,20 @@ db.version(1).stores({
 
 export {db};
 
-// Counter for generating negative local IDs
-let localIdCounter = -1;
+// Generate negative local IDs that won't collide across page reloads.
+// Derives from the current minimum ID across all tables.
+let localIdCounter: number | null = null;
 
-export function nextLocalId(): number {
+export async function nextLocalId(): Promise<number> {
+    if (localIdCounter === null) {
+        const mins = await Promise.all([
+            db.muscleGroups.orderBy('id').first().then(r => r?.id ?? 0),
+            db.exercises.orderBy('id').first().then(r => r?.id ?? 0),
+            db.workouts.orderBy('id').first().then(r => r?.id ?? 0),
+            db.workoutExercises.orderBy('id').first().then(r => r?.id ?? 0),
+            db.exerciseSets.orderBy('id').first().then(r => r?.id ?? 0),
+        ]);
+        localIdCounter = Math.min(...mins, 0) - 1;
+    }
     return localIdCounter--;
 }

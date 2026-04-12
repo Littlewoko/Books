@@ -12,7 +12,7 @@ async function enqueue(action: 'INSERT' | 'UPDATE' | 'DELETE', table: string, re
 }
 
 export async function localCreateMuscleGroup(name: string): Promise<number> {
-    const id = nextLocalId();
+    const id = await nextLocalId();
     await db.muscleGroups.add({id, name});
     await enqueue('INSERT', 'muscle_group', id, {name});
     return id;
@@ -20,7 +20,7 @@ export async function localCreateMuscleGroup(name: string): Promise<number> {
 
 export async function localCreateExercise(name: string, muscleGroupId: number): Promise<number> {
     const mg = await db.muscleGroups.get(muscleGroupId);
-    const id = nextLocalId();
+    const id = await nextLocalId();
     await db.exercises.add({id, name, muscleGroupId, muscleGroupName: mg?.name || ''});
     await enqueue('INSERT', 'exercise', id, {name, muscleGroupId});
     return id;
@@ -30,7 +30,7 @@ export async function localCreateWorkout(date: string, notes?: string): Promise<
     const existing = await db.workouts.where('date').equals(date).first();
     if (existing) return existing.id;
 
-    const id = nextLocalId();
+    const id = await nextLocalId();
     await db.workouts.add({id, date, notes: notes || null});
     await enqueue('INSERT', 'workout', id, {date, notes: notes || null});
     return id;
@@ -41,7 +41,7 @@ export async function localAddExerciseToWorkout(workoutId: number, exerciseId: n
     const nextOrder = existing.length > 0 ? Math.max(...existing.map(e => e.sortOrder)) + 1 : 0;
 
     const exercise = await db.exercises.get(exerciseId);
-    const id = nextLocalId();
+    const id = await nextLocalId();
 
     await db.workoutExercises.add({
         id,
@@ -73,7 +73,7 @@ export async function localAddSet(
     const existing = await db.exerciseSets.where('workoutExerciseId').equals(workoutExerciseId).toArray();
     const nextOrder = existing.length > 0 ? Math.max(...existing.map(s => s.sortOrder)) + 1 : 0;
 
-    const id = nextLocalId();
+    const id = await nextLocalId();
     await db.exerciseSets.add({
         id,
         workoutExerciseId,

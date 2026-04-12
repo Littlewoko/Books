@@ -1,45 +1,68 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import TimerIcon from '@mui/icons-material/Timer';
 import CloseIcon from '@mui/icons-material/Close';
 
+const STORAGE_KEY = "rest-timer-end";
+const DURATION_KEY = "rest-timer-duration";
+
+function getEndTime(): number | null {
+    const v = localStorage.getItem(STORAGE_KEY);
+    return v ? parseInt(v) : null;
+}
+
+function getRemaining(): number {
+    const end = getEndTime();
+    if (!end) return 0;
+    return Math.max(0, Math.ceil((end - Date.now()) / 1000));
+}
+
 export default function RestTimer() {
-    const [duration, setDuration] = useState(90);
     const [remaining, setRemaining] = useState(0);
-    const [running, setRunning] = useState(false);
     const [modalOpen, setModalOpen] = useState(false);
     const [inputMinutes, setInputMinutes] = useState("1");
     const [inputSeconds, setInputSeconds] = useState("30");
-    const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
+    const refresh = useCallback(() => setRemaining(getRemaining()), []);
+
+    // On mount, pick up any running timer
     useEffect(() => {
-        if (running && remaining > 0) {
-            intervalRef.current = setInterval(() => {
-                setRemaining(prev => {
-                    if (prev <= 1) {
-                        setRunning(false);
-                        return 0;
-                    }
-                    return prev - 1;
-                });
-            }, 1000);
-        }
-        return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
-    }, [running, remaining]);
+        refresh();
+    }, [refresh]);
 
-    const formatTime = (s: number) => {
-        const m = Math.floor(s / 60);
-        const sec = s % 60;
-        return `${m}:${sec.toString().padStart(2, '0')}`;
-    };
+    // Tick every second while active, plus recalc on visibility change
+    useEffect(() => {
+        if (remaining <= 0) return;
+
+        const tick = () => {
+            const r = getRemaining();
+            setRemaining(r);
+            if (r <= 0) {
+                localStorage.removeItem(STORAGE_KEY);
+                try {
+                    if (Notification.permission === "granted") {
+                        new Notification("Rest over", { body: "Time to go again" });
+                    }
+                } catch {}
+            }
+        };
+
+        const interval = setInterval(tick, 1000);
+        const onVisible = () => { if (document.visibilityState === "visible") tick(); };
+        document.addEventListener("visibilitychange", onVisible);
+
+        return () => {
+            clearInterval(interval);
+            document.removeEventListener("visibilitychange", onVisible);
+        };
+    }, [remaining > 0]);
 
     const handleOpen = () => {
-        if (!running && remaining === 0) {
-            const m = Math.floor(duration / 60);
-            const s = duration % 60;
-            setInputMinutes(String(m));
-            setInputSeconds(String(s));
+        if (remaining === 0) {
+            const saved = parseInt(localStorage.getItem(DURATION_KEY) || "90");
+            setInputMinutes(String(Math.floor(saved / 60)));
+            setInputSeconds(String(saved % 60));
         }
         setModalOpen(true);
     };
@@ -47,19 +70,21 @@ export default function RestTimer() {
     const handleStart = () => {
         const totalSeconds = (parseInt(inputMinutes) || 0) * 60 + (parseInt(inputSeconds) || 0);
         if (totalSeconds <= 0) return;
-        setDuration(totalSeconds);
+        localStorage.setItem(DURATION_KEY, String(totalSeconds));
+        localStorage.setItem(STORAGE_KEY, String(Date.now() + totalSeconds * 1000));
         setRemaining(totalSeconds);
-        setRunning(true);
         setModalOpen(false);
+        if (Notification.permission === "default") Notification.requestPermission();
     };
 
     const handleStop = () => {
-        setRunning(false);
+        localStorage.removeItem(STORAGE_KEY);
         setRemaining(0);
         setModalOpen(false);
     };
 
-    const isActive = running || remaining > 0;
+    const formatTime = (s: number) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`;
+    const isActive = remaining > 0;
     const timerColor = remaining <= 10 && remaining > 0 ? "text-red-400" : "text-amber-200/80";
 
     return (
@@ -86,7 +111,7 @@ export default function RestTimer() {
 
                         {isActive ? (
                             <div className="text-center">
-                                <div className={`text-3xl font-bold mb-3 ${remaining <= 10 && remaining > 0 ? 'text-red-600' : 'text-black'}`}
+                                <div className={`text-3xl font-bold mb-3 ${remaining <= 10 ? 'text-red-600' : 'text-black'}`}
                                     style={{ fontFamily: 'var(--font-geist-mono)' }}>
                                     {formatTime(remaining)}
                                 </div>

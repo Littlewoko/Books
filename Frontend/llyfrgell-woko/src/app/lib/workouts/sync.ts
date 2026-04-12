@@ -23,7 +23,6 @@ async function mapId(table: string, localId: number, serverId: number) {
     await db.idMap.add({table, localId, serverId});
 
     if (table === 'muscle_group') {
-        await db.muscleGroups.delete(localId);
         const mg = await db.muscleGroups.get(localId);
         if (mg) {
             await db.muscleGroups.delete(localId);
