@@ -33,6 +33,28 @@ export async function createExercise(name: string, muscleGroupId: number) {
     return result.rows[0].id as number;
 }
 
+export async function updateExerciseMuscleGroup(exerciseId: number, muscleGroupId: number) {
+    await ProtectRoute();
+    const userId = await getSessionUserId();
+
+    await sql`
+        UPDATE exercise SET muscle_group_id = ${muscleGroupId}
+        WHERE id = ${exerciseId} AND user_id = ${userId};
+    `;
+    revalidatePath('/workouts');
+}
+
+export async function renameExercise(exerciseId: number, name: string) {
+    await ProtectRoute();
+    const userId = await getSessionUserId();
+
+    await sql`
+        UPDATE exercise SET name = ${name}
+        WHERE id = ${exerciseId} AND user_id = ${userId};
+    `;
+    revalidatePath('/workouts');
+}
+
 // -- Workouts --
 
 export async function createWorkout(date: string, notes?: string) {
