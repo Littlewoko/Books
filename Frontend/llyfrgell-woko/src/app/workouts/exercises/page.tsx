@@ -1,14 +1,6 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/utils/authOptions";
-import { redirect } from "next/navigation";
 import ExerciseManager from "@/app/ui/workouts/exercise-manager";
 
-export default async function ExercisesPage() {
-    const session = await getServerSession(authOptions);
-    if (!session || !session.user) {
-        redirect("/api/auth/signin");
-    }
-
+export default function ExercisesPage() {
     return (
         <main className="p-4 max-w-2xl mx-auto">
             <h1

@@ -1,23 +1,43 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/utils/authOptions";
-import { redirect } from "next/navigation";
-import { getMovementScreenDataServer } from "@/app/lib/workouts/server-data";
+"use client";
+
+import { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
+import { localGetMovementScreenData } from "@/app/lib/workouts/local-data";
+import { ExerciseSet, WorkoutExercise } from "@/app/lib/workouts/types";
 import MovementScreen from "@/app/ui/workouts/movement-screen";
 import Link from "next/link";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
-interface Props {
-    params: Promise<{ date: string; exerciseId: string }>;
-}
+export default function MovementPage() {
+    const params = useParams<{ date: string; exerciseId: string }>();
+    const date = params.date;
+    const exerciseId = parseInt(params.exerciseId);
 
-export default async function MovementPage({ params }: Props) {
-    const session = await getServerSession(authOptions);
-    if (!session || !session.user) {
-        redirect("/api/auth/signin");
-    }
+    const [data, setData] = useState<{
+        workoutExerciseId: number;
+        exerciseName: string;
+        muscleGroupName: string;
+        sets: ExerciseSet[];
+        allExercises: WorkoutExercise[];
+    } | null>(null);
+    const [loaded, setLoaded] = useState(false);
 
-    const { date, exerciseId } = await params;
-    const data = await getMovementScreenDataServer(date, parseInt(exerciseId));
+    useEffect(() => {
+        localGetMovementScreenData(date, exerciseId).then(d => {
+            if (d) {
+                setData({
+                    workoutExerciseId: d.workoutExerciseId,
+                    exerciseName: d.exerciseName,
+                    muscleGroupName: d.muscleGroupName,
+                    sets: d.sets,
+                    allExercises: d.allExercises,
+                });
+            }
+            setLoaded(true);
+        });
+    }, [date, exerciseId]);
+
+    if (!loaded) return null;
 
     if (!data) {
         return (
@@ -39,14 +59,8 @@ export default async function MovementPage({ params }: Props) {
             </div>
             <MovementScreen
                 date={date}
-                exerciseId={parseInt(exerciseId)}
-                initialData={{
-                    workoutExerciseId: data.workoutExerciseId,
-                    exerciseName: data.exerciseName,
-                    muscleGroupName: data.muscleGroupName,
-                    sets: data.sets,
-                    allExercises: data.allExercises,
-                }}
+                exerciseId={exerciseId}
+                initialData={data}
             />
         </main>
     );

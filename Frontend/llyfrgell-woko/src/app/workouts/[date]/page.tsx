@@ -1,23 +1,27 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/utils/authOptions";
-import { redirect } from "next/navigation";
-import { getWorkoutForDateServer } from "@/app/lib/workouts/server-data";
+"use client";
+
+import { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
+import { localGetWorkoutForDate } from "@/app/lib/workouts/local-data";
+import { WorkoutExercise } from "@/app/lib/workouts/types";
 import DayExerciseList from "@/app/ui/workouts/day-exercise-list";
 import Link from "next/link";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
-interface Props {
-    params: Promise<{ date: string }>;
-}
+export default function DayViewPage() {
+    const params = useParams<{ date: string }>();
+    const date = params.date;
+    const [workoutId, setWorkoutId] = useState<number | null>(null);
+    const [exercises, setExercises] = useState<WorkoutExercise[]>([]);
+    const [loaded, setLoaded] = useState(false);
 
-export default async function DayViewPage({ params }: Props) {
-    const session = await getServerSession(authOptions);
-    if (!session || !session.user) {
-        redirect("/api/auth/signin");
-    }
-
-    const { date } = await params;
-    const data = await getWorkoutForDateServer(date);
+    useEffect(() => {
+        localGetWorkoutForDate(date).then(data => {
+            setWorkoutId(data?.workout.id ?? null);
+            setExercises(data?.exercises ?? []);
+            setLoaded(true);
+        });
+    }, [date]);
 
     const displayDate = new Date(date + 'T00:00:00').toLocaleDateString("en-GB", {
         weekday: "long",
@@ -25,6 +29,8 @@ export default async function DayViewPage({ params }: Props) {
         month: "long",
         year: "numeric",
     });
+
+    if (!loaded) return null;
 
     return (
         <main className="p-4 max-w-2xl mx-auto">
@@ -42,8 +48,8 @@ export default async function DayViewPage({ params }: Props) {
 
             <DayExerciseList
                 date={date}
-                workoutId={data?.workout.id ?? null}
-                exercises={data?.exercises ?? []}
+                workoutId={workoutId}
+                exercises={exercises}
             />
         </main>
     );
