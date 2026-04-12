@@ -77,6 +77,7 @@ export default function MovementScreen({date, exerciseId, initialData}: Props) {
 
     const [calcWeight, setCalcWeight] = useState("");
     const [calcReps, setCalcReps] = useState("");
+    const [historyCalcSet, setHistoryCalcSet] = useState<{ weight: number; reps: number } | null>(null);
 
     const refreshSets = useCallback(async () => {
         const data = await localGetMovementScreenData(date, exerciseId);
@@ -312,7 +313,9 @@ export default function MovementScreen({date, exerciseId, initialData}: Props) {
                                     {entry.sets.map((s, i) => {
                                         const isPb = isPbSet(s);
                                         return (
-                                            <div key={s.id || i} className={`flex items-center gap-2 text-sm py-0.5 px-1 rounded ${isPb ? 'bg-amber-300/20' : setTypeBg(s.setType)}`}>
+                                            <div key={s.id || i}
+                                                 onClick={() => s.weight != null && s.reps != null && s.reps > 0 ? setHistoryCalcSet({weight: s.weight, reps: s.reps}) : undefined}
+                                                 className={`flex items-center gap-2 text-sm py-0.5 px-1 rounded ${isPb ? 'bg-amber-300/20' : setTypeBg(s.setType)} ${s.weight != null && s.reps != null ? 'cursor-pointer hover:bg-black/5' : ''}`}>
                                                 <span className="text-black/40 w-5 text-xs">{i + 1}.</span>
                                                 <span
                                                     className="text-black font-semibold w-10">{s.weight != null ? `${s.weight}` : '-'}</span>
@@ -338,6 +341,36 @@ export default function MovementScreen({date, exerciseId, initialData}: Props) {
                             )}
                         </div>
                     )}
+
+                    {historyCalcSet && (() => {
+                        const table = getRepMaxTable(historyCalcSet.weight, historyCalcSet.reps);
+                        const orm = calculateOneRepMax(historyCalcSet.weight, historyCalcSet.reps);
+                        return (
+                            <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/40" onClick={() => setHistoryCalcSet(null)}>
+                                <div className="bg-stone-50 w-72 p-4 shadow-xl" onClick={e => e.stopPropagation()}>
+                                    <div className="flex items-center justify-between mb-2">
+                                        <span className="text-black text-sm font-bold">{historyCalcSet.weight} × {historyCalcSet.reps}</span>
+                                        <button type="button" onClick={() => setHistoryCalcSet(null)} className="text-black/40 hover:text-black">
+                                            <CloseIcon sx={{fontSize: 18, color: 'inherit'}}/>
+                                        </button>
+                                    </div>
+                                    <div className="text-black text-sm font-bold mb-1">
+                                        Est. 1RM: {Math.round(orm * 10) / 10} kgs
+                                    </div>
+                                    <table className="w-full text-sm">
+                                        <tbody>
+                                        {table.map(row => (
+                                            <tr key={row.reps} className="border-b border-black/5">
+                                                <td className="py-0.5 text-black w-16">{row.reps} rep{row.reps !== 1 ? 's' : ''}</td>
+                                                <td className="py-0.5 text-black font-semibold">{row.weight} kgs</td>
+                                            </tr>
+                                        ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        );
+                    })()}
                 </div>
             )}
 
