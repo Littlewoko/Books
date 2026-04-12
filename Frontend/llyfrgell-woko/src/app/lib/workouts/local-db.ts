@@ -41,6 +41,7 @@ export interface LocalExerciseSet {
     tempo: string | null;
     notes: string | null;
     sortOrder: number;
+    setType: string;
 }
 
 export interface SyncQueueItem {

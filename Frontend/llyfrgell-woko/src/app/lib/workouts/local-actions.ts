@@ -1,4 +1,5 @@
 import {db, nextLocalId} from './local-db';
+import type {SetType} from './types';
 
 async function enqueue(action: 'INSERT' | 'UPDATE' | 'DELETE', table: string, recordId: number, payload: Record<string, unknown>) {
     await db.syncQueue.add({
@@ -68,7 +69,8 @@ export async function localAddSet(
     weight: number | null,
     weightUnit: string,
     reps: number | null,
-    notes?: string
+    notes?: string,
+    setType: SetType = 'working'
 ): Promise<number> {
     const existing = await db.exerciseSets.where('workoutExerciseId').equals(workoutExerciseId).toArray();
     const nextOrder = existing.length > 0 ? Math.max(...existing.map(s => s.sortOrder)) + 1 : 0;
@@ -86,6 +88,7 @@ export async function localAddSet(
         tempo: null,
         notes: notes || null,
         sortOrder: nextOrder,
+        setType,
     });
 
     // Update set count
@@ -98,7 +101,8 @@ export async function localAddSet(
         weightUnit,
         reps,
         notes: notes || null,
-        sortOrder: nextOrder
+        sortOrder: nextOrder,
+        setType,
     });
     return id;
 }
@@ -108,10 +112,11 @@ export async function localUpdateSet(
     weight: number | null,
     weightUnit: string,
     reps: number | null,
-    notes?: string
+    notes?: string,
+    setType: SetType = 'working'
 ) {
-    await db.exerciseSets.update(setId, {weight, weightUnit, reps, notes: notes || null});
-    await enqueue('UPDATE', 'exercise_set', setId, {weight, weightUnit, reps, notes: notes || null});
+    await db.exerciseSets.update(setId, {weight, weightUnit, reps, notes: notes || null, setType});
+    await enqueue('UPDATE', 'exercise_set', setId, {weight, weightUnit, reps, notes: notes || null, setType});
 }
 
 export async function localDeleteSet(setId: number) {

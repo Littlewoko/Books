@@ -1,5 +1,5 @@
 import {db} from './local-db';
-import type {ExerciseHistory, ExerciseSet, PersonalBest} from './types';
+import type {ExerciseHistory, ExerciseSet, PersonalBest, SetType} from './types';
 
 export async function localGetMuscleGroups() {
     return db.muscleGroups.orderBy('name').toArray();
@@ -65,6 +65,7 @@ export async function localGetSetsForWorkoutExercise(workoutExerciseId: number):
         tempo: s.tempo,
         notes: s.notes,
         sortOrder: s.sortOrder,
+        setType: (s.setType || 'working') as SetType,
     }));
 }
 
@@ -123,6 +124,7 @@ export async function localGetExerciseHistory(exerciseId: number, limit: number 
             tempo: s.tempo,
             notes: s.notes,
             sortOrder: s.sortOrder,
+            setType: (s.setType || 'working') as SetType,
         });
     }
 
@@ -167,6 +169,66 @@ export async function localGetPersonalBests(exerciseId: number): Promise<Persona
     return pbs;
 }
 
+export async function localGetPbSetIds(exerciseId: number): Promise<Set<number>> {
+    const wes = await db.workoutExercises.where('exerciseId').equals(exerciseId).toArray();
+    const weIds = wes.map(we => we.id);
+    const workoutIds = [...new Set(wes.map(we => we.workoutId))];
+
+    const workouts = await db.workouts.where('id').anyOf(workoutIds).toArray();
+    const workoutDateMap = new Map(workouts.map(w => [w.id, w.date]));
+    const weToWorkout = new Map(wes.map(we => [we.id, we.workoutId]));
+
+    const allSets = await db.exerciseSets.where('workoutExerciseId').anyOf(weIds).toArray();
+
+    const withDate = allSets
+        .filter(s => s.weight != null && s.reps != null)
+        .map(s => {
+            const workoutId = weToWorkout.get(s.workoutExerciseId);
+            return { id: s.id, weight: s.weight!, reps: s.reps!, date: workoutId ? workoutDateMap.get(workoutId) || '' : '', sortOrder: s.sortOrder };
+        });
+
+    // Step 1: Find the best weight for each rep count across ALL history
+    const bestWeightForReps = new Map<number, number>();
+    for (const s of withDate) {
+        const current = bestWeightForReps.get(s.reps) ?? 0;
+        if (s.weight > current) bestWeightForReps.set(s.reps, s.weight);
+    }
+
+    // Step 2: Build the Pareto frontier — keep only (reps, weight) pairs
+    // that aren't dominated by another pair with >= weight AND >= reps.
+    // Sort by reps ascending, then propagate max weight from higher reps down.
+    const repsAsc = [...bestWeightForReps.entries()].sort((a, b) => a[0] - b[0]);
+    const frontier = new Map<number, number>();
+    let maxWeightFromAbove = 0;
+
+    // Walk from highest reps down: the frontier weight at rep R is
+    // the actual best at R, but only if it's not beaten by a higher-rep entry
+    for (let i = repsAsc.length - 1; i >= 0; i--) {
+        const [reps, weight] = repsAsc[i];
+        if (weight > maxWeightFromAbove) {
+            frontier.set(reps, weight);
+        }
+        maxWeightFromAbove = Math.max(maxWeightFromAbove, weight);
+    }
+
+    // Step 3: Sort chronologically and find the FIRST set matching each frontier point
+    const sorted = withDate.sort((a, b) => a.date.localeCompare(b.date) || a.sortOrder - b.sortOrder);
+
+    const claimed = new Set<string>();
+    const pbIds = new Set<number>();
+
+    for (const s of sorted) {
+        const frontierWeight = frontier.get(s.reps);
+        if (frontierWeight === undefined || s.weight !== frontierWeight) continue;
+        const key = `${s.reps}-${s.weight}`;
+        if (claimed.has(key)) continue;
+        claimed.add(key);
+        pbIds.add(s.id);
+    }
+
+    return pbIds;
+}
+
 export async function localGetRecentExercises() {
     const workouts = await db.workouts.orderBy('date').reverse().limit(30).toArray();
     const workoutIds = workouts.map(w => w.id);
@@ -206,6 +268,7 @@ export async function localGetWeeklyVolume(weekStart: string, weekEnd: string): 
     const weToMg = new Map(wes.map(we => [we.id, we.muscleGroupName]));
     const counts = new Map<string, number>();
     for (const s of sets) {
+        if (s.setType === 'warmup') continue;
         const mg = weToMg.get(s.workoutExerciseId);
         if (mg) counts.set(mg, (counts.get(mg) || 0) + 1);
     }
@@ -226,6 +289,7 @@ export async function localGetDayVolume(date: string): Promise<{ muscleGroup: st
     const weToMg = new Map(wes.map(we => [we.id, we.muscleGroupName]));
     const counts = new Map<string, number>();
     for (const s of sets) {
+        if (s.setType === 'warmup') continue;
         const mg = weToMg.get(s.workoutExerciseId);
         if (mg) counts.set(mg, (counts.get(mg) || 0) + 1);
     }

@@ -29,6 +29,8 @@ export type WorkoutExercise = {
     setCount?: number;
 };
 
+export type SetType = 'warmup' | 'working' | 'amrap';
+
 export type ExerciseSet = {
     id?: number;
     workoutExerciseId: number;
@@ -41,6 +43,7 @@ export type ExerciseSet = {
     tempo?: string | null;
     notes?: string | null;
     sortOrder: number;
+    setType?: SetType;
 };
 
 export type ExerciseHistory = {

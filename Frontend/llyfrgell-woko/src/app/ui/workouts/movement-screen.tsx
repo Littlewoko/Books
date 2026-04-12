@@ -1,12 +1,13 @@
 "use client";
 
 import {useCallback, useEffect, useState} from "react";
-import {ExerciseHistory, ExerciseSet, PersonalBest, WorkoutExercise} from "@/app/lib/workouts/types";
+import {ExerciseHistory, ExerciseSet, PersonalBest, SetType, WorkoutExercise} from "@/app/lib/workouts/types";
 import {localAddSet, localDeleteSet, localUpdateSet} from "@/app/lib/workouts/local-actions";
 import {
     localGetExerciseHistory,
     localGetMovementScreenData,
-    localGetPersonalBests
+    localGetPersonalBests,
+    localGetPbSetIds
 } from "@/app/lib/workouts/local-data";
 import {calculateOneRepMax, getRepMaxTable} from "@/app/lib/workouts/calculator";
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
@@ -60,16 +61,19 @@ export default function MovementScreen({date, exerciseId, initialData}: Props) {
     const [historyLimit, setHistoryLimit] = useState(5);
     const [hasMoreHistory, setHasMoreHistory] = useState(false);
     const [loadedPbs, setLoadedPbs] = useState(false);
+    const [pbSetIds, setPbSetIds] = useState<Set<number>>(new Set());
 
     const [newWeight, setNewWeight] = useState("");
     const [newReps, setNewReps] = useState("");
     const [newNotes, setNewNotes] = useState("");
+    const [newSetType, setNewSetType] = useState<SetType>("working");
     const [adding, setAdding] = useState(false);
 
     const [editingId, setEditingId] = useState<number | null>(null);
     const [editWeight, setEditWeight] = useState("");
     const [editReps, setEditReps] = useState("");
     const [editNotes, setEditNotes] = useState("");
+    const [editSetType, setEditSetType] = useState<SetType>("working");
 
     const [calcWeight, setCalcWeight] = useState("");
     const [calcReps, setCalcReps] = useState("");
@@ -87,18 +91,22 @@ export default function MovementScreen({date, exerciseId, initialData}: Props) {
                 setLoadedHistory(true);
             });
         }
-        if ((tab === "pbs" || tab === "calc") && !loadedPbs) {
-            localGetPersonalBests(exerciseId).then(p => {
+    }, [tab, exerciseId, loadedHistory, historyLimit]);
+
+    useEffect(() => {
+        if (!loadedPbs) {
+            Promise.all([localGetPersonalBests(exerciseId), localGetPbSetIds(exerciseId)]).then(([p, ids]) => {
                 setPbs(p);
+                setPbSetIds(ids);
                 setLoadedPbs(true);
             });
         }
-    }, [tab, exerciseId, loadedHistory, loadedPbs, historyLimit]);
+    }, [exerciseId, loadedPbs]);
 
     const handleAddSet = async () => {
         if (!newWeight && !newReps) return;
         setAdding(true);
-        await localAddSet(initialData.workoutExerciseId, newWeight ? parseFloat(newWeight) : null, "kgs", newReps ? parseInt(newReps) : null, newNotes || undefined);
+        await localAddSet(initialData.workoutExerciseId, newWeight ? parseFloat(newWeight) : null, "kgs", newReps ? parseInt(newReps) : null, newNotes || undefined, newSetType);
         setNewWeight("");
         setNewReps("");
         setNewNotes("");
@@ -114,11 +122,12 @@ export default function MovementScreen({date, exerciseId, initialData}: Props) {
         setEditWeight(s.weight != null ? String(s.weight) : "");
         setEditReps(s.reps != null ? String(s.reps) : "");
         setEditNotes(s.notes || "");
+        setEditSetType((s.setType || 'working') as SetType);
     };
 
     const handleSaveEdit = async () => {
         if (editingId == null) return;
-        await localUpdateSet(editingId, editWeight ? parseFloat(editWeight) : null, "kgs", editReps ? parseInt(editReps) : null, editNotes || undefined);
+        await localUpdateSet(editingId, editWeight ? parseFloat(editWeight) : null, "kgs", editReps ? parseInt(editReps) : null, editNotes || undefined, editSetType);
         setEditingId(null);
         await refreshSets();
         setLoadedHistory(false);
@@ -140,12 +149,26 @@ export default function MovementScreen({date, exerciseId, initialData}: Props) {
         for (const pb of pbs) pbMap.set(`${pb.reps}-${pb.weight}`, true);
     }
 
+    const isPbSet = (s: ExerciseSet) => s.id != null && pbSetIds.has(s.id);
+
     const calcTable = calcWeight && calcReps ? getRepMaxTable(parseFloat(calcWeight), parseInt(calcReps)) : [];
     const collapsedPbs = collapsePbs(pbs);
 
     const formatDate = (dateStr: string) => {
         const [y, m, d] = dateStr.split('-').map(Number);
         return new Date(y, m - 1, d).toLocaleDateString("en-GB", {day: "numeric", month: "short", year: "numeric"});
+    };
+
+    const setTypeDisplay = (t?: SetType | string) => {
+        if (t === 'warmup') return 'Warmup';
+        if (t === 'amrap') return 'AMRAP';
+        return 'Working set';
+    };
+
+    const setTypeBg = (t?: SetType | string) => {
+        if (t === 'warmup') return '';
+        if (t === 'amrap') return 'bg-red-500/10';
+        return 'bg-blue-500/10';
     };
 
     const tabClass = (t: Tab) =>
@@ -173,9 +196,10 @@ export default function MovementScreen({date, exerciseId, initialData}: Props) {
                         <table className="w-full text-sm mb-3">
                             <thead>
                             <tr className="text-left text-amber-700 text-xs font-bold">
-                                <th className="py-1 w-6">#</th>
+                                <th className="py-1 px-1 w-6">#</th>
                                 <th className="py-1">Weight</th>
                                 <th className="py-1">Reps</th>
+                                <th className="py-1">Type</th>
                                 <th className="py-1">Notes</th>
                                 <th className="py-1 w-14"></th>
                             </tr>
@@ -194,6 +218,14 @@ export default function MovementScreen({date, exerciseId, initialData}: Props) {
                                         <td className="py-1 pr-1"><input type="text" value={editNotes}
                                                                          onChange={e => setEditNotes(e.target.value)}
                                                                          className={inputClass}/></td>
+                                        <td className="py-1">
+                                            <select value={editSetType} onChange={e => setEditSetType(e.target.value as SetType)}
+                                                    className="bg-transparent text-black text-xs py-0.5 focus:outline-none">
+                                                <option value="working">Working set</option>
+                                                <option value="warmup">Warmup</option>
+                                                <option value="amrap">AMRAP</option>
+                                            </select>
+                                        </td>
                                         <td className="py-1 flex gap-0.5">
                                             <button type="button" onClick={handleSaveEdit}
                                                     className="text-green-600 p-0.5"><CheckIcon
@@ -204,10 +236,18 @@ export default function MovementScreen({date, exerciseId, initialData}: Props) {
                                         </td>
                                     </tr>
                                 ) : (
-                                    <tr key={s.id} className="border-b border-black/5">
-                                        <td className="py-1.5 text-black/50">{i + 1}</td>
+                                    <tr key={s.id} className={`border-b border-black/5 ${isPbSet(s) ? 'bg-amber-300/20' : setTypeBg(s.setType)}`}>
+                                        <td className="py-1.5 pl-1 text-black/50">{i + 1}</td>
                                         <td className="py-1.5 text-black font-semibold">{s.weight != null ? `${s.weight} ${s.weightUnit}` : '-'}</td>
                                         <td className="py-1.5 text-black font-semibold">{s.reps ?? '-'}</td>
+                                        <td className="py-1.5 text-black/60 text-xs">
+                                            <span className="flex items-center gap-1">
+                                                {setTypeDisplay(s.setType)}
+                                                {isPbSet(s) && (
+                                                    <EmojiEventsIcon sx={{fontSize: 12, color: '#b45309'}}/>
+                                                )}
+                                            </span>
+                                        </td>
                                         <td className="py-1.5 text-black/60 text-xs">{s.notes || ''}</td>
                                         <td className="py-1.5 flex gap-0.5">
                                             <button type="button" onClick={() => startEdit(s)}
@@ -224,7 +264,7 @@ export default function MovementScreen({date, exerciseId, initialData}: Props) {
                         </table>
                     )}
 
-                    <div className="grid grid-cols-[1fr_1fr_1fr_auto] gap-2 items-end">
+                    <div className="grid grid-cols-[1fr_1fr_1fr_auto_auto] gap-2 items-end">
                         <div>
                             <label className="text-amber-700 text-xs font-semibold">Kg</label>
                             <input type="number" value={newWeight} onChange={e => setNewWeight(e.target.value)}
@@ -239,6 +279,15 @@ export default function MovementScreen({date, exerciseId, initialData}: Props) {
                             <label className="text-amber-700 text-xs font-semibold">Notes</label>
                             <input type="text" value={newNotes} onChange={e => setNewNotes(e.target.value)}
                                    className={inputClass}/>
+                        </div>
+                        <div>
+                            <label className="text-amber-700 text-xs font-semibold">Type</label>
+                            <select value={newSetType} onChange={e => setNewSetType(e.target.value as SetType)}
+                                    className="w-full bg-transparent border-b-2 border-black/20 text-black text-sm py-1 focus:outline-none focus:border-amber-600">
+                                <option value="working">Working set</option>
+                                <option value="warmup">Warmup</option>
+                                <option value="amrap">AMRAP</option>
+                            </select>
                         </div>
                         <button type="button" onClick={handleAddSet} disabled={adding || (!newWeight && !newReps)}
                                 className="text-amber-700 font-bold text-sm py-1 px-2 disabled:text-black/20 hover:text-amber-800">+
@@ -261,14 +310,15 @@ export default function MovementScreen({date, exerciseId, initialData}: Props) {
                                     <div
                                         className="text-amber-700 text-xs font-bold mb-0.5">{formatDate(entry.date)}</div>
                                     {entry.sets.map((s, i) => {
-                                        const isPb = s.weight != null && s.reps != null && pbMap.has(`${s.reps}-${s.weight}`);
+                                        const isPb = isPbSet(s);
                                         return (
-                                            <div key={s.id || i} className="flex items-center gap-2 text-sm py-0.5">
+                                            <div key={s.id || i} className={`flex items-center gap-2 text-sm py-0.5 px-1 rounded ${isPb ? 'bg-amber-300/20' : setTypeBg(s.setType)}`}>
                                                 <span className="text-black/40 w-5 text-xs">{i + 1}.</span>
                                                 <span
-                                                    className="text-black font-semibold">{s.weight != null ? `${s.weight}` : '-'}</span>
+                                                    className="text-black font-semibold w-10">{s.weight != null ? `${s.weight}` : '-'}</span>
                                                 <span className="text-black/40">×</span>
-                                                <span className="text-black font-semibold">{s.reps ?? '-'}</span>
+                                                <span className="text-black font-semibold w-6">{s.reps ?? '-'}</span>
+                                                <span className="text-black/40 text-xs w-20">{setTypeDisplay(s.setType)}</span>
                                                 {isPb && <EmojiEventsIcon sx={{fontSize: 12, color: '#b45309'}}/>}
                                                 {s.notes &&
                                                     <span className="text-black/50 text-xs ml-auto">{s.notes}</span>}

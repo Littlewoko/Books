@@ -138,7 +138,8 @@ async function processItem(action: string, table: string, recordId: number, payl
                     payload.weight as number | null,
                     payload.weightUnit as string,
                     payload.reps as number | null,
-                    payload.notes as string | undefined
+                    payload.notes as string | undefined,
+                    payload.setType as string | undefined
                 );
                 await mapId(table, recordId, serverId);
                 break;
@@ -152,7 +153,8 @@ async function processItem(action: string, table: string, recordId: number, payl
                     payload.weight as number | null,
                     payload.weightUnit as string,
                     payload.reps as number | null,
-                    payload.notes as string | undefined
+                    payload.notes as string | undefined,
+                    payload.setType as string | undefined
                 );
                 break;
         }
@@ -204,7 +206,8 @@ export async function hydrateChunk(data: {
         duration: number | null;
         tempo: string | null;
         notes: string | null;
-        sortOrder: number
+        sortOrder: number;
+        setType: string;
     }[];
 }, isFirstChunk: boolean) {
     await db.transaction('rw', [db.muscleGroups, db.exercises, db.workouts, db.workoutExercises, db.exerciseSets, db.idMap, db.syncQueue, db.syncMeta], async () => {

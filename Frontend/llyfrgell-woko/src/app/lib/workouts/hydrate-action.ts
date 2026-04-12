@@ -63,7 +63,8 @@ export async function getHydrationChunk(beforeDate?: string) {
         if (weIds.length > 0) {
             const setResult = await sql.query(
                 `SELECT id, workout_exercise_id, weight, weight_unit, reps,
-                        distance, distance_unit, duration, tempo, notes, sort_order
+                        distance, distance_unit, duration, tempo, notes, sort_order,
+                        COALESCE(set_type, 'working') AS set_type
                  FROM exercise_set
                  WHERE workout_exercise_id = ANY($1)
                  ORDER BY sort_order`,
@@ -87,6 +88,7 @@ export async function getHydrationChunk(beforeDate?: string) {
             reps: r.reps, distance: r.distance ? parseFloat(r.distance) : null,
             distanceUnit: r.distance_unit, duration: r.duration, tempo: r.tempo,
             notes: r.notes, sortOrder: r.sort_order,
+            setType: r.set_type,
         })),
         hasMore: wResult.rows.length > 0,
         nextBeforeDate: startDate,

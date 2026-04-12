@@ -134,7 +134,7 @@ export async function reorderWorkoutExercises(orderedIds: number[]) {
 
 // -- Sets --
 
-export async function addSet(workoutExerciseId: number, weight: number | null, weightUnit: string, reps: number | null, notes?: string) {
+export async function addSet(workoutExerciseId: number, weight: number | null, weightUnit: string, reps: number | null, notes?: string, setType: string = 'working') {
     await ProtectRoute();
     const userId = await getSessionUserId();
 
@@ -152,21 +152,21 @@ export async function addSet(workoutExerciseId: number, weight: number | null, w
     `;
 
     const result = await sql`
-        INSERT INTO exercise_set (workout_exercise_id, weight, weight_unit, reps, notes, sort_order)
-        VALUES (${workoutExerciseId}, ${weight}, ${weightUnit}, ${reps}, ${notes ?? null}, ${maxOrder.rows[0].next_order})
+        INSERT INTO exercise_set (workout_exercise_id, weight, weight_unit, reps, notes, sort_order, set_type)
+        VALUES (${workoutExerciseId}, ${weight}, ${weightUnit}, ${reps}, ${notes ?? null}, ${maxOrder.rows[0].next_order}, ${setType})
         RETURNING id;
     `;
     revalidatePath('/workouts');
     return result.rows[0].id as number;
 }
 
-export async function updateSet(setId: number, weight: number | null, weightUnit: string, reps: number | null, notes?: string) {
+export async function updateSet(setId: number, weight: number | null, weightUnit: string, reps: number | null, notes?: string, setType: string = 'working') {
     await ProtectRoute();
     const userId = await getSessionUserId();
 
     await sql`
         UPDATE exercise_set es
-        SET weight = ${weight}, weight_unit = ${weightUnit}, reps = ${reps}, notes = ${notes ?? null}
+        SET weight = ${weight}, weight_unit = ${weightUnit}, reps = ${reps}, notes = ${notes ?? null}, set_type = ${setType}
         FROM workout_exercise we, workout w
         WHERE es.id = ${setId} AND es.workout_exercise_id = we.id AND we.workout_id = w.id AND w.user_id = ${userId};
     `;
