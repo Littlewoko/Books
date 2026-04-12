@@ -10,6 +10,9 @@ declare global {
 
 declare const self: ServiceWorkerGlobalScope & typeof globalThis;
 
+const WORKOUT_SHELL_CACHE = "workout-shell";
+const WORKOUT_SHELL_URL = "/workouts";
+
 const pageHandler = new NetworkFirst({
     cacheName: "pages",
     networkTimeoutSeconds: 3,
@@ -26,25 +29,13 @@ const serwist = new Serwist({
             handler: {
                 handle: async (params) => {
                     try {
-                        // Try network first for the exact URL
-                        const response = await pageHandler.handle(params);
-                        return response;
+                        return await pageHandler.handle(params);
                     } catch (e) {
-                        // Offline: try exact URL from cache
-                        const exactMatch = await caches.match(params.request);
-                        if (exactMatch) return exactMatch;
-
-                        // Fall back to any cached /workouts page as the shell
-                        // The client-side router will read the actual URL from the browser
-                        // and render the correct page from IndexedDB
-                        const cache = await caches.open("pages");
-                        const keys = await cache.keys();
-                        for (const key of keys) {
-                            if (new URL(key.url).pathname.startsWith("/workouts")) {
-                                const fallback = await cache.match(key);
-                                if (fallback) return fallback;
-                            }
-                        }
+                        // Offline: serve the workout shell for ANY /workouts/* route
+                        // WorkoutRouter reads usePathname() from the real browser URL
+                        // and renders the correct view from IndexedDB
+                        const shell = await caches.match(WORKOUT_SHELL_URL);
+                        if (shell) return shell;
                         throw e;
                     }
                 },
@@ -60,14 +51,26 @@ const serwist = new Serwist({
 
 serwist.addEventListeners();
 
-// Pre-cache workout routes on install
+// Cache the workout shell on install AND activate (handles SW updates)
+async function cacheWorkoutShell() {
+    const cache = await caches.open(WORKOUT_SHELL_CACHE);
+    try {
+        await cache.add(WORKOUT_SHELL_URL);
+        // Also copy to the pages cache so the fallback matcher finds it
+        const response = await cache.match(WORKOUT_SHELL_URL);
+        if (response) {
+            const pagesCache = await caches.open("pages");
+            await pagesCache.put(WORKOUT_SHELL_URL, response);
+        }
+    } catch (e) {
+        // May fail if offline during install — that's ok, will retry on activate
+    }
+}
+
 self.addEventListener("install", (event) => {
-    event.waitUntil(
-        caches.open("pages").then((cache) =>
-            cache.addAll([
-                "/workouts",
-                "/workouts/exercises",
-            ])
-        )
-    );
+    event.waitUntil(cacheWorkoutShell());
+});
+
+self.addEventListener("activate", (event) => {
+    event.waitUntil(cacheWorkoutShell());
 });

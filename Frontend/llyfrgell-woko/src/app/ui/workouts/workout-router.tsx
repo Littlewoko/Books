@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { useState, useEffect } from "react";
 import WorkoutCalendar from "./workout-calendar";
 import DayView from "./day-view";
 import MovementView from "./movement-view";
@@ -8,6 +9,13 @@ import ExerciseManagerView from "./exercise-manager";
 
 export default function WorkoutRouter() {
     const pathname = usePathname();
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => { setMounted(true); }, []);
+
+    // Before mount, render nothing to avoid hydration mismatch
+    // when service worker serves /workouts shell for a different route
+    if (!mounted) return null;
 
     // /workouts/exercises
     if (pathname === "/workouts/exercises") {
