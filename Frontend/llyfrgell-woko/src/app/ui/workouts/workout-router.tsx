@@ -32,13 +32,13 @@ export default function WorkoutRouter() {
     // /workouts/[date]/[exerciseId]
     const movementMatch = pathname.match(/^\/workouts\/(\d{4}-\d{2}-\d{2})\/(\d+)$/);
     if (movementMatch) {
-        return <MovementView date={movementMatch[1]} exerciseId={parseInt(movementMatch[2])} />;
+        return <MovementView key={`${movementMatch[1]}-${movementMatch[2]}`} date={movementMatch[1]} exerciseId={parseInt(movementMatch[2])} />;
     }
 
     // /workouts/[date]
     const dayMatch = pathname.match(/^\/workouts\/(\d{4}-\d{2}-\d{2})$/);
     if (dayMatch) {
-        return <DayView date={dayMatch[1]} />;
+        return <DayView key={dayMatch[1]} date={dayMatch[1]} />;
     }
 
     // /workouts (calendar)

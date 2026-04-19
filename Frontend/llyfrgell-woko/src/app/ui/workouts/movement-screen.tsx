@@ -6,8 +6,8 @@ import {localAddSet, localDeleteSet, localUpdateSet} from "@/app/lib/workouts/lo
 import {
     localGetExerciseHistory,
     localGetMovementScreenData,
-    localGetPersonalBests,
-    localGetPbSetIds
+    localGetPbSetIds,
+    localGetPersonalBests
 } from "@/app/lib/workouts/local-data";
 import {calculateOneRepMax, getRepMaxTable} from "@/app/lib/workouts/calculator";
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
@@ -216,17 +216,18 @@ export default function MovementScreen({date, exerciseId, initialData}: Props) {
                                         <td className="py-1 pr-1"><input type="number" value={editReps}
                                                                          onChange={e => setEditReps(e.target.value)}
                                                                          className={inputClass}/></td>
-                                        <td className="py-1 pr-1"><input type="text" value={editNotes}
-                                                                         onChange={e => setEditNotes(e.target.value)}
-                                                                         className={inputClass}/></td>
-                                        <td className="py-1">
-                                            <select value={editSetType} onChange={e => setEditSetType(e.target.value as SetType)}
+                                        <td className="py-1 pr-1">
+                                            <select value={editSetType}
+                                                    onChange={e => setEditSetType(e.target.value as SetType)}
                                                     className="bg-transparent text-black text-xs py-0.5 focus:outline-none">
                                                 <option value="working">Working set</option>
                                                 <option value="warmup">Warmup</option>
                                                 <option value="amrap">AMRAP</option>
                                             </select>
                                         </td>
+                                        <td className="py-1 pr-1"><input type="text" value={editNotes}
+                                                                         onChange={e => setEditNotes(e.target.value)}
+                                                                         className={inputClass}/></td>
                                         <td className="py-1 flex gap-0.5">
                                             <button type="button" onClick={handleSaveEdit}
                                                     className="text-green-600 p-0.5"><CheckIcon
@@ -237,7 +238,8 @@ export default function MovementScreen({date, exerciseId, initialData}: Props) {
                                         </td>
                                     </tr>
                                 ) : (
-                                    <tr key={s.id} className={`border-b border-black/5 ${isPbSet(s) ? 'bg-amber-300/20' : setTypeBg(s.setType)}`}>
+                                    <tr key={s.id}
+                                        className={`border-b border-black/5 ${isPbSet(s) ? 'bg-amber-300/20' : setTypeBg(s.setType)}`}>
                                         <td className="py-1.5 pl-1 text-black/50">{i + 1}</td>
                                         <td className="py-1.5 text-black font-semibold">{s.weight != null ? `${s.weight} ${s.weightUnit}` : '-'}</td>
                                         <td className="py-1.5 text-black font-semibold">{s.reps ?? '-'}</td>
@@ -314,14 +316,18 @@ export default function MovementScreen({date, exerciseId, initialData}: Props) {
                                         const isPb = isPbSet(s);
                                         return (
                                             <div key={s.id || i}
-                                                 onClick={() => s.weight != null && s.reps != null && s.reps > 0 ? setHistoryCalcSet({weight: s.weight, reps: s.reps}) : undefined}
+                                                 onClick={() => s.weight != null && s.reps != null && s.reps > 0 ? setHistoryCalcSet({
+                                                     weight: s.weight,
+                                                     reps: s.reps
+                                                 }) : undefined}
                                                  className={`flex items-center gap-2 text-sm py-0.5 px-1 rounded ${isPb ? 'bg-amber-300/20' : setTypeBg(s.setType)} ${s.weight != null && s.reps != null ? 'cursor-pointer hover:bg-black/5' : ''}`}>
                                                 <span className="text-black/40 w-5 text-xs">{i + 1}.</span>
                                                 <span
                                                     className="text-black font-semibold w-10">{s.weight != null ? `${s.weight}` : '-'}</span>
                                                 <span className="text-black/40">×</span>
                                                 <span className="text-black font-semibold w-6">{s.reps ?? '-'}</span>
-                                                <span className="text-black/40 text-xs w-20">{setTypeDisplay(s.setType)}</span>
+                                                <span
+                                                    className="text-black/40 text-xs w-20">{setTypeDisplay(s.setType)}</span>
                                                 {isPb && <EmojiEventsIcon sx={{fontSize: 12, color: '#b45309'}}/>}
                                                 {s.notes &&
                                                     <span className="text-black/50 text-xs ml-auto">{s.notes}</span>}
@@ -346,11 +352,14 @@ export default function MovementScreen({date, exerciseId, initialData}: Props) {
                         const table = getRepMaxTable(historyCalcSet.weight, historyCalcSet.reps);
                         const orm = calculateOneRepMax(historyCalcSet.weight, historyCalcSet.reps);
                         return (
-                            <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/40" onClick={() => setHistoryCalcSet(null)}>
+                            <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/40"
+                                 onClick={() => setHistoryCalcSet(null)}>
                                 <div className="bg-stone-50 w-72 p-4 shadow-xl" onClick={e => e.stopPropagation()}>
                                     <div className="flex items-center justify-between mb-2">
-                                        <span className="text-black text-sm font-bold">{historyCalcSet.weight} × {historyCalcSet.reps}</span>
-                                        <button type="button" onClick={() => setHistoryCalcSet(null)} className="text-black/40 hover:text-black">
+                                        <span
+                                            className="text-black text-sm font-bold">{historyCalcSet.weight} × {historyCalcSet.reps}</span>
+                                        <button type="button" onClick={() => setHistoryCalcSet(null)}
+                                                className="text-black/40 hover:text-black">
                                             <CloseIcon sx={{fontSize: 18, color: 'inherit'}}/>
                                         </button>
                                     </div>

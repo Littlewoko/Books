@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import {useCallback, useEffect, useState} from "react";
 import TimerIcon from '@mui/icons-material/Timer';
 import CloseIcon from '@mui/icons-material/Close';
 
@@ -21,8 +21,7 @@ function getRemaining(): number {
 export default function RestTimer() {
     const [remaining, setRemaining] = useState(0);
     const [modalOpen, setModalOpen] = useState(false);
-    const [inputMinutes, setInputMinutes] = useState("1");
-    const [inputSeconds, setInputSeconds] = useState("30");
+    const [inputTotal, setInputTotal] = useState("90");
 
     const refresh = useCallback(() => setRemaining(getRemaining()), []);
 
@@ -42,14 +41,17 @@ export default function RestTimer() {
                 localStorage.removeItem(STORAGE_KEY);
                 try {
                     if (Notification.permission === "granted") {
-                        new Notification("Rest over", { body: "Time to go again" });
+                        new Notification("Rest over", {body: "Time to go again"});
                     }
-                } catch {}
+                } catch {
+                }
             }
         };
 
         const interval = setInterval(tick, 1000);
-        const onVisible = () => { if (document.visibilityState === "visible") tick(); };
+        const onVisible = () => {
+            if (document.visibilityState === "visible") tick();
+        };
         document.addEventListener("visibilitychange", onVisible);
 
         return () => {
@@ -60,15 +62,13 @@ export default function RestTimer() {
 
     const handleOpen = () => {
         if (remaining === 0) {
-            const saved = parseInt(localStorage.getItem(DURATION_KEY) || "90");
-            setInputMinutes(String(Math.floor(saved / 60)));
-            setInputSeconds(String(saved % 60));
+            setInputTotal(localStorage.getItem(DURATION_KEY) || "90");
         }
         setModalOpen(true);
     };
 
     const handleStart = () => {
-        const totalSeconds = (parseInt(inputMinutes) || 0) * 60 + (parseInt(inputSeconds) || 0);
+        const totalSeconds = parseInt(inputTotal) || 0;
         if (totalSeconds <= 0) return;
         localStorage.setItem(DURATION_KEY, String(totalSeconds));
         localStorage.setItem(STORAGE_KEY, String(Date.now() + totalSeconds * 1000));
@@ -90,49 +90,51 @@ export default function RestTimer() {
     return (
         <>
             <button type="button" onClick={handleOpen} className="flex items-center gap-1">
-                <TimerIcon sx={{ fontSize: 16, color: isActive ? undefined : 'inherit' }}
-                    className={isActive ? timerColor : "text-amber-100/50 hover:text-amber-100"} />
+                <TimerIcon sx={{fontSize: 16, color: isActive ? undefined : 'inherit'}}
+                           className={isActive ? timerColor : "text-amber-100/50 hover:text-amber-100"}/>
                 {isActive && (
-                    <span className={`${timerColor} text-sm`} style={{ fontFamily: 'var(--font-geist-mono)', fontSize: '14px' }}>
+                    <span className={`${timerColor} text-sm`}
+                          style={{fontFamily: 'var(--font-geist-mono)', fontSize: '14px'}}>
                         {formatTime(remaining)}
                     </span>
                 )}
             </button>
 
             {modalOpen && (
-                <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/40" onClick={() => setModalOpen(false)}>
+                <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/40"
+                     onClick={() => setModalOpen(false)}>
                     <div className="bg-stone-50 w-64 p-4 shadow-xl" onClick={e => e.stopPropagation()}>
                         <div className="flex items-center justify-between mb-3">
                             <span className="text-black text-sm font-bold">Rest Timer</span>
-                            <button type="button" onClick={() => setModalOpen(false)} className="text-black/40 hover:text-black">
-                                <CloseIcon sx={{ fontSize: 18, color: 'inherit' }} />
+                            <button type="button" onClick={() => setModalOpen(false)}
+                                    className="text-black/40 hover:text-black">
+                                <CloseIcon sx={{fontSize: 18, color: 'inherit'}}/>
                             </button>
                         </div>
 
                         {isActive ? (
                             <div className="text-center">
-                                <div className={`text-3xl font-bold mb-3 ${remaining <= 10 ? 'text-red-600' : 'text-black'}`}
-                                    style={{ fontFamily: 'var(--font-geist-mono)' }}>
+                                <div
+                                    className={`text-3xl font-bold mb-3 ${remaining <= 10 ? 'text-red-600' : 'text-black'}`}
+                                    style={{fontFamily: 'var(--font-geist-mono)'}}>
                                     {formatTime(remaining)}
                                 </div>
                                 <button type="button" onClick={handleStop}
-                                    className="text-red-600 font-bold text-sm hover:text-red-700">
+                                        className="text-red-600 font-bold text-sm hover:text-red-700">
                                     Stop
                                 </button>
                             </div>
                         ) : (
                             <div>
                                 <div className="flex items-center gap-1 mb-3 justify-center">
-                                    <input type="number" value={inputMinutes} onChange={e => setInputMinutes(e.target.value)}
-                                        min="0" max="59"
-                                        className="w-14 bg-transparent border-b-2 border-black/20 text-black text-center text-lg font-bold py-1 focus:outline-none focus:border-amber-600" />
-                                    <span className="text-black font-bold text-lg">:</span>
-                                    <input type="number" value={inputSeconds} onChange={e => setInputSeconds(e.target.value)}
-                                        min="0" max="59"
-                                        className="w-14 bg-transparent border-b-2 border-black/20 text-black text-center text-lg font-bold py-1 focus:outline-none focus:border-amber-600" />
+                                    <input type="number" value={inputTotal}
+                                           onChange={e => setInputTotal(e.target.value)}
+                                           min="1"
+                                           className="w-20 bg-transparent border-b-2 border-black/20 text-black text-center text-lg font-bold py-1 focus:outline-none focus:border-amber-600"/>
+                                    <span className="text-black/50 text-sm">sec</span>
                                 </div>
                                 <button type="button" onClick={handleStart}
-                                    className="w-full text-amber-700 font-bold text-sm hover:text-amber-800 py-1">
+                                        className="w-full text-amber-700 font-bold text-sm hover:text-amber-800 py-1">
                                     Start
                                 </button>
                             </div>
