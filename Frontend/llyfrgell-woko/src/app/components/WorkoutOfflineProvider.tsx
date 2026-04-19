@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import { localIsHydrated, localGetSyncMeta, localSetSyncMeta } from "@/app/lib/workouts/local-data";
 import { hydrateChunk, startAutoSync, stopAutoSync, getPendingSyncCount, flushSyncQueue } from "@/app/lib/workouts/sync";
 import { getHydrationChunk } from "@/app/lib/workouts/hydrate-action";
-import { getRecentWorkoutRoutes } from "@/app/lib/workouts/route-cache-action";
+
 import { invalidateColourCache } from "@/app/lib/workouts/muscle-group-colours";
 
 const STALE_THRESHOLD_MS = 60 * 60 * 1000; // 1 hour
@@ -71,20 +71,7 @@ export default function WorkoutOfflineProvider({ children }: { children: ReactNo
 
         invalidateColourCache();
 
-        // Cache HTML routes for offline access
-        if (navigator.onLine) {
-            try {
-                const routes = await getRecentWorkoutRoutes();
-                const cache = await caches.open('pages');
-                // Cache in small batches to avoid overwhelming the server
-                for (let i = 0; i < routes.length; i += 10) {
-                    const batch = routes.slice(i, i + 10);
-                    await Promise.allSettled(batch.map(url => cache.add(url)));
-                }
-            } catch (e) {
-                // Non-blocking — offline will still work for visited pages
-            }
-        }
+
     }, [session?.user?.id]);
 
     useEffect(() => {
