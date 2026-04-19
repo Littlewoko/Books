@@ -238,12 +238,18 @@ export async function hydrateChunk(data: {
 
 // Auto-sync: flush when online, retry periodically
 let syncInterval: ReturnType<typeof setInterval> | null = null;
+let syncing = false;
 
 const trySync = async () => {
-    if (!navigator.onLine) return;
-    const count = await getPendingSyncCount();
-    if (count > 0) {
-        await flushSyncQueue();
+    if (!navigator.onLine || syncing) return;
+    syncing = true;
+    try {
+        const count = await getPendingSyncCount();
+        if (count > 0) {
+            await flushSyncQueue();
+        }
+    } finally {
+        syncing = false;
     }
 };
 
@@ -254,7 +260,7 @@ const onVisibilityChange = () => {
 export function startAutoSync() {
     window.addEventListener('online', trySync);
     document.addEventListener('visibilitychange', onVisibilityChange);
-    syncInterval = setInterval(trySync, 5000);
+    syncInterval = setInterval(trySync, 30000);
     trySync();
 }
 
@@ -265,4 +271,9 @@ export function stopAutoSync() {
     }
     window.removeEventListener('online', trySync);
     document.removeEventListener('visibilitychange', onVisibilityChange);
+}
+
+// Call after a local write to sync promptly without waiting for the interval
+export function requestSync() {
+    setTimeout(trySync, 500);
 }
