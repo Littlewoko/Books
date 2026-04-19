@@ -160,7 +160,7 @@ export default function WorkoutOfflineProvider({ children }: { children: ReactNo
         if (!isHydrated) return;
         const interval = setInterval(async () => {
             setPendingSyncs(await getPendingSyncCount());
-        }, 5000);
+        }, 3000);
         return () => clearInterval(interval);
     }, [isHydrated]);
 

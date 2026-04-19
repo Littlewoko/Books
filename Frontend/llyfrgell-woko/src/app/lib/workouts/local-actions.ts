@@ -1,21 +1,9 @@
 import {db, nextLocalId} from './local-db';
 import type {SetType} from './types';
 
-async function enqueue(action: 'INSERT' | 'UPDATE' | 'DELETE', table: string, recordId: number, payload: Record<string, unknown>) {
-    await db.syncQueue.add({
-        action,
-        table,
-        recordId,
-        payload,
-        createdAt: Date.now(),
-        status: 'pending',
-    });
-}
-
 export async function localCreateMuscleGroup(name: string): Promise<number> {
     const id = await nextLocalId();
     await db.muscleGroups.add({id, name, colour: '#737373'});
-    await enqueue('INSERT', 'muscle_group', id, {name});
     return id;
 }
 
@@ -23,7 +11,6 @@ export async function localCreateExercise(name: string, muscleGroupId: number): 
     const mg = await db.muscleGroups.get(muscleGroupId);
     const id = await nextLocalId();
     await db.exercises.add({id, name, muscleGroupId, muscleGroupName: mg?.name || ''});
-    await enqueue('INSERT', 'exercise', id, {name, muscleGroupId});
     return id;
 }
 
@@ -33,7 +20,6 @@ export async function localCreateWorkout(date: string, notes?: string): Promise<
 
     const id = await nextLocalId();
     await db.workouts.add({id, date, notes: notes || null});
-    await enqueue('INSERT', 'workout', id, {date, notes: notes || null});
     return id;
 }
 
@@ -53,15 +39,21 @@ export async function localAddExerciseToWorkout(workoutId: number, exerciseId: n
         muscleGroupName: exercise?.muscleGroupName || '',
         setCount: 0,
     });
-    await enqueue('INSERT', 'workout_exercise', id, {workoutId, exerciseId, sortOrder: nextOrder});
     return id;
 }
 
 export async function localRemoveExerciseFromWorkout(workoutExerciseId: number) {
     const sets = await db.exerciseSets.where('workoutExerciseId').equals(workoutExerciseId).toArray();
+    // Record deletions for server-synced records (positive IDs)
+    for (const s of sets) {
+        if (s.id > 0) await db.deletions.add({table: 'exercise_set', serverId: s.id});
+    }
     await db.exerciseSets.bulkDelete(sets.map(s => s.id));
+
+    if (workoutExerciseId > 0) {
+        await db.deletions.add({table: 'workout_exercise', serverId: workoutExerciseId});
+    }
     await db.workoutExercises.delete(workoutExerciseId);
-    await enqueue('DELETE', 'workout_exercise', workoutExerciseId, {});
 }
 
 export async function localAddSet(
@@ -92,19 +84,9 @@ export async function localAddSet(
         dirty: Date.now(),
     });
 
-    // Update set count
     const we = await db.workoutExercises.get(workoutExerciseId);
     if (we) await db.workoutExercises.update(workoutExerciseId, {setCount: we.setCount + 1});
 
-    await enqueue('INSERT', 'exercise_set', id, {
-        workoutExerciseId,
-        weight,
-        weightUnit,
-        reps,
-        notes: notes || null,
-        sortOrder: nextOrder,
-        setType,
-    });
     return id;
 }
 
@@ -117,20 +99,19 @@ export async function localUpdateSet(
     setType: SetType = 'working'
 ) {
     await db.exerciseSets.update(setId, {weight, weightUnit, reps, notes: notes || null, setType, dirty: Date.now()});
-    await enqueue('UPDATE', 'exercise_set', setId, {weight, weightUnit, reps, notes: notes || null, setType});
 }
 
 export async function localDeleteSet(setId: number) {
     const set = await db.exerciseSets.get(setId);
     if (!set) return;
 
-    await db.exerciseSets.update(setId, {dirty: Date.now()});
+    if (setId > 0) {
+        await db.deletions.add({table: 'exercise_set', serverId: setId});
+    }
     await db.exerciseSets.delete(setId);
 
     const we = await db.workoutExercises.get(set.workoutExerciseId);
     if (we) await db.workoutExercises.update(set.workoutExerciseId, {setCount: Math.max(0, we.setCount - 1)});
-
-    await enqueue('DELETE', 'exercise_set', setId, {});
 }
 
 export async function localCopyMovementsToToday(exerciseIds: number[]): Promise<{ added: number; today: string }> {

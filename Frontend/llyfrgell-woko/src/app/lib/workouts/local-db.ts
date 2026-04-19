@@ -45,21 +45,9 @@ export interface LocalExerciseSet {
     dirty?: number; // timestamp of local modification, cleared after sync
 }
 
-export interface SyncQueueItem {
-    localId?: number;
-    action: 'INSERT' | 'UPDATE' | 'DELETE';
-    table: string;
-    recordId: number;
-    payload: Record<string, unknown>;
-    createdAt: number;
-    status: 'pending' | 'processing' | 'failed';
-    error?: string;
-}
-
-export interface IdMapEntry {
+export interface Deletion {
     id?: number;
     table: string;
-    localId: number;
     serverId: number;
 }
 
@@ -74,8 +62,7 @@ const db = new Dexie('llyfrgell-workouts') as Dexie & {
     workouts: EntityTable<LocalWorkout, 'id'>;
     workoutExercises: EntityTable<LocalWorkoutExercise, 'id'>;
     exerciseSets: EntityTable<LocalExerciseSet, 'id'>;
-    syncQueue: EntityTable<SyncQueueItem, 'localId'>;
-    idMap: EntityTable<IdMapEntry, 'id'>;
+    deletions: EntityTable<Deletion, 'id'>;
     syncMeta: EntityTable<SyncMeta, 'key'>;
 };
 
@@ -98,6 +85,19 @@ db.version(2).stores({
     exerciseSets: 'id, workoutExerciseId, dirty',
     syncQueue: '++localId, status, createdAt',
     idMap: '++id, [table+localId], [table+serverId]',
+    syncMeta: 'key',
+});
+
+// v3: replace syncQueue + idMap with lightweight deletions table
+db.version(3).stores({
+    muscleGroups: 'id, name',
+    exercises: 'id, muscleGroupId, name',
+    workouts: 'id, date',
+    workoutExercises: 'id, workoutId, exerciseId',
+    exerciseSets: 'id, workoutExerciseId, dirty',
+    deletions: '++id, table, serverId',
+    syncQueue: null,  // drop
+    idMap: null,       // drop
     syncMeta: 'key',
 });
 

@@ -10,183 +10,158 @@ import {
     updateSet,
 } from './actions';
 
-// Resolve a potentially-local ID to a server ID
-async function resolveId(table: string, localId: number): Promise<number> {
-    if (localId > 0) return localId; // already a server ID
-    const mapping = await db.idMap.where({table, localId}).first();
-    if (!mapping) throw new Error(`No server ID for ${table}:${localId}`);
-    return mapping.serverId;
-}
-
-// Store a local→server ID mapping and update all local references
-async function mapId(table: string, localId: number, serverId: number) {
-    await db.idMap.add({table, localId, serverId});
-
-    if (table === 'muscle_group') {
-        const mg = await db.muscleGroups.get(localId);
-        if (mg) {
-            await db.muscleGroups.delete(localId);
-            await db.muscleGroups.put({...mg, id: serverId});
-        }
-        // Update exercises referencing this muscle group
-        const exercises = await db.exercises.where('muscleGroupId').equals(localId).toArray();
-        for (const ex of exercises) {
-            await db.exercises.update(ex.id, {muscleGroupId: serverId});
-        }
-    } else if (table === 'exercise') {
-        const ex = await db.exercises.get(localId);
-        if (ex) {
-            await db.exercises.delete(localId);
-            await db.exercises.put({...ex, id: serverId});
-        }
-        // Update workout_exercises referencing this exercise
-        const wes = await db.workoutExercises.where('exerciseId').equals(localId).toArray();
-        for (const we of wes) {
-            await db.workoutExercises.update(we.id, {exerciseId: serverId});
-        }
-    } else if (table === 'workout') {
-        const w = await db.workouts.get(localId);
-        if (w) {
-            await db.workouts.delete(localId);
-            await db.workouts.put({...w, id: serverId});
-        }
-        // Update workout_exercises referencing this workout
-        const wes = await db.workoutExercises.where('workoutId').equals(localId).toArray();
-        for (const we of wes) {
-            await db.workoutExercises.update(we.id, {workoutId: serverId});
-        }
-    } else if (table === 'workout_exercise') {
-        const we = await db.workoutExercises.get(localId);
-        if (we) {
-            await db.workoutExercises.delete(localId);
-            await db.workoutExercises.put({...we, id: serverId});
-        }
-        // Update exercise_sets referencing this workout_exercise
-        const sets = await db.exerciseSets.where('workoutExerciseId').equals(localId).toArray();
-        for (const s of sets) {
-            await db.exerciseSets.update(s.id, {workoutExerciseId: serverId});
-        }
-    } else if (table === 'exercise_set') {
-        const s = await db.exerciseSets.get(localId);
-        if (s) {
-            await db.exerciseSets.delete(localId);
-            await db.exerciseSets.put({...s, id: serverId});
-        }
+// Remap a record's ID in IndexedDB: delete old, insert with new ID, update child references
+async function remapMuscleGroup(localId: number, serverId: number) {
+    const mg = await db.muscleGroups.get(localId);
+    if (!mg) return;
+    await db.muscleGroups.delete(localId);
+    await db.muscleGroups.put({...mg, id: serverId});
+    const exercises = await db.exercises.where('muscleGroupId').equals(localId).toArray();
+    for (const ex of exercises) {
+        await db.exercises.update(ex.id, {muscleGroupId: serverId});
     }
 }
 
-// Process order: parent tables first
-const TABLE_ORDER = ['muscle_group', 'exercise', 'workout', 'workout_exercise', 'exercise_set'];
+async function remapExercise(localId: number, serverId: number) {
+    const ex = await db.exercises.get(localId);
+    if (!ex) return;
+    await db.exercises.delete(localId);
+    await db.exercises.put({...ex, id: serverId});
+    const wes = await db.workoutExercises.where('exerciseId').equals(localId).toArray();
+    for (const we of wes) {
+        await db.workoutExercises.update(we.id, {exerciseId: serverId});
+    }
+}
+
+async function remapWorkout(localId: number, serverId: number) {
+    const w = await db.workouts.get(localId);
+    if (!w) return;
+    await db.workouts.delete(localId);
+    await db.workouts.put({...w, id: serverId});
+    const wes = await db.workoutExercises.where('workoutId').equals(localId).toArray();
+    for (const we of wes) {
+        await db.workoutExercises.update(we.id, {workoutId: serverId});
+    }
+}
+
+async function remapWorkoutExercise(localId: number, serverId: number) {
+    const we = await db.workoutExercises.get(localId);
+    if (!we) return;
+    await db.workoutExercises.delete(localId);
+    await db.workoutExercises.put({...we, id: serverId});
+    const sets = await db.exerciseSets.where('workoutExerciseId').equals(localId).toArray();
+    for (const s of sets) {
+        await db.exerciseSets.update(s.id, {workoutExerciseId: serverId});
+    }
+}
+
+async function remapExerciseSet(localId: number, serverId: number) {
+    const s = await db.exerciseSets.get(localId);
+    if (!s) return;
+    await db.exerciseSets.delete(localId);
+    await db.exerciseSets.put({...s, id: serverId, dirty: undefined});
+}
 
 export async function flushSyncQueue(): Promise<{ synced: number; failed: number }> {
     let synced = 0;
     let failed = 0;
 
-    // Process in dependency order
-    for (const table of TABLE_ORDER) {
-        const items = await db.syncQueue
-            .where('status').equals('pending')
-            .filter(item => item.table === table)
-            .sortBy('createdAt');
-
-        for (const item of items) {
+    try {
+        // 1. INSERT new muscle groups (negative IDs)
+        const newMgs = await db.muscleGroups.where('id').below(0).toArray();
+        for (const mg of newMgs) {
             try {
-                await db.syncQueue.update(item.localId!, {status: 'processing'});
-                await processItem(item.action, item.table, item.recordId, item.payload);
-                await db.syncQueue.delete(item.localId!);
-                // Clear dirty flag after successful sync
-                if (item.table === 'exercise_set' && item.action !== 'DELETE') {
-                    // After INSERT, mapId remaps the ID, so look up the server ID
-                    const resolvedId = item.recordId < 0
-                        ? (await db.idMap.where({table: 'exercise_set', localId: item.recordId}).first())?.serverId
-                        : item.recordId;
-                    if (resolvedId) await db.exerciseSets.update(resolvedId, {dirty: undefined});
-                }
+                const serverId = await createMuscleGroup(mg.name);
+                await remapMuscleGroup(mg.id, serverId);
                 synced++;
-            } catch (error) {
-                const msg = error instanceof Error ? error.message : String(error);
-                await db.syncQueue.update(item.localId!, {status: 'failed', error: msg});
-                failed++;
-            }
+            } catch { failed++; }
         }
+
+        // 2. INSERT new exercises (negative IDs)
+        const newExercises = await db.exercises.where('id').below(0).toArray();
+        for (const ex of newExercises) {
+            try {
+                // muscleGroupId may have just been remapped
+                const mgId = ex.muscleGroupId;
+                const serverId = await createExercise(ex.name, mgId);
+                await remapExercise(ex.id, serverId);
+                synced++;
+            } catch { failed++; }
+        }
+
+        // 3. INSERT new workouts (negative IDs)
+        const newWorkouts = await db.workouts.where('id').below(0).toArray();
+        for (const w of newWorkouts) {
+            try {
+                const serverId = await createWorkout(w.date, w.notes ?? undefined);
+                await remapWorkout(w.id, serverId);
+                synced++;
+            } catch { failed++; }
+        }
+
+        // 4. INSERT new workout_exercises (negative IDs)
+        const newWes = await db.workoutExercises.where('id').below(0).toArray();
+        for (const we of newWes) {
+            try {
+                const serverId = await addExerciseToWorkout(we.workoutId, we.exerciseId);
+                await remapWorkoutExercise(we.id, serverId);
+                synced++;
+            } catch { failed++; }
+        }
+
+        // 5. INSERT new exercise_sets (negative IDs)
+        const newSets = await db.exerciseSets.where('id').below(0).toArray();
+        for (const s of newSets) {
+            try {
+                const serverId = await addSet(
+                    s.workoutExerciseId, s.weight, s.weightUnit, s.reps,
+                    s.notes ?? undefined, s.setType
+                );
+                await remapExerciseSet(s.id, serverId);
+                synced++;
+            } catch { failed++; }
+        }
+
+        // 6. UPDATE dirty exercise_sets (positive IDs with dirty flag)
+        const dirtySets = await db.exerciseSets.where('dirty').above(0).toArray();
+        const dirtyUpdates = dirtySets.filter(s => s.id > 0);
+        for (const s of dirtyUpdates) {
+            try {
+                await updateSet(s.id, s.weight, s.weightUnit, s.reps, s.notes ?? undefined, s.setType);
+                await db.exerciseSets.update(s.id, {dirty: undefined});
+                synced++;
+            } catch { failed++; }
+        }
+
+        // 7. Process deletions
+        const deletions = await db.deletions.toArray();
+        for (const d of deletions) {
+            try {
+                if (d.table === 'workout_exercise') await removeExerciseFromWorkout(d.serverId);
+                else if (d.table === 'exercise_set') await deleteSet(d.serverId);
+                await db.deletions.delete(d.id!);
+                synced++;
+            } catch { failed++; }
+        }
+    } catch {
+        // Top-level failure (e.g. auth expired) — don't lose data, just report
+        failed++;
     }
 
     return {synced, failed};
 }
 
-async function processItem(action: string, table: string, recordId: number, payload: Record<string, unknown>) {
-    if (action === 'INSERT') {
-        let serverId: number;
-        switch (table) {
-            case 'muscle_group':
-                serverId = await createMuscleGroup(payload.name as string);
-                await mapId(table, recordId, serverId);
-                break;
-            case 'exercise':
-                serverId = await createExercise(
-                    payload.name as string,
-                    await resolveId('muscle_group', payload.muscleGroupId as number)
-                );
-                await mapId(table, recordId, serverId);
-                break;
-            case 'workout':
-                serverId = await createWorkout(payload.date as string, payload.notes as string | undefined);
-                await mapId(table, recordId, serverId);
-                break;
-            case 'workout_exercise':
-                serverId = await addExerciseToWorkout(
-                    await resolveId('workout', payload.workoutId as number),
-                    await resolveId('exercise', payload.exerciseId as number)
-                );
-                await mapId(table, recordId, serverId);
-                break;
-            case 'exercise_set':
-                serverId = await addSet(
-                    await resolveId('workout_exercise', payload.workoutExerciseId as number),
-                    payload.weight as number | null,
-                    payload.weightUnit as string,
-                    payload.reps as number | null,
-                    payload.notes as string | undefined,
-                    payload.setType as string | undefined
-                );
-                await mapId(table, recordId, serverId);
-                break;
-        }
-    } else if (action === 'UPDATE') {
-        const serverId = await resolveId(table, recordId);
-        switch (table) {
-            case 'exercise_set':
-                await updateSet(
-                    serverId,
-                    payload.weight as number | null,
-                    payload.weightUnit as string,
-                    payload.reps as number | null,
-                    payload.notes as string | undefined,
-                    payload.setType as string | undefined
-                );
-                break;
-        }
-    } else if (action === 'DELETE') {
-        // For deletes, the record might already have a server ID or be local-only
-        const mapping = await db.idMap.where({table, localId: recordId}).first();
-        if (!mapping && recordId < 0) {
-            // Never synced to server, nothing to delete remotely
-            return;
-        }
-        const serverId = mapping ? mapping.serverId : recordId;
-        switch (table) {
-            case 'workout_exercise':
-                await removeExerciseFromWorkout(serverId);
-                break;
-            case 'exercise_set':
-                await deleteSet(serverId);
-                break;
-        }
-    }
-}
-
 export async function getPendingSyncCount(): Promise<number> {
-    return db.syncQueue.where('status').anyOf('pending', 'failed').count();
+    const [mgs, exercises, workouts, wes, newSets, dirtySets, deletions] = await Promise.all([
+        db.muscleGroups.where('id').below(0).count(),
+        db.exercises.where('id').below(0).count(),
+        db.workouts.where('id').below(0).count(),
+        db.workoutExercises.where('id').below(0).count(),
+        db.exerciseSets.where('id').below(0).count(),
+        db.exerciseSets.where('dirty').above(0).count(),
+        db.deletions.count(),
+    ]);
+    return mgs + exercises + workouts + wes + newSets + dirtySets + deletions;
 }
 
 // Hydrate local DB from server data
@@ -218,18 +193,32 @@ export async function hydrateChunk(data: {
         setType: string;
     }[];
 }, isFirstChunk: boolean, clearSyncData: boolean = true) {
-    await db.transaction('rw', [db.muscleGroups, db.exercises, db.workouts, db.workoutExercises, db.exerciseSets, db.idMap, db.syncQueue, db.syncMeta], async () => {
+    await db.transaction('rw', [db.muscleGroups, db.exercises, db.workouts, db.workoutExercises, db.exerciseSets, db.deletions, db.syncMeta], async () => {
         if (isFirstChunk) {
+            // Collect locally-created records (negative IDs) to preserve through hydration
+            const localMgs = clearSyncData ? [] : await db.muscleGroups.where('id').below(0).toArray();
+            const localExercises = clearSyncData ? [] : await db.exercises.where('id').below(0).toArray();
+            const localWorkouts = clearSyncData ? [] : await db.workouts.where('id').below(0).toArray();
+            const localWes = clearSyncData ? [] : await db.workoutExercises.where('id').below(0).toArray();
+            const localSets = clearSyncData ? [] : await db.exerciseSets.where('id').below(0).toArray();
+
             await db.muscleGroups.clear();
             await db.exercises.clear();
             await db.workouts.clear();
             await db.workoutExercises.clear();
             await db.exerciseSets.clear();
             if (clearSyncData) {
-                await db.idMap.clear();
-                await db.syncQueue.clear();
+                await db.deletions.clear();
             }
+
+            // Re-insert local records
+            if (localMgs.length > 0) await db.muscleGroups.bulkPut(localMgs);
+            if (localExercises.length > 0) await db.exercises.bulkPut(localExercises);
+            if (localWorkouts.length > 0) await db.workouts.bulkPut(localWorkouts);
+            if (localWes.length > 0) await db.workoutExercises.bulkPut(localWes);
+            if (localSets.length > 0) await db.exerciseSets.bulkPut(localSets);
         }
+
         if (data.muscleGroups.length > 0) await db.muscleGroups.bulkPut(data.muscleGroups);
         if (data.exercises.length > 0) await db.exercises.bulkPut(data.exercises);
         if (data.workouts.length > 0) await db.workouts.bulkPut(data.workouts);
@@ -247,21 +236,26 @@ export async function hydrateChunk(data: {
     });
 }
 
-// Auto-sync: flush queue when online, retry periodically
+// Auto-sync: flush when online, retry periodically
 let syncInterval: ReturnType<typeof setInterval> | null = null;
 
-export function startAutoSync() {
-    const trySync = async () => {
-        if (!navigator.onLine) return;
-        const count = await getPendingSyncCount();
-        if (count > 0) {
-            await flushSyncQueue();
-        }
-    };
+const trySync = async () => {
+    if (!navigator.onLine) return;
+    const count = await getPendingSyncCount();
+    if (count > 0) {
+        await flushSyncQueue();
+    }
+};
 
+const onVisibilityChange = () => {
+    if (document.visibilityState === 'visible') trySync();
+};
+
+export function startAutoSync() {
     window.addEventListener('online', trySync);
-    syncInterval = setInterval(trySync, 30000);
-    trySync(); // immediate attempt
+    document.addEventListener('visibilitychange', onVisibilityChange);
+    syncInterval = setInterval(trySync, 5000);
+    trySync();
 }
 
 export function stopAutoSync() {
@@ -269,4 +263,6 @@ export function stopAutoSync() {
         clearInterval(syncInterval);
         syncInterval = null;
     }
+    window.removeEventListener('online', trySync);
+    document.removeEventListener('visibilitychange', onVisibilityChange);
 }
