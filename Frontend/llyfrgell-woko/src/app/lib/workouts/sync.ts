@@ -78,12 +78,12 @@ export async function flushSyncQueue(): Promise<{ synced: number; failed: number
         }
 
         // 2. INSERT new exercises (negative IDs)
+        // Re-read after muscle group remaps so muscleGroupId references are current
         const newExercises = await db.exercises.where('id').below(0).toArray();
         for (const ex of newExercises) {
+            if (ex.muscleGroupId < 0) { failed++; continue; }
             try {
-                // muscleGroupId may have just been remapped
-                const mgId = ex.muscleGroupId;
-                const serverId = await createExercise(ex.name, mgId);
+                const serverId = await createExercise(ex.name, ex.muscleGroupId);
                 await remapExercise(ex.id, serverId);
                 synced++;
             } catch { failed++; }
@@ -100,8 +100,10 @@ export async function flushSyncQueue(): Promise<{ synced: number; failed: number
         }
 
         // 4. INSERT new workout_exercises (negative IDs)
+        // Re-read after workout remaps so workoutId references are current
         const newWes = await db.workoutExercises.where('id').below(0).toArray();
         for (const we of newWes) {
+            if (we.workoutId < 0 || we.exerciseId < 0) { failed++; continue; }
             try {
                 const serverId = await addExerciseToWorkout(we.workoutId, we.exerciseId);
                 await remapWorkoutExercise(we.id, serverId);
@@ -110,8 +112,10 @@ export async function flushSyncQueue(): Promise<{ synced: number; failed: number
         }
 
         // 5. INSERT new exercise_sets (negative IDs)
+        // Re-read after workout_exercise remaps so workoutExerciseId references are current
         const newSets = await db.exerciseSets.where('id').below(0).toArray();
         for (const s of newSets) {
+            if (s.workoutExerciseId < 0) { failed++; continue; }
             try {
                 const serverId = await addSet(
                     s.workoutExerciseId, s.weight, s.weightUnit, s.reps,
