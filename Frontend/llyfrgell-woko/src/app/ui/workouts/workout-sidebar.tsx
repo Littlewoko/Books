@@ -12,6 +12,7 @@ import {useRouter} from "next/navigation";
 import Link from "next/link";
 import CloseIcon from '@mui/icons-material/Close';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
+import SettingsIcon from '@mui/icons-material/Settings';
 import AddMovementModal from "./add-movement-modal";
 
 interface Props {
@@ -112,11 +113,15 @@ export default function WorkoutSidebar({isOpen, onClose}: Props) {
                         View full day →
                     </button>
 
-                    <div className="mt-auto border-t border-black/10 px-3 py-2">
+                    <div className="mt-auto border-t border-black/10 px-3 py-2 flex items-center justify-between">
                         <Link href="/books" onClick={onClose}
                               className="flex items-center gap-1 text-black/40 hover:text-black text-sm transition-colors">
                             <LibraryBooksIcon sx={{fontSize: 16, color: 'inherit'}}/>
                             Library
+                        </Link>
+                        <Link href="/workouts/admin" onClick={onClose}
+                              className="text-black/40 hover:text-black transition-colors">
+                            <SettingsIcon sx={{fontSize: 18, color: 'inherit'}}/>
                         </Link>
                     </div>
                 </div>
