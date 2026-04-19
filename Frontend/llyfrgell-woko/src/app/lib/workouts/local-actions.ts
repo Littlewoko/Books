@@ -89,6 +89,7 @@ export async function localAddSet(
         notes: notes || null,
         sortOrder: nextOrder,
         setType,
+        dirty: Date.now(),
     });
 
     // Update set count
@@ -115,7 +116,7 @@ export async function localUpdateSet(
     notes?: string,
     setType: SetType = 'working'
 ) {
-    await db.exerciseSets.update(setId, {weight, weightUnit, reps, notes: notes || null, setType});
+    await db.exerciseSets.update(setId, {weight, weightUnit, reps, notes: notes || null, setType, dirty: Date.now()});
     await enqueue('UPDATE', 'exercise_set', setId, {weight, weightUnit, reps, notes: notes || null, setType});
 }
 
@@ -123,6 +124,7 @@ export async function localDeleteSet(setId: number) {
     const set = await db.exerciseSets.get(setId);
     if (!set) return;
 
+    await db.exerciseSets.update(setId, {dirty: Date.now()});
     await db.exerciseSets.delete(setId);
 
     const we = await db.workoutExercises.get(set.workoutExerciseId);

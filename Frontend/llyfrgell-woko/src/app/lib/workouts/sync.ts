@@ -94,6 +94,14 @@ export async function flushSyncQueue(): Promise<{ synced: number; failed: number
                 await db.syncQueue.update(item.localId!, {status: 'processing'});
                 await processItem(item.action, item.table, item.recordId, item.payload);
                 await db.syncQueue.delete(item.localId!);
+                // Clear dirty flag after successful sync
+                if (item.table === 'exercise_set' && item.action !== 'DELETE') {
+                    // After INSERT, mapId remaps the ID, so look up the server ID
+                    const resolvedId = item.recordId < 0
+                        ? (await db.idMap.where({table: 'exercise_set', localId: item.recordId}).first())?.serverId
+                        : item.recordId;
+                    if (resolvedId) await db.exerciseSets.update(resolvedId, {dirty: undefined});
+                }
                 synced++;
             } catch (error) {
                 const msg = error instanceof Error ? error.message : String(error);
@@ -226,7 +234,14 @@ export async function hydrateChunk(data: {
         if (data.exercises.length > 0) await db.exercises.bulkPut(data.exercises);
         if (data.workouts.length > 0) await db.workouts.bulkPut(data.workouts);
         if (data.workoutExercises.length > 0) await db.workoutExercises.bulkPut(data.workoutExercises);
-        if (data.exerciseSets.length > 0) await db.exerciseSets.bulkPut(data.exerciseSets);
+        if (data.exerciseSets.length > 0) {
+            // Preserve locally-modified sets that haven't been synced yet
+            const dirtySetIds = new Set(
+                (await db.exerciseSets.where('dirty').above(0).primaryKeys())
+            );
+            const safeSets = data.exerciseSets.filter(s => !dirtySetIds.has(s.id));
+            if (safeSets.length > 0) await db.exerciseSets.bulkPut(safeSets);
+        }
 
         await db.syncMeta.put({key: 'lastSync', value: new Date().toISOString()});
     });

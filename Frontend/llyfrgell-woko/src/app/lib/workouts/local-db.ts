@@ -42,6 +42,7 @@ export interface LocalExerciseSet {
     notes: string | null;
     sortOrder: number;
     setType: string;
+    dirty?: number; // timestamp of local modification, cleared after sync
 }
 
 export interface SyncQueueItem {
@@ -84,6 +85,17 @@ db.version(1).stores({
     workouts: 'id, date',
     workoutExercises: 'id, workoutId, exerciseId',
     exerciseSets: 'id, workoutExerciseId',
+    syncQueue: '++localId, status, createdAt',
+    idMap: '++id, [table+localId], [table+serverId]',
+    syncMeta: 'key',
+});
+
+db.version(2).stores({
+    muscleGroups: 'id, name',
+    exercises: 'id, muscleGroupId, name',
+    workouts: 'id, date',
+    workoutExercises: 'id, workoutId, exerciseId',
+    exerciseSets: 'id, workoutExerciseId, dirty',
     syncQueue: '++localId, status, createdAt',
     idMap: '++id, [table+localId], [table+serverId]',
     syncMeta: 'key',
