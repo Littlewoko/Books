@@ -209,7 +209,7 @@ export async function hydrateChunk(data: {
         sortOrder: number;
         setType: string;
     }[];
-}, isFirstChunk: boolean) {
+}, isFirstChunk: boolean, clearSyncData: boolean = true) {
     await db.transaction('rw', [db.muscleGroups, db.exercises, db.workouts, db.workoutExercises, db.exerciseSets, db.idMap, db.syncQueue, db.syncMeta], async () => {
         if (isFirstChunk) {
             await db.muscleGroups.clear();
@@ -217,8 +217,10 @@ export async function hydrateChunk(data: {
             await db.workouts.clear();
             await db.workoutExercises.clear();
             await db.exerciseSets.clear();
-            await db.idMap.clear();
-            await db.syncQueue.clear();
+            if (clearSyncData) {
+                await db.idMap.clear();
+                await db.syncQueue.clear();
+            }
         }
         if (data.muscleGroups.length > 0) await db.muscleGroups.bulkPut(data.muscleGroups);
         if (data.exercises.length > 0) await db.exercises.bulkPut(data.exercises);

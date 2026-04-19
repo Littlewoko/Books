@@ -38,14 +38,18 @@ export default function WorkoutOfflineProvider({ children }: { children: ReactNo
     const hydrateAll = useCallback(async (clearFirst: boolean) => {
         if (!navigator.onLine) return;
 
+        // If not clearing everything, flush pending syncs first so nothing is lost
+        if (!clearFirst) {
+            try { await flushSyncQueue(); } catch (e) { /* best effort */ }
+        }
+
         let beforeDate: string | undefined = undefined;
         let isFirst = true;
 
         while (true) {
             try {
                 const chunk = await getHydrationChunk(beforeDate);
-                // Only clear on first chunk if clearFirst is true (user switch or first-ever)
-                await hydrateChunk(chunk, isFirst && clearFirst);
+                await hydrateChunk(chunk, isFirst, clearFirst);
 
                 if (isFirst) {
                     setIsHydrated(true);
@@ -129,16 +133,16 @@ export default function WorkoutOfflineProvider({ children }: { children: ReactNo
 
             if (!navigator.onLine) return;
 
-            // Flush pending syncs first
-            try { await flushSyncQueue(); } catch (e) { /* non-blocking */ }
-
             // Check if stale
             const lastSync = lastSyncStr ? new Date(lastSyncStr).getTime() : 0;
             const isStale = Date.now() - lastSync > STALE_THRESHOLD_MS;
 
             if (isStale) {
-                // Background refresh without clearing (same user, just updating)
+                // Background refresh — flushes pending syncs first, then hydrates without clearing sync data
                 hydrateAll(false);
+            } else {
+                // Not stale, just flush pending syncs
+                try { await flushSyncQueue(); } catch (e) { /* non-blocking */ }
             }
         })();
     }, [session?.user?.id, hydrateAll]);

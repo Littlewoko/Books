@@ -6,6 +6,7 @@ import { getSessionUserId } from "@/app/utils/getSessionUser";
 import ExerciseAdmin from "@/app/ui/workouts/exercise-admin";
 import CsvImport from "@/app/ui/workouts/csv-import";
 import SyncButton from "@/app/ui/workouts/sync-button";
+import ReconcileButton from "@/app/ui/workouts/reconcile-button";
 
 async function getAdminData(userId: string) {
     const [mgResult, exResult] = await Promise.all([
@@ -53,8 +54,9 @@ export default async function WorkoutAdminPage() {
                 Admin
             </h1>
 
-            <div className="mb-4">
+            <div className="mb-4 flex flex-col gap-2">
                 <SyncButton />
+                <ReconcileButton />
             </div>
 
             <section className="mb-8">
