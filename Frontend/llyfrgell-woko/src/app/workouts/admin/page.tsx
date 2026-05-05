@@ -6,10 +6,14 @@ import { getSessionUserId } from "@/app/utils/getSessionUser";
 import ExerciseAdmin from "@/app/ui/workouts/exercise-admin";
 import CsvImport from "@/app/ui/workouts/csv-import";
 import SyncButton from "@/app/ui/workouts/sync-button";
+import FullHydrateButton from "@/app/ui/workouts/full-hydrate-button";
 
 async function getAdminData(userId: string) {
     const [mgResult, exResult] = await Promise.all([
-        sql`SELECT id, name, COALESCE(colour, '#737373') AS colour FROM muscle_group WHERE user_id = ${userId} ORDER BY name`,
+        sql`SELECT id, name, COALESCE(colour, '#737373') AS colour
+            FROM muscle_group
+            WHERE user_id = ${userId}
+            ORDER BY name`,
         sql`
             SELECT e.id, e.name, e.muscle_group_id, mg.name AS muscle_group_name,
                    COALESCE(s.total, 0)::int AS total_sets
@@ -55,6 +59,7 @@ export default async function WorkoutAdminPage() {
 
             <div className="mb-4 flex flex-col gap-2">
                 <SyncButton />
+                <FullHydrateButton />
             </div>
 
             <section className="mb-8">

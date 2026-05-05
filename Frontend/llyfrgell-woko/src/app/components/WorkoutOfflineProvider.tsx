@@ -1,17 +1,18 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, useCallback, useRef, ReactNode } from "react";
-import { useSession } from "next-auth/react";
-import { localIsHydrated, localGetSyncMeta, localSetSyncMeta } from "@/app/lib/workouts/local-data";
-import { hydrateChunk, flushSyncQueue, getPendingSyncCount } from "@/app/lib/workouts/sync";
-import { getHydrationChunk } from "@/app/lib/workouts/hydrate-action";
-import { invalidateColourCache } from "@/app/lib/workouts/muscle-group-colours";
+import {createContext, ReactNode, useCallback, useContext, useEffect, useRef, useState} from "react";
+import {useSession} from "next-auth/react";
+import {localGetSyncMeta, localIsHydrated, localSetSyncMeta} from "@/app/lib/workouts/local-data";
+import {flushSyncQueue, getPendingSyncCount, hydrateChunk} from "@/app/lib/workouts/sync";
+import {getHydrationChunk} from "@/app/lib/workouts/hydrate-action";
+import {invalidateColourCache} from "@/app/lib/workouts/muscle-group-colours";
 
 interface OfflineContextType {
     isHydrated: boolean;
     isOnline: boolean;
     pendingSyncs: number;
     sync: () => Promise<{ synced: number; failed: number }>;
+    fullHydrate: () => Promise<void>;
     refreshPendingCount: () => Promise<void>;
 }
 
@@ -19,22 +20,26 @@ const OfflineContext = createContext<OfflineContextType>({
     isHydrated: false,
     isOnline: true,
     pendingSyncs: 0,
-    sync: async () => ({ synced: 0, failed: 0 }),
-    refreshPendingCount: async () => {},
+    sync: async () => ({synced: 0, failed: 0}),
+    fullHydrate: async () => {
+    },
+    refreshPendingCount: async () => {
+    },
 });
 
 export function useOffline() {
     return useContext(OfflineContext);
 }
 
-export default function WorkoutOfflineProvider({ children }: { children: ReactNode }) {
-    const { data: session } = useSession();
+export default function WorkoutOfflineProvider({children}: { children: ReactNode }) {
+    const {data: session} = useSession();
     const [isHydrated, setIsHydrated] = useState(false);
     const [isOnline, setIsOnline] = useState(true);
     const [pendingSyncs, setPendingSyncs] = useState(0);
     const hydrationRan = useRef(false);
 
-    const hydrateAll = useCallback(async (clearFirst: boolean) => {
+    // Full hydration — pulls all data in 90-day chunks. Used on first visit or user switch.
+    const hydrateAll = useCallback(async () => {
         if (!navigator.onLine) return;
 
         let beforeDate: string | undefined = undefined;
@@ -43,7 +48,7 @@ export default function WorkoutOfflineProvider({ children }: { children: ReactNo
         while (true) {
             try {
                 const chunk = await getHydrationChunk(beforeDate);
-                await hydrateChunk(chunk, isFirst, clearFirst);
+                await hydrateChunk(chunk, isFirst, true);
 
                 if (isFirst) {
                     setIsHydrated(true);
@@ -65,23 +70,44 @@ export default function WorkoutOfflineProvider({ children }: { children: ReactNo
         invalidateColourCache();
     }, [session?.user?.id]);
 
+    // Recent hydration — pulls only the most recent 90 days + reference data.
+    const hydrateRecent = useCallback(async () => {
+        if (!navigator.onLine) return;
+
+        try {
+            const chunk = await getHydrationChunk();
+            await hydrateChunk(chunk, true, false);
+            setIsHydrated(true);
+        } catch (e) {
+            console.error('Recent hydration failed:', e);
+        }
+
+        if (session?.user?.id) {
+            await localSetSyncMeta('userId', session.user.id);
+        }
+
+        invalidateColourCache();
+    }, [session?.user?.id]);
+
     const refreshPendingCount = useCallback(async () => {
         setPendingSyncs(await getPendingSyncCount());
     }, []);
 
     const sync = useCallback(async (): Promise<{ synced: number; failed: number }> => {
-        if (!navigator.onLine) return { synced: 0, failed: 0 };
+        if (!navigator.onLine) return {synced: 0, failed: 0};
 
-        // Push local changes to server
         const result = await flushSyncQueue();
-
-        // Pull fresh server state (clear local since we just pushed everything)
-        await hydrateAll(true);
-
-        // Update pending count
+        await hydrateRecent();
         await refreshPendingCount();
 
         return result;
+    }, [hydrateRecent, refreshPendingCount]);
+
+    const fullHydrate = useCallback(async () => {
+        if (!navigator.onLine) return;
+        await flushSyncQueue();
+        await hydrateAll();
+        await refreshPendingCount();
     }, [hydrateAll, refreshPendingCount]);
 
     // Track online status
@@ -108,10 +134,8 @@ export default function WorkoutOfflineProvider({ children }: { children: ReactNo
             const hydrated = await localIsHydrated();
 
             if (!hydrated || storedUserId !== currentUserId) {
-                // Different user or first time — full clear + hydrate
-                await hydrateAll(true);
+                await hydrateAll();
             } else {
-                // Same user, already hydrated — just mark ready
                 setIsHydrated(true);
             }
 
@@ -120,7 +144,7 @@ export default function WorkoutOfflineProvider({ children }: { children: ReactNo
     }, [session?.user?.id, hydrateAll, refreshPendingCount]);
 
     return (
-        <OfflineContext.Provider value={{ isHydrated, isOnline, pendingSyncs, sync, refreshPendingCount }}>
+        <OfflineContext.Provider value={{isHydrated, isOnline, pendingSyncs, sync, fullHydrate, refreshPendingCount}}>
             {children}
         </OfflineContext.Provider>
     );
