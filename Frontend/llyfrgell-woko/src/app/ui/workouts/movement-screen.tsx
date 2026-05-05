@@ -10,6 +10,7 @@ import {
     localGetPersonalBests
 } from "@/app/lib/workouts/local-data";
 import {calculateOneRepMax, getRepMaxTable} from "@/app/lib/workouts/calculator";
+import {useOffline} from "@/app/components/WorkoutOfflineProvider";
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import EditIcon from '@mui/icons-material/Edit';
@@ -53,6 +54,7 @@ function collapsePbs(pbs: PersonalBest[]): { reps: string; weight: number; weigh
 }
 
 export default function MovementScreen({date, exerciseId, initialData}: Props) {
+    const {refreshPendingCount} = useOffline();
     const [tab, setTab] = useState<Tab>("track");
     const [sets, setSets] = useState<ExerciseSet[]>(initialData.sets);
     const [history, setHistory] = useState<ExerciseHistory[]>([]);
@@ -112,6 +114,7 @@ export default function MovementScreen({date, exerciseId, initialData}: Props) {
         setNewReps("");
         setNewNotes("");
         await refreshSets();
+        await refreshPendingCount();
         setAdding(false);
         setLoadedHistory(false);
         setLoadedPbs(false);
@@ -131,6 +134,7 @@ export default function MovementScreen({date, exerciseId, initialData}: Props) {
         await localUpdateSet(editingId, editWeight ? parseFloat(editWeight) : null, "kgs", editReps ? parseInt(editReps) : null, editNotes || undefined, editSetType);
         setEditingId(null);
         await refreshSets();
+        await refreshPendingCount();
         setLoadedHistory(false);
         setLoadedPbs(false);
         setHistoryLimit(5);
@@ -140,6 +144,7 @@ export default function MovementScreen({date, exerciseId, initialData}: Props) {
         if (!confirm('Delete this set?')) return;
         await localDeleteSet(setId);
         await refreshSets();
+        await refreshPendingCount();
         setLoadedHistory(false);
         setLoadedPbs(false);
         setHistoryLimit(5);

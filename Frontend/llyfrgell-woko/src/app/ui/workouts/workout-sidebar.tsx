@@ -8,11 +8,13 @@ import {
     localRemoveExerciseFromWorkout
 } from "@/app/lib/workouts/local-actions";
 import {localGetTodayWorkout} from "@/app/lib/workouts/local-data";
+import {useOffline} from "@/app/components/WorkoutOfflineProvider";
 import {useRouter} from "next/navigation";
 import Link from "next/link";
 import CloseIcon from '@mui/icons-material/Close';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import SettingsIcon from '@mui/icons-material/Settings';
+import SyncIcon from '@mui/icons-material/Sync';
 import AddMovementModal from "./add-movement-modal";
 
 interface Props {
@@ -22,11 +24,14 @@ interface Props {
 
 export default function WorkoutSidebar({isOpen, onClose}: Props) {
     const router = useRouter();
+    const {sync, pendingSyncs, isOnline, refreshPendingCount} = useOffline();
     const [today, setToday] = useState("");
     const [workoutId, setWorkoutId] = useState<number | null>(null);
     const [exercises, setExercises] = useState<WorkoutExercise[]>([]);
     const [loading, setLoading] = useState(false);
     const [showAddModal, setShowAddModal] = useState(false);
+    const [syncing, setSyncing] = useState(false);
+    const [syncResult, setSyncResult] = useState<string | null>(null);
 
     useEffect(() => {
         if (isOpen) {
@@ -92,6 +97,7 @@ export default function WorkoutSidebar({isOpen, onClose}: Props) {
                                 <button type="button" onClick={async () => {
                                     if (!confirm(`Remove ${ex.exerciseName} from today?`)) return;
                                     await localRemoveExerciseFromWorkout(ex.id!);
+                                    await refreshPendingCount();
                                     await refresh();
                                 }} className="text-black/20 hover:text-red-600 px-2">
                                     <CloseIcon sx={{fontSize: 14, color: 'inherit'}}/>
@@ -113,7 +119,28 @@ export default function WorkoutSidebar({isOpen, onClose}: Props) {
                         View full day →
                     </button>
 
-                    <div className="mt-auto border-t border-black/10 px-3 py-2 flex items-center justify-between">
+                    <div className="border-t border-black/10 px-3 py-2">
+                        <button type="button" disabled={syncing || !isOnline} onClick={async () => {
+                            setSyncing(true);
+                            setSyncResult(null);
+                            try {
+                                const {synced, failed} = await sync();
+                                if (failed > 0) setSyncResult(`⚠ ${synced} pushed, ${failed} failed`);
+                                else if (synced > 0) setSyncResult(`✓ ${synced} pushed`);
+                                else setSyncResult('✓ Up to date');
+                                await refresh();
+                            } catch { setSyncResult('Error syncing'); }
+                            finally { setSyncing(false); }
+                        }}
+                                className="flex items-center gap-1.5 text-amber-700 hover:text-amber-800 text-sm font-semibold transition-colors disabled:text-black/20">
+                            <SyncIcon sx={{fontSize: 16, color: 'inherit'}} className={syncing ? 'animate-spin' : ''}/>
+                            {syncing ? 'Syncing...' : pendingSyncs > 0 ? `Sync (${pendingSyncs})` : 'Sync'}
+                        </button>
+                        {syncResult && <span className="text-black/40 text-xs block mt-0.5">{syncResult}</span>}
+                        {!isOnline && <span className="text-red-400 text-xs block mt-0.5">offline</span>}
+                    </div>
+
+                    <div className="border-t border-black/10 px-3 py-2 flex items-center justify-between">
                         <Link href="/books" onClick={onClose}
                               className="flex items-center gap-1 text-black/40 hover:text-black text-sm transition-colors">
                             <LibraryBooksIcon sx={{fontSize: 16, color: 'inherit'}}/>

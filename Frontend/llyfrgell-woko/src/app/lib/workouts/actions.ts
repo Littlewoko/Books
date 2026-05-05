@@ -5,18 +5,36 @@ import { revalidatePath } from 'next/cache';
 import ProtectRoute from '@/app/utils/protectRoute';
 import { getSessionUserId } from '@/app/utils/getSessionUser';
 
+// -- Idempotency helper --
+
+async function checkIdempotency(key: string | undefined): Promise<number | null> {
+    if (!key) return null;
+    const existing = await sql`SELECT entity_id FROM idempotency_log WHERE idempotency_key = ${key}`;
+    return existing.rows[0]?.entity_id ?? null;
+}
+
+async function logIdempotency(key: string | undefined, table: string, entityId: number) {
+    if (!key) return;
+    await sql`INSERT INTO idempotency_log (idempotency_key, entity_table, entity_id) VALUES (${key}, ${table}, ${entityId}) ON CONFLICT (idempotency_key) DO NOTHING`;
+}
+
 // -- Muscle Groups --
 
-export async function createMuscleGroup(name: string) {
+export async function createMuscleGroup(name: string, idempotencyKey?: string) {
     await ProtectRoute();
     const userId = await getSessionUserId();
+
+    const existingId = await checkIdempotency(idempotencyKey);
+    if (existingId != null) return existingId;
 
     const result = await sql`
         INSERT INTO muscle_group (name, user_id) VALUES (${name}, ${userId})
         RETURNING id;
     `;
+    const id = result.rows[0].id as number;
+    await logIdempotency(idempotencyKey, 'muscle_group', id);
     revalidatePath('/workouts');
-    return result.rows[0].id as number;
+    return id;
 }
 
 export async function updateMuscleGroupColour(muscleGroupId: number, colour: string) {
@@ -32,16 +50,21 @@ export async function updateMuscleGroupColour(muscleGroupId: number, colour: str
 
 // -- Exercises --
 
-export async function createExercise(name: string, muscleGroupId: number) {
+export async function createExercise(name: string, muscleGroupId: number, idempotencyKey?: string) {
     await ProtectRoute();
     const userId = await getSessionUserId();
+
+    const existingId = await checkIdempotency(idempotencyKey);
+    if (existingId != null) return existingId;
 
     const result = await sql`
         INSERT INTO exercise (name, muscle_group_id, user_id) VALUES (${name}, ${muscleGroupId}, ${userId})
         RETURNING id;
     `;
+    const id = result.rows[0].id as number;
+    await logIdempotency(idempotencyKey, 'exercise', id);
     revalidatePath('/workouts');
-    return result.rows[0].id as number;
+    return id;
 }
 
 export async function updateExerciseMuscleGroup(exerciseId: number, muscleGroupId: number) {
@@ -68,41 +91,52 @@ export async function renameExercise(exerciseId: number, name: string) {
 
 // -- Workouts --
 
-export async function createWorkout(date: string, notes?: string) {
+export async function createWorkout(date: string, notes?: string, idempotencyKey?: string) {
     await ProtectRoute();
     const userId = await getSessionUserId();
+
+    const existingId = await checkIdempotency(idempotencyKey);
+    if (existingId != null) return existingId;
 
     const result = await sql`
         INSERT INTO workout (date, user_id, notes) VALUES (${date}, ${userId}, ${notes ?? null})
         ON CONFLICT (date, user_id) DO UPDATE SET notes = COALESCE(EXCLUDED.notes, workout.notes)
         RETURNING id;
     `;
+    const id = result.rows[0].id as number;
+    await logIdempotency(idempotencyKey, 'workout', id);
     revalidatePath('/workouts');
-    return result.rows[0].id as number;
+    return id;
 }
 
 // -- Workout Exercises --
 
-export async function addExerciseToWorkout(workoutId: number, exerciseId: number) {
+export async function addExerciseToWorkout(workoutId: number, exerciseId: number, sortOrder?: number, idempotencyKey?: string) {
     await ProtectRoute();
     const userId = await getSessionUserId();
+
+    const existingId = await checkIdempotency(idempotencyKey);
+    if (existingId != null) return existingId;
 
     // Verify workout belongs to user
     const workout = await sql`SELECT id FROM workout WHERE id = ${workoutId} AND user_id = ${userId};`;
     if (!workout.rows[0]) throw new Error('Unauthorized');
 
-    const maxOrder = await sql`
+    // Use provided sortOrder or calculate next
+    const order = sortOrder ?? (await sql`
         SELECT COALESCE(MAX(sort_order), -1) + 1 AS next_order
         FROM workout_exercise WHERE workout_id = ${workoutId};
-    `;
+    `).rows[0].next_order;
 
     const result = await sql`
         INSERT INTO workout_exercise (workout_id, exercise_id, sort_order)
-        VALUES (${workoutId}, ${exerciseId}, ${maxOrder.rows[0].next_order})
+        VALUES (${workoutId}, ${exerciseId}, ${order})
         RETURNING id;
     `;
+    const id = result.rows[0].id as number;
+    await logIdempotency(idempotencyKey, 'workout_exercise', id);
     revalidatePath('/workouts');
-    return result.rows[0].id as number;
+    return id;
 }
 
 export async function removeExerciseFromWorkout(workoutExerciseId: number) {
@@ -134,9 +168,21 @@ export async function reorderWorkoutExercises(orderedIds: number[]) {
 
 // -- Sets --
 
-export async function addSet(workoutExerciseId: number, weight: number | null, weightUnit: string, reps: number | null, notes?: string, setType: string = 'working') {
+export async function addSet(
+    workoutExerciseId: number,
+    weight: number | null,
+    weightUnit: string,
+    reps: number | null,
+    notes?: string,
+    setType: string = 'working',
+    sortOrder?: number,
+    idempotencyKey?: string
+) {
     await ProtectRoute();
     const userId = await getSessionUserId();
+
+    const existingId = await checkIdempotency(idempotencyKey);
+    if (existingId != null) return existingId;
 
     // Verify ownership through workout_exercise → workout → user
     const ownership = await sql`
@@ -146,18 +192,21 @@ export async function addSet(workoutExerciseId: number, weight: number | null, w
     `;
     if (!ownership.rows[0]) throw new Error('Unauthorized');
 
-    const maxOrder = await sql`
+    // Use provided sortOrder or calculate next
+    const order = sortOrder ?? (await sql`
         SELECT COALESCE(MAX(sort_order), -1) + 1 AS next_order
         FROM exercise_set WHERE workout_exercise_id = ${workoutExerciseId};
-    `;
+    `).rows[0].next_order;
 
     const result = await sql`
         INSERT INTO exercise_set (workout_exercise_id, weight, weight_unit, reps, notes, sort_order, set_type)
-        VALUES (${workoutExerciseId}, ${weight}, ${weightUnit}, ${reps}, ${notes ?? null}, ${maxOrder.rows[0].next_order}, ${setType})
+        VALUES (${workoutExerciseId}, ${weight}, ${weightUnit}, ${reps}, ${notes ?? null}, ${order}, ${setType})
         RETURNING id;
     `;
+    const id = result.rows[0].id as number;
+    await logIdempotency(idempotencyKey, 'exercise_set', id);
     revalidatePath('/workouts');
-    return result.rows[0].id as number;
+    return id;
 }
 
 export async function updateSet(setId: number, weight: number | null, weightUnit: string, reps: number | null, notes?: string, setType: string = 'working') {

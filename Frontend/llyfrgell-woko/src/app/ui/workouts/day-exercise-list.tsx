@@ -8,6 +8,7 @@ import {
     localCreateWorkout,
     localRemoveExerciseFromWorkout
 } from "@/app/lib/workouts/local-actions";
+import {useOffline} from "@/app/components/WorkoutOfflineProvider";
 import {useRouter} from "next/navigation";
 import Link from "next/link";
 import CloseIcon from '@mui/icons-material/Close';
@@ -21,6 +22,7 @@ interface Props {
 
 export default function DayExerciseList({date, workoutId, exercises: initialExercises}: Props) {
     const router = useRouter();
+    const {refreshPendingCount} = useOffline();
     const [exercises, setExercises] = useState(initialExercises);
     const [showAddModal, setShowAddModal] = useState(false);
     const [copying, setCopying] = useState(false);
@@ -47,6 +49,7 @@ export default function DayExerciseList({date, workoutId, exercises: initialExer
         if (!confirm(`Remove ${name} from this day?`)) return;
         await localRemoveExerciseFromWorkout(workoutExerciseId);
         setExercises(prev => prev.filter(e => e.id !== workoutExerciseId));
+        await refreshPendingCount();
     };
 
     const addMovement = async (exerciseId: number) => {
@@ -55,6 +58,7 @@ export default function DayExerciseList({date, workoutId, exercises: initialExer
             wId = await localCreateWorkout(date);
         }
         await localAddExerciseToWorkout(wId, exerciseId);
+        await refreshPendingCount();
         setShowAddModal(false);
         router.refresh();
     };

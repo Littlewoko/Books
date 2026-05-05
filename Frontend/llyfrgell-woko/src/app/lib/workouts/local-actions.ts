@@ -1,19 +1,16 @@
 import {db, nextLocalId} from './local-db';
 import type {SetType} from './types';
-import {requestSync} from './sync';
 
 export async function localCreateMuscleGroup(name: string): Promise<number> {
     const id = await nextLocalId();
-    await db.muscleGroups.add({id, name, colour: '#737373'});
-    requestSync();
+    await db.muscleGroups.add({id, name, colour: '#737373', idempotencyKey: crypto.randomUUID()});
     return id;
 }
 
 export async function localCreateExercise(name: string, muscleGroupId: number): Promise<number> {
     const mg = await db.muscleGroups.get(muscleGroupId);
     const id = await nextLocalId();
-    await db.exercises.add({id, name, muscleGroupId, muscleGroupName: mg?.name || ''});
-    requestSync();
+    await db.exercises.add({id, name, muscleGroupId, muscleGroupName: mg?.name || '', idempotencyKey: crypto.randomUUID()});
     return id;
 }
 
@@ -22,8 +19,7 @@ export async function localCreateWorkout(date: string, notes?: string): Promise<
     if (existing) return existing.id;
 
     const id = await nextLocalId();
-    await db.workouts.add({id, date, notes: notes || null});
-    requestSync();
+    await db.workouts.add({id, date, notes: notes || null, idempotencyKey: crypto.randomUUID()});
     return id;
 }
 
@@ -42,8 +38,8 @@ export async function localAddExerciseToWorkout(workoutId: number, exerciseId: n
         exerciseName: exercise?.name || '',
         muscleGroupName: exercise?.muscleGroupName || '',
         setCount: 0,
+        idempotencyKey: crypto.randomUUID(),
     });
-    requestSync();
     return id;
 }
 
@@ -59,7 +55,6 @@ export async function localRemoveExerciseFromWorkout(workoutExerciseId: number) 
         await db.deletions.add({table: 'workout_exercise', serverId: workoutExerciseId});
     }
     await db.workoutExercises.delete(workoutExerciseId);
-    requestSync();
 }
 
 export async function localAddSet(
@@ -88,12 +83,12 @@ export async function localAddSet(
         sortOrder: nextOrder,
         setType,
         dirty: Date.now(),
+        idempotencyKey: crypto.randomUUID(),
     });
 
     const we = await db.workoutExercises.get(workoutExerciseId);
     if (we) await db.workoutExercises.update(workoutExerciseId, {setCount: we.setCount + 1});
 
-    requestSync();
     return id;
 }
 
@@ -106,7 +101,6 @@ export async function localUpdateSet(
     setType: SetType = 'working'
 ) {
     await db.exerciseSets.update(setId, {weight, weightUnit, reps, notes: notes || null, setType, dirty: Date.now()});
-    requestSync();
 }
 
 export async function localDeleteSet(setId: number) {
@@ -120,7 +114,6 @@ export async function localDeleteSet(setId: number) {
 
     const we = await db.workoutExercises.get(set.workoutExerciseId);
     if (we) await db.workoutExercises.update(set.workoutExerciseId, {setCount: Math.max(0, we.setCount - 1)});
-    requestSync();
 }
 
 export async function localCopyMovementsToToday(exerciseIds: number[]): Promise<{ added: number; today: string }> {

@@ -3,9 +3,11 @@
 import {useEffect, useState} from "react";
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import SyncIcon from '@mui/icons-material/Sync';
 import Link from "next/link";
 import {localGetWorkoutDatesForMonth} from "@/app/lib/workouts/local-data";
 import {getMuscleGroupColour, loadMuscleGroupColours} from "@/app/lib/workouts/muscle-group-colours";
+import {useOffline} from "@/app/components/WorkoutOfflineProvider";
 import WeeklyVolume from "./weekly-volume";
 
 const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -16,11 +18,13 @@ interface WorkoutDay {
 }
 
 export default function WorkoutCalendar() {
+    const {sync, pendingSyncs, isOnline} = useOffline();
     const [today] = useState(() => new Date());
     const [year, setYear] = useState(() => new Date().getFullYear());
     const [month, setMonth] = useState(() => new Date().getMonth() + 1);
     const [workoutDays, setWorkoutDays] = useState<WorkoutDay[]>([]);
     const [loading, setLoading] = useState(true);
+    const [syncing, setSyncing] = useState(false);
 
     useEffect(() => {
         setLoading(true);
@@ -52,6 +56,15 @@ export default function WorkoutCalendar() {
     const monthName = firstDay.toLocaleString("default", {month: "long"});
     const isCurrentMonth = year === today.getFullYear() && month === today.getMonth() + 1;
 
+    const handleSync = async () => {
+        setSyncing(true);
+        try {
+            await sync();
+            const days = await localGetWorkoutDatesForMonth(year, month);
+            setWorkoutDays(days);
+        } finally { setSyncing(false); }
+    };
+
     return (
         <div className="max-w-lg mx-auto">
             <div className="flex items-center justify-between mb-3">
@@ -65,6 +78,15 @@ export default function WorkoutCalendar() {
                 <button type="button" onClick={nextMonth}
                         className="p-2 text-black hover:text-amber-700 transition-colors">
                     <ChevronRightIcon sx={{fontSize: 28, color: 'inherit'}}/>
+                </button>
+                <button type="button" onClick={handleSync} disabled={syncing || !isOnline}
+                        className="text-amber-700 hover:text-amber-800 transition-colors disabled:text-black/20 relative p-2">
+                    <SyncIcon sx={{fontSize: 22, color: 'inherit'}} className={syncing ? 'animate-spin' : ''}/>
+                    {pendingSyncs > 0 && (
+                        <span className="absolute top-0.5 right-0.5 bg-amber-600 text-white text-[9px] font-bold rounded-full w-3.5 h-3.5 flex items-center justify-center">
+                            {pendingSyncs > 9 ? '9+' : pendingSyncs}
+                        </span>
+                    )}
                 </button>
             </div>
 

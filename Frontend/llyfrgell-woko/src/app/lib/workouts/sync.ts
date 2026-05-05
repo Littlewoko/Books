@@ -62,7 +62,15 @@ async function remapExerciseSet(localId: number, serverId: number) {
     await db.exerciseSets.put({...s, id: serverId, dirty: undefined});
 }
 
+// Mutex to prevent concurrent flushes
+let flushLock: Promise<void> = Promise.resolve();
+
 export async function flushSyncQueue(): Promise<{ synced: number; failed: number }> {
+    const prev = flushLock;
+    let resolve: () => void;
+    flushLock = new Promise(r => { resolve = r; });
+    await prev;
+
     let synced = 0;
     let failed = 0;
 
@@ -71,19 +79,18 @@ export async function flushSyncQueue(): Promise<{ synced: number; failed: number
         const newMgs = await db.muscleGroups.where('id').below(0).toArray();
         for (const mg of newMgs) {
             try {
-                const serverId = await createMuscleGroup(mg.name);
+                const serverId = await createMuscleGroup(mg.name, mg.idempotencyKey);
                 await remapMuscleGroup(mg.id, serverId);
                 synced++;
             } catch { failed++; }
         }
 
         // 2. INSERT new exercises (negative IDs)
-        // Re-read after muscle group remaps so muscleGroupId references are current
         const newExercises = await db.exercises.where('id').below(0).toArray();
         for (const ex of newExercises) {
             if (ex.muscleGroupId < 0) { failed++; continue; }
             try {
-                const serverId = await createExercise(ex.name, ex.muscleGroupId);
+                const serverId = await createExercise(ex.name, ex.muscleGroupId, ex.idempotencyKey);
                 await remapExercise(ex.id, serverId);
                 synced++;
             } catch { failed++; }
@@ -93,33 +100,31 @@ export async function flushSyncQueue(): Promise<{ synced: number; failed: number
         const newWorkouts = await db.workouts.where('id').below(0).toArray();
         for (const w of newWorkouts) {
             try {
-                const serverId = await createWorkout(w.date, w.notes ?? undefined);
+                const serverId = await createWorkout(w.date, w.notes ?? undefined, w.idempotencyKey);
                 await remapWorkout(w.id, serverId);
                 synced++;
             } catch { failed++; }
         }
 
         // 4. INSERT new workout_exercises (negative IDs)
-        // Re-read after workout remaps so workoutId references are current
         const newWes = await db.workoutExercises.where('id').below(0).toArray();
         for (const we of newWes) {
             if (we.workoutId < 0 || we.exerciseId < 0) { failed++; continue; }
             try {
-                const serverId = await addExerciseToWorkout(we.workoutId, we.exerciseId);
+                const serverId = await addExerciseToWorkout(we.workoutId, we.exerciseId, we.sortOrder, we.idempotencyKey);
                 await remapWorkoutExercise(we.id, serverId);
                 synced++;
             } catch { failed++; }
         }
 
         // 5. INSERT new exercise_sets (negative IDs)
-        // Re-read after workout_exercise remaps so workoutExerciseId references are current
         const newSets = await db.exerciseSets.where('id').below(0).toArray();
         for (const s of newSets) {
             if (s.workoutExerciseId < 0) { failed++; continue; }
             try {
                 const serverId = await addSet(
                     s.workoutExerciseId, s.weight, s.weightUnit, s.reps,
-                    s.notes ?? undefined, s.setType
+                    s.notes ?? undefined, s.setType, s.sortOrder, s.idempotencyKey
                 );
                 await remapExerciseSet(s.id, serverId);
                 synced++;
@@ -148,8 +153,9 @@ export async function flushSyncQueue(): Promise<{ synced: number; failed: number
             } catch { failed++; }
         }
     } catch {
-        // Top-level failure (e.g. auth expired) — don't lose data, just report
         failed++;
+    } finally {
+        resolve!();
     }
 
     return {synced, failed};
@@ -238,46 +244,4 @@ export async function hydrateChunk(data: {
 
         await db.syncMeta.put({key: 'lastSync', value: new Date().toISOString()});
     });
-}
-
-// Auto-sync: flush when online, retry periodically
-let syncInterval: ReturnType<typeof setInterval> | null = null;
-let syncing = false;
-
-const trySync = async () => {
-    if (!navigator.onLine || syncing) return;
-    syncing = true;
-    try {
-        const count = await getPendingSyncCount();
-        if (count > 0) {
-            await flushSyncQueue();
-        }
-    } finally {
-        syncing = false;
-    }
-};
-
-const onVisibilityChange = () => {
-    if (document.visibilityState === 'visible') trySync();
-};
-
-export function startAutoSync() {
-    window.addEventListener('online', trySync);
-    document.addEventListener('visibilitychange', onVisibilityChange);
-    syncInterval = setInterval(trySync, 30000);
-    trySync();
-}
-
-export function stopAutoSync() {
-    if (syncInterval) {
-        clearInterval(syncInterval);
-        syncInterval = null;
-    }
-    window.removeEventListener('online', trySync);
-    document.removeEventListener('visibilitychange', onVisibilityChange);
-}
-
-// Call after a local write to sync promptly without waiting for the interval
-export function requestSync() {
-    setTimeout(trySync, 500);
 }

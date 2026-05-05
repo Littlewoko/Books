@@ -3,25 +3,24 @@
 import { createContext, useContext, useEffect, useState, useCallback, useRef, ReactNode } from "react";
 import { useSession } from "next-auth/react";
 import { localIsHydrated, localGetSyncMeta, localSetSyncMeta } from "@/app/lib/workouts/local-data";
-import { hydrateChunk, startAutoSync, stopAutoSync, getPendingSyncCount, flushSyncQueue } from "@/app/lib/workouts/sync";
+import { hydrateChunk, flushSyncQueue, getPendingSyncCount } from "@/app/lib/workouts/sync";
 import { getHydrationChunk } from "@/app/lib/workouts/hydrate-action";
-
 import { invalidateColourCache } from "@/app/lib/workouts/muscle-group-colours";
-
-const STALE_THRESHOLD_MS = 60 * 60 * 1000; // 1 hour
 
 interface OfflineContextType {
     isHydrated: boolean;
     isOnline: boolean;
     pendingSyncs: number;
-    refreshLocal: () => Promise<void>;
+    sync: () => Promise<{ synced: number; failed: number }>;
+    refreshPendingCount: () => Promise<void>;
 }
 
 const OfflineContext = createContext<OfflineContextType>({
     isHydrated: false,
     isOnline: true,
     pendingSyncs: 0,
-    refreshLocal: async () => {},
+    sync: async () => ({ synced: 0, failed: 0 }),
+    refreshPendingCount: async () => {},
 });
 
 export function useOffline() {
@@ -37,11 +36,6 @@ export default function WorkoutOfflineProvider({ children }: { children: ReactNo
 
     const hydrateAll = useCallback(async (clearFirst: boolean) => {
         if (!navigator.onLine) return;
-
-        // If not clearing everything, flush pending syncs first so nothing is lost
-        if (!clearFirst) {
-            try { await flushSyncQueue(); } catch (e) { /* best effort */ }
-        }
 
         let beforeDate: string | undefined = undefined;
         let isFirst = true;
@@ -64,16 +58,33 @@ export default function WorkoutOfflineProvider({ children }: { children: ReactNo
             }
         }
 
-        // Store current user ID after successful hydration
         if (session?.user?.id) {
             await localSetSyncMeta('userId', session.user.id);
         }
 
         invalidateColourCache();
-
-
     }, [session?.user?.id]);
 
+    const refreshPendingCount = useCallback(async () => {
+        setPendingSyncs(await getPendingSyncCount());
+    }, []);
+
+    const sync = useCallback(async (): Promise<{ synced: number; failed: number }> => {
+        if (!navigator.onLine) return { synced: 0, failed: 0 };
+
+        // Push local changes to server
+        const result = await flushSyncQueue();
+
+        // Pull fresh server state (clear local since we just pushed everything)
+        await hydrateAll(true);
+
+        // Update pending count
+        await refreshPendingCount();
+
+        return result;
+    }, [hydrateAll, refreshPendingCount]);
+
+    // Track online status
     useEffect(() => {
         setIsOnline(navigator.onLine);
         const onOnline = () => setIsOnline(true);
@@ -86,7 +97,7 @@ export default function WorkoutOfflineProvider({ children }: { children: ReactNo
         };
     }, []);
 
-    // Hydration logic
+    // Initial hydration on mount
     useEffect(() => {
         if (!session?.user?.id || hydrationRan.current) return;
         hydrationRan.current = true;
@@ -94,65 +105,22 @@ export default function WorkoutOfflineProvider({ children }: { children: ReactNo
         (async () => {
             const currentUserId = session.user.id;
             const storedUserId = await localGetSyncMeta('userId');
-            const lastSyncStr = await localGetSyncMeta('lastSync');
             const hydrated = await localIsHydrated();
 
             if (!hydrated || storedUserId !== currentUserId) {
-                // Check for unsynced data from a different user
-                if (storedUserId && storedUserId !== currentUserId) {
-                    const pending = await getPendingSyncCount();
-                    if (pending > 0) {
-                        // Try to flush before clearing — will fail if wrong user is authed
-                        // but at least we tried. Log it.
-                        console.warn(`Switching users with ${pending} unsynced items from previous user. Data may be lost.`);
-                        if (navigator.onLine) {
-                            try { await flushSyncQueue(); } catch (e) { /* expected to fail */ }
-                        }
-                    }
-                }
-                // Full clear + hydrate
+                // Different user or first time — full clear + hydrate
                 await hydrateAll(true);
-                return;
-            }
-
-            // Same user, already hydrated
-            setIsHydrated(true);
-
-            if (!navigator.onLine) return;
-
-            // Check if stale
-            const lastSync = lastSyncStr ? new Date(lastSyncStr).getTime() : 0;
-            const isStale = Date.now() - lastSync > STALE_THRESHOLD_MS;
-
-            if (isStale) {
-                // Background refresh — flushes pending syncs first, then hydrates without clearing sync data
-                hydrateAll(false);
             } else {
-                // Not stale, just flush pending syncs
-                try { await flushSyncQueue(); } catch (e) { /* non-blocking */ }
+                // Same user, already hydrated — just mark ready
+                setIsHydrated(true);
             }
+
+            await refreshPendingCount();
         })();
-    }, [session?.user?.id, hydrateAll]);
-
-    // Start auto-sync
-    useEffect(() => {
-        if (isHydrated) {
-            startAutoSync();
-            return () => stopAutoSync();
-        }
-    }, [isHydrated]);
-
-    // Poll pending sync count
-    useEffect(() => {
-        if (!isHydrated) return;
-        const interval = setInterval(async () => {
-            setPendingSyncs(await getPendingSyncCount());
-        }, 3000);
-        return () => clearInterval(interval);
-    }, [isHydrated]);
+    }, [session?.user?.id, hydrateAll, refreshPendingCount]);
 
     return (
-        <OfflineContext.Provider value={{ isHydrated, isOnline, pendingSyncs, refreshLocal: () => hydrateAll(false) }}>
+        <OfflineContext.Provider value={{ isHydrated, isOnline, pendingSyncs, sync, refreshPendingCount }}>
             {children}
         </OfflineContext.Provider>
     );
