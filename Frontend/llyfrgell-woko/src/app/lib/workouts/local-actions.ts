@@ -10,7 +10,13 @@ export async function localCreateMuscleGroup(name: string): Promise<number> {
 export async function localCreateExercise(name: string, muscleGroupId: number): Promise<number> {
     const mg = await db.muscleGroups.get(muscleGroupId);
     const id = await nextLocalId();
-    await db.exercises.add({id, name, muscleGroupId, muscleGroupName: mg?.name || '', idempotencyKey: crypto.randomUUID()});
+    await db.exercises.add({
+        id,
+        name,
+        muscleGroupId,
+        muscleGroupName: mg?.name || '',
+        idempotencyKey: crypto.randomUUID()
+    });
     return id;
 }
 
@@ -114,6 +120,24 @@ export async function localDeleteSet(setId: number) {
 
     const we = await db.workoutExercises.get(set.workoutExerciseId);
     if (we) await db.workoutExercises.update(set.workoutExerciseId, {setCount: Math.max(0, we.setCount - 1)});
+}
+
+export async function localReorderExercises(workoutExerciseIds: number[]) {
+    for (let i = 0; i < workoutExerciseIds.length; i++) {
+        await db.workoutExercises.update(workoutExerciseIds[i], {
+            sortOrder: i,
+            dirty: workoutExerciseIds[i] > 0 ? Date.now() : undefined,
+        });
+    }
+}
+
+export async function localReorderSets(setIds: number[]) {
+    for (let i = 0; i < setIds.length; i++) {
+        await db.exerciseSets.update(setIds[i], {
+            sortOrder: i,
+            dirty: setIds[i] > 0 ? Date.now() : undefined,
+        });
+    }
 }
 
 export async function localCopyMovementsToToday(exerciseIds: number[]): Promise<{ added: number; today: string }> {

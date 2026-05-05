@@ -8,6 +8,7 @@ import {
     deleteSet,
     removeExerciseFromWorkout,
     updateSet,
+    updateWorkoutExerciseSortOrder,
 } from './actions';
 
 // Remap a record's ID in IndexedDB: delete old, insert with new ID, update child references
@@ -68,7 +69,9 @@ let flushLock: Promise<void> = Promise.resolve();
 export async function flushSyncQueue(): Promise<{ synced: number; failed: number }> {
     const prev = flushLock;
     let resolve: () => void;
-    flushLock = new Promise(r => { resolve = r; });
+    flushLock = new Promise(r => {
+        resolve = r;
+    });
     await prev;
 
     let synced = 0;
@@ -82,18 +85,25 @@ export async function flushSyncQueue(): Promise<{ synced: number; failed: number
                 const serverId = await createMuscleGroup(mg.name, mg.idempotencyKey);
                 await remapMuscleGroup(mg.id, serverId);
                 synced++;
-            } catch { failed++; }
+            } catch {
+                failed++;
+            }
         }
 
         // 2. INSERT new exercises (negative IDs)
         const newExercises = await db.exercises.where('id').below(0).toArray();
         for (const ex of newExercises) {
-            if (ex.muscleGroupId < 0) { failed++; continue; }
+            if (ex.muscleGroupId < 0) {
+                failed++;
+                continue;
+            }
             try {
                 const serverId = await createExercise(ex.name, ex.muscleGroupId, ex.idempotencyKey);
                 await remapExercise(ex.id, serverId);
                 synced++;
-            } catch { failed++; }
+            } catch {
+                failed++;
+            }
         }
 
         // 3. INSERT new workouts (negative IDs)
@@ -103,24 +113,34 @@ export async function flushSyncQueue(): Promise<{ synced: number; failed: number
                 const serverId = await createWorkout(w.date, w.notes ?? undefined, w.idempotencyKey);
                 await remapWorkout(w.id, serverId);
                 synced++;
-            } catch { failed++; }
+            } catch {
+                failed++;
+            }
         }
 
         // 4. INSERT new workout_exercises (negative IDs)
         const newWes = await db.workoutExercises.where('id').below(0).toArray();
         for (const we of newWes) {
-            if (we.workoutId < 0 || we.exerciseId < 0) { failed++; continue; }
+            if (we.workoutId < 0 || we.exerciseId < 0) {
+                failed++;
+                continue;
+            }
             try {
                 const serverId = await addExerciseToWorkout(we.workoutId, we.exerciseId, we.sortOrder, we.idempotencyKey);
                 await remapWorkoutExercise(we.id, serverId);
                 synced++;
-            } catch { failed++; }
+            } catch {
+                failed++;
+            }
         }
 
         // 5. INSERT new exercise_sets (negative IDs)
         const newSets = await db.exerciseSets.where('id').below(0).toArray();
         for (const s of newSets) {
-            if (s.workoutExerciseId < 0) { failed++; continue; }
+            if (s.workoutExerciseId < 0) {
+                failed++;
+                continue;
+            }
             try {
                 const serverId = await addSet(
                     s.workoutExerciseId, s.weight, s.weightUnit, s.reps,
@@ -128,18 +148,35 @@ export async function flushSyncQueue(): Promise<{ synced: number; failed: number
                 );
                 await remapExerciseSet(s.id, serverId);
                 synced++;
-            } catch { failed++; }
+            } catch {
+                failed++;
+            }
         }
 
         // 6. UPDATE dirty exercise_sets (positive IDs with dirty flag)
         const dirtySets = await db.exerciseSets.where('dirty').above(0).toArray();
-        const dirtyUpdates = dirtySets.filter(s => s.id > 0);
-        for (const s of dirtyUpdates) {
+        const dirtySetUpdates = dirtySets.filter(s => s.id > 0);
+        for (const s of dirtySetUpdates) {
             try {
-                await updateSet(s.id, s.weight, s.weightUnit, s.reps, s.notes ?? undefined, s.setType);
+                await updateSet(s.id, s.weight, s.weightUnit, s.reps, s.notes ?? undefined, s.setType, s.sortOrder);
                 await db.exerciseSets.update(s.id, {dirty: undefined});
                 synced++;
-            } catch { failed++; }
+            } catch {
+                failed++;
+            }
+        }
+
+        // 7. UPDATE dirty workout_exercises (positive IDs with dirty flag — reorders)
+        const dirtyWes = await db.workoutExercises.where('dirty').above(0).toArray();
+        for (const we of dirtyWes) {
+            if (we.id < 0) continue;
+            try {
+                await updateWorkoutExerciseSortOrder(we.id, we.sortOrder);
+                await db.workoutExercises.update(we.id, {dirty: undefined});
+                synced++;
+            } catch {
+                failed++;
+            }
         }
 
         // 7. Process deletions
@@ -150,7 +187,9 @@ export async function flushSyncQueue(): Promise<{ synced: number; failed: number
                 else if (d.table === 'exercise_set') await deleteSet(d.serverId);
                 await db.deletions.delete(d.id!);
                 synced++;
-            } catch { failed++; }
+            } catch {
+                failed++;
+            }
         }
     } catch {
         failed++;
@@ -162,16 +201,17 @@ export async function flushSyncQueue(): Promise<{ synced: number; failed: number
 }
 
 export async function getPendingSyncCount(): Promise<number> {
-    const [mgs, exercises, workouts, wes, newSets, dirtySets, deletions] = await Promise.all([
+    const [mgs, exercises, workouts, wes, newSets, dirtySets, dirtyWes, deletions] = await Promise.all([
         db.muscleGroups.where('id').below(0).count(),
         db.exercises.where('id').below(0).count(),
         db.workouts.where('id').below(0).count(),
         db.workoutExercises.where('id').below(0).count(),
         db.exerciseSets.where('id').below(0).count(),
         db.exerciseSets.where('dirty').above(0).count(),
+        db.workoutExercises.where('dirty').above(0).count(),
         db.deletions.count(),
     ]);
-    return mgs + exercises + workouts + wes + newSets + dirtySets + deletions;
+    return mgs + exercises + workouts + wes + newSets + dirtySets + dirtyWes + deletions;
 }
 
 // Hydrate local DB from server data

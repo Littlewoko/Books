@@ -2,7 +2,7 @@
 
 import {useCallback, useEffect, useState} from "react";
 import {ExerciseHistory, ExerciseSet, PersonalBest, SetType, WorkoutExercise} from "@/app/lib/workouts/types";
-import {localAddSet, localDeleteSet, localUpdateSet} from "@/app/lib/workouts/local-actions";
+import {localAddSet, localDeleteSet, localReorderSets, localUpdateSet} from "@/app/lib/workouts/local-actions";
 import {
     localGetExerciseHistory,
     localGetMovementScreenData,
@@ -16,6 +16,18 @@ import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import EditIcon from '@mui/icons-material/Edit';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
+import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
+import {
+    closestCenter,
+    DndContext,
+    DragEndEvent,
+    PointerSensor,
+    TouchSensor,
+    useSensor,
+    useSensors,
+} from "@dnd-kit/core";
+import {arrayMove, SortableContext, useSortable, verticalListSortingStrategy,} from "@dnd-kit/sortable";
+import {CSS} from "@dnd-kit/utilities";
 
 type Tab = "track" | "history" | "pbs" | "calc";
 
@@ -51,6 +63,147 @@ function collapsePbs(pbs: PersonalBest[]): { reps: string; weight: number; weigh
         i++;
     }
     return collapsed;
+}
+
+function SortableSetRow({s, index, isDragging, isPb, setTypeBg, setTypeDisplay, startEdit, handleDeleteSet}: {
+    s: ExerciseSet; index: number; isDragging: boolean; isPb: boolean;
+    setTypeBg: (t?: SetType | string) => string; setTypeDisplay: (t?: SetType | string) => string;
+    startEdit: (s: ExerciseSet) => void; handleDeleteSet: (id: number) => void;
+}) {
+    const {attributes, listeners, setNodeRef, transform, transition} = useSortable({id: s.id!});
+
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.5 : 1,
+    };
+
+    return (
+        <div ref={setNodeRef} style={style}
+             className={`flex items-center gap-1 border-b border-black/5 py-1 text-sm ${isPb ? 'bg-amber-300/20' : setTypeBg(s.setType)}`}>
+            <button type="button" {...attributes} {...listeners}
+                    className="text-black/20 hover:text-black/40 cursor-grab active:cursor-grabbing touch-none flex-shrink-0">
+                <DragIndicatorIcon sx={{fontSize: 14, color: 'inherit'}}/>
+            </button>
+            <span className="text-black/50 w-4 text-xs">{index + 1}</span>
+            <span
+                className="text-black font-semibold w-16">{s.weight != null ? `${s.weight} ${s.weightUnit}` : '-'}</span>
+            <span className="text-black font-semibold w-8">{s.reps ?? '-'}</span>
+            <span className="text-black/60 text-xs flex-1 flex items-center gap-1">
+                {setTypeDisplay(s.setType)}
+                {isPb && <EmojiEventsIcon sx={{fontSize: 12, color: '#b45309'}}/>}
+            </span>
+            <span className="text-black/60 text-xs truncate max-w-16">{s.notes || ''}</span>
+            <button type="button" onClick={() => startEdit(s)}
+                    className="text-black/20 hover:text-amber-700 p-0.5"><EditIcon
+                sx={{fontSize: 14, color: 'inherit'}}/></button>
+            <button type="button" onClick={() => s.id && handleDeleteSet(s.id)}
+                    className="text-black/20 hover:text-red-600 p-0.5"><DeleteOutlineIcon
+                sx={{fontSize: 14, color: 'inherit'}}/></button>
+        </div>
+    );
+}
+
+function SortableSets({
+                          sets,
+                          editingId,
+                          editWeight,
+                          editReps,
+                          editNotes,
+                          editSetType,
+                          setEditWeight,
+                          setEditReps,
+                          setEditNotes,
+                          setEditSetType,
+                          handleSaveEdit,
+                          setEditingId,
+                          startEdit,
+                          handleDeleteSet,
+                          isPbSet,
+                          setTypeBg,
+                          setTypeDisplay,
+                          inputClass,
+                          onReorder
+                      }: {
+    sets: ExerciseSet[];
+    editingId: number | null;
+    editWeight: string;
+    editReps: string;
+    editNotes: string;
+    editSetType: SetType;
+    setEditWeight: (v: string) => void;
+    setEditReps: (v: string) => void;
+    setEditNotes: (v: string) => void;
+    setEditSetType: (v: SetType) => void;
+    handleSaveEdit: () => void;
+    setEditingId: (v: number | null) => void;
+    startEdit: (s: ExerciseSet) => void;
+    handleDeleteSet: (id: number) => void;
+    isPbSet: (s: ExerciseSet) => boolean;
+    setTypeBg: (t?: SetType | string) => string;
+    setTypeDisplay: (t?: SetType | string) => string;
+    inputClass: string;
+    onReorder: (reordered: ExerciseSet[]) => void;
+}) {
+    const sensors = useSensors(
+        useSensor(PointerSensor, {activationConstraint: {delay: 200, tolerance: 5}}),
+        useSensor(TouchSensor, {activationConstraint: {delay: 200, tolerance: 5}}),
+    );
+
+    const handleDragEnd = (event: DragEndEvent) => {
+        const {active, over} = event;
+        if (!over || active.id === over.id) return;
+        const oldIndex = sets.findIndex(s => s.id === active.id);
+        const newIndex = sets.findIndex(s => s.id === over.id);
+        onReorder(arrayMove(sets, oldIndex, newIndex));
+    };
+
+    return (
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <SortableContext items={sets.map(s => s.id!)} strategy={verticalListSortingStrategy}>
+                <div className="mb-3">
+                    <div className="flex items-center gap-1 text-left text-amber-700 text-xs font-bold py-1">
+                        <span className="w-5"></span>
+                        <span className="w-4">#</span>
+                        <span className="w-16">Weight</span>
+                        <span className="w-8">Reps</span>
+                        <span className="flex-1">Type</span>
+                        <span className="max-w-16">Notes</span>
+                        <span className="w-12"></span>
+                    </div>
+                    {sets.map((s, i) => (
+                        editingId === s.id ? (
+                            <div key={s.id} className="flex items-center gap-1 border-b border-black/5 py-1">
+                                <span className="w-5"></span>
+                                <span className="text-black/50 w-4 text-xs">{i + 1}</span>
+                                <input type="number" value={editWeight} onChange={e => setEditWeight(e.target.value)}
+                                       step="0.5" className={`${inputClass} w-16`}/>
+                                <input type="number" value={editReps} onChange={e => setEditReps(e.target.value)}
+                                       className={`${inputClass} w-8`}/>
+                                <select value={editSetType} onChange={e => setEditSetType(e.target.value as SetType)}
+                                        className="bg-transparent text-black text-xs py-0.5 focus:outline-none flex-1">
+                                    <option value="working">Working</option>
+                                    <option value="warmup">Warmup</option>
+                                    <option value="amrap">AMRAP</option>
+                                </select>
+                                <input type="text" value={editNotes} onChange={e => setEditNotes(e.target.value)}
+                                       className={`${inputClass} max-w-16`}/>
+                                <button type="button" onClick={handleSaveEdit} className="text-green-600 p-0.5">
+                                    <CheckIcon sx={{fontSize: 14, color: 'inherit'}}/></button>
+                                <button type="button" onClick={() => setEditingId(null)}
+                                        className="text-black/40 p-0.5">
+                                    <CloseIcon sx={{fontSize: 14, color: 'inherit'}}/></button>
+                            </div>
+                        ) : (
+                            <SortableSetRow key={s.id} s={s} index={i} isDragging={false}
+                                            isPb={isPbSet(s)} setTypeBg={setTypeBg} setTypeDisplay={setTypeDisplay}
+                                            startEdit={startEdit} handleDeleteSet={handleDeleteSet}/>
+                        )
+                    ))}
+                </div>
+            </SortableContext>
+        </DndContext>
+    );
 }
 
 export default function MovementScreen({date, exerciseId, initialData}: Props) {
@@ -150,6 +303,12 @@ export default function MovementScreen({date, exerciseId, initialData}: Props) {
         setHistoryLimit(5);
     };
 
+    const handleReorderSets = async (reordered: ExerciseSet[]) => {
+        setSets(reordered);
+        await localReorderSets(reordered.map(s => s.id!));
+        await refreshPendingCount();
+    };
+
     const pbMap = new Map<string, boolean>();
     if (loadedPbs) {
         for (const pb of pbs) pbMap.set(`${pb.reps}-${pb.weight}`, true);
@@ -199,77 +358,27 @@ export default function MovementScreen({date, exerciseId, initialData}: Props) {
             {tab === "track" && (
                 <div>
                     {sets.length > 0 && (
-                        <table className="w-full text-sm mb-3">
-                            <thead>
-                            <tr className="text-left text-amber-700 text-xs font-bold">
-                                <th className="py-1 px-1 w-6">#</th>
-                                <th className="py-1">Weight</th>
-                                <th className="py-1">Reps</th>
-                                <th className="py-1">Type</th>
-                                <th className="py-1">Notes</th>
-                                <th className="py-1 w-14"></th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {sets.map((s, i) => (
-                                editingId === s.id ? (
-                                    <tr key={s.id} className="border-b border-black/5">
-                                        <td className="py-1 text-black/50">{i + 1}</td>
-                                        <td className="py-1 pr-1"><input type="number" value={editWeight}
-                                                                         onChange={e => setEditWeight(e.target.value)}
-                                                                         step="0.5" className={inputClass}/></td>
-                                        <td className="py-1 pr-1"><input type="number" value={editReps}
-                                                                         onChange={e => setEditReps(e.target.value)}
-                                                                         className={inputClass}/></td>
-                                        <td className="py-1 pr-1">
-                                            <select value={editSetType}
-                                                    onChange={e => setEditSetType(e.target.value as SetType)}
-                                                    className="bg-transparent text-black text-xs py-0.5 focus:outline-none">
-                                                <option value="working">Working set</option>
-                                                <option value="warmup">Warmup</option>
-                                                <option value="amrap">AMRAP</option>
-                                            </select>
-                                        </td>
-                                        <td className="py-1 pr-1"><input type="text" value={editNotes}
-                                                                         onChange={e => setEditNotes(e.target.value)}
-                                                                         className={inputClass}/></td>
-                                        <td className="py-1 flex gap-0.5">
-                                            <button type="button" onClick={handleSaveEdit}
-                                                    className="text-green-600 p-0.5"><CheckIcon
-                                                sx={{fontSize: 16, color: 'inherit'}}/></button>
-                                            <button type="button" onClick={() => setEditingId(null)}
-                                                    className="text-black/40 p-0.5"><CloseIcon
-                                                sx={{fontSize: 16, color: 'inherit'}}/></button>
-                                        </td>
-                                    </tr>
-                                ) : (
-                                    <tr key={s.id}
-                                        className={`border-b border-black/5 ${isPbSet(s) ? 'bg-amber-300/20' : setTypeBg(s.setType)}`}>
-                                        <td className="py-1.5 pl-1 text-black/50">{i + 1}</td>
-                                        <td className="py-1.5 text-black font-semibold">{s.weight != null ? `${s.weight} ${s.weightUnit}` : '-'}</td>
-                                        <td className="py-1.5 text-black font-semibold">{s.reps ?? '-'}</td>
-                                        <td className="py-1.5 text-black/60 text-xs">
-                                            <span className="flex items-center gap-1">
-                                                {setTypeDisplay(s.setType)}
-                                                {isPbSet(s) && (
-                                                    <EmojiEventsIcon sx={{fontSize: 12, color: '#b45309'}}/>
-                                                )}
-                                            </span>
-                                        </td>
-                                        <td className="py-1.5 text-black/60 text-xs">{s.notes || ''}</td>
-                                        <td className="py-1.5 flex gap-0.5">
-                                            <button type="button" onClick={() => startEdit(s)}
-                                                    className="text-black/20 hover:text-amber-700 p-0.5"><EditIcon
-                                                sx={{fontSize: 16, color: 'inherit'}}/></button>
-                                            <button type="button" onClick={() => s.id && handleDeleteSet(s.id)}
-                                                    className="text-black/20 hover:text-red-600 p-0.5">
-                                                <DeleteOutlineIcon sx={{fontSize: 16, color: 'inherit'}}/></button>
-                                        </td>
-                                    </tr>
-                                )
-                            ))}
-                            </tbody>
-                        </table>
+                        <SortableSets
+                            sets={sets}
+                            editingId={editingId}
+                            editWeight={editWeight}
+                            editReps={editReps}
+                            editNotes={editNotes}
+                            editSetType={editSetType}
+                            setEditWeight={setEditWeight}
+                            setEditReps={setEditReps}
+                            setEditNotes={setEditNotes}
+                            setEditSetType={setEditSetType}
+                            handleSaveEdit={handleSaveEdit}
+                            setEditingId={setEditingId}
+                            startEdit={startEdit}
+                            handleDeleteSet={handleDeleteSet}
+                            isPbSet={isPbSet}
+                            setTypeBg={setTypeBg}
+                            setTypeDisplay={setTypeDisplay}
+                            inputClass={inputClass}
+                            onReorder={handleReorderSets}
+                        />
                     )}
 
                     <div className="grid grid-cols-[1fr_1fr_1fr_auto_auto] gap-2 items-end">

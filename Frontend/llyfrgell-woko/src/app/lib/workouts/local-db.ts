@@ -31,6 +31,7 @@ export interface LocalWorkoutExercise {
     muscleGroupName: string;
     setCount: number;
     idempotencyKey?: string;
+    dirty?: number;
 }
 
 export interface LocalExerciseSet {
@@ -106,12 +107,12 @@ db.version(3).stores({
     syncMeta: 'key',
 });
 
-// v4: add idempotencyKey fields (unindexed, schema unchanged)
+// v4: add idempotencyKey fields, dirty flag on workoutExercises
 db.version(4).stores({
     muscleGroups: 'id, name',
     exercises: 'id, muscleGroupId, name',
     workouts: 'id, date',
-    workoutExercises: 'id, workoutId, exerciseId',
+    workoutExercises: 'id, workoutId, exerciseId, dirty',
     exerciseSets: 'id, workoutExerciseId, dirty',
     deletions: '++id, table, serverId',
     syncMeta: 'key',

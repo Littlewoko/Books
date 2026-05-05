@@ -1,21 +1,24 @@
 'use server';
 
-import { sql } from '@vercel/postgres';
-import { revalidatePath } from 'next/cache';
+import {sql} from '@vercel/postgres';
+import {revalidatePath} from 'next/cache';
 import ProtectRoute from '@/app/utils/protectRoute';
-import { getSessionUserId } from '@/app/utils/getSessionUser';
+import {getSessionUserId} from '@/app/utils/getSessionUser';
 
 // -- Idempotency helper --
 
 async function checkIdempotency(key: string | undefined): Promise<number | null> {
     if (!key) return null;
-    const existing = await sql`SELECT entity_id FROM idempotency_log WHERE idempotency_key = ${key}`;
+    const existing = await sql`SELECT entity_id
+                               FROM idempotency_log
+                               WHERE idempotency_key = ${key}`;
     return existing.rows[0]?.entity_id ?? null;
 }
 
 async function logIdempotency(key: string | undefined, table: string, entityId: number) {
     if (!key) return;
-    await sql`INSERT INTO idempotency_log (idempotency_key, entity_table, entity_id) VALUES (${key}, ${table}, ${entityId}) ON CONFLICT (idempotency_key) DO NOTHING`;
+    await sql`INSERT INTO idempotency_log (idempotency_key, entity_table, entity_id)
+              VALUES (${key}, ${table}, ${entityId}) ON CONFLICT (idempotency_key) DO NOTHING`;
 }
 
 // -- Muscle Groups --
@@ -28,8 +31,8 @@ export async function createMuscleGroup(name: string, idempotencyKey?: string) {
     if (existingId != null) return existingId;
 
     const result = await sql`
-        INSERT INTO muscle_group (name, user_id) VALUES (${name}, ${userId})
-        RETURNING id;
+        INSERT INTO muscle_group (name, user_id)
+        VALUES (${name}, ${userId}) RETURNING id;
     `;
     const id = result.rows[0].id as number;
     await logIdempotency(idempotencyKey, 'muscle_group', id);
@@ -42,8 +45,10 @@ export async function updateMuscleGroupColour(muscleGroupId: number, colour: str
     const userId = await getSessionUserId();
 
     await sql`
-        UPDATE muscle_group SET colour = ${colour}
-        WHERE id = ${muscleGroupId} AND user_id = ${userId};
+        UPDATE muscle_group
+        SET colour = ${colour}
+        WHERE id = ${muscleGroupId}
+          AND user_id = ${userId};
     `;
     revalidatePath('/workouts');
 }
@@ -58,8 +63,8 @@ export async function createExercise(name: string, muscleGroupId: number, idempo
     if (existingId != null) return existingId;
 
     const result = await sql`
-        INSERT INTO exercise (name, muscle_group_id, user_id) VALUES (${name}, ${muscleGroupId}, ${userId})
-        RETURNING id;
+        INSERT INTO exercise (name, muscle_group_id, user_id)
+        VALUES (${name}, ${muscleGroupId}, ${userId}) RETURNING id;
     `;
     const id = result.rows[0].id as number;
     await logIdempotency(idempotencyKey, 'exercise', id);
@@ -72,8 +77,10 @@ export async function updateExerciseMuscleGroup(exerciseId: number, muscleGroupI
     const userId = await getSessionUserId();
 
     await sql`
-        UPDATE exercise SET muscle_group_id = ${muscleGroupId}
-        WHERE id = ${exerciseId} AND user_id = ${userId};
+        UPDATE exercise
+        SET muscle_group_id = ${muscleGroupId}
+        WHERE id = ${exerciseId}
+          AND user_id = ${userId};
     `;
     revalidatePath('/workouts');
 }
@@ -83,8 +90,10 @@ export async function renameExercise(exerciseId: number, name: string) {
     const userId = await getSessionUserId();
 
     await sql`
-        UPDATE exercise SET name = ${name}
-        WHERE id = ${exerciseId} AND user_id = ${userId};
+        UPDATE exercise
+        SET name = ${name}
+        WHERE id = ${exerciseId}
+          AND user_id = ${userId};
     `;
     revalidatePath('/workouts');
 }
@@ -99,9 +108,10 @@ export async function createWorkout(date: string, notes?: string, idempotencyKey
     if (existingId != null) return existingId;
 
     const result = await sql`
-        INSERT INTO workout (date, user_id, notes) VALUES (${date}, ${userId}, ${notes ?? null})
-        ON CONFLICT (date, user_id) DO UPDATE SET notes = COALESCE(EXCLUDED.notes, workout.notes)
-        RETURNING id;
+        INSERT INTO workout (date, user_id, notes)
+        VALUES (${date}, ${userId}, ${notes ?? null}) ON CONFLICT (date, user_id) DO
+        UPDATE SET notes = COALESCE (EXCLUDED.notes, workout.notes)
+            RETURNING id;
     `;
     const id = result.rows[0].id as number;
     await logIdempotency(idempotencyKey, 'workout', id);
@@ -119,19 +129,22 @@ export async function addExerciseToWorkout(workoutId: number, exerciseId: number
     if (existingId != null) return existingId;
 
     // Verify workout belongs to user
-    const workout = await sql`SELECT id FROM workout WHERE id = ${workoutId} AND user_id = ${userId};`;
+    const workout = await sql`SELECT id
+                              FROM workout
+                              WHERE id = ${workoutId}
+                                AND user_id = ${userId};`;
     if (!workout.rows[0]) throw new Error('Unauthorized');
 
     // Use provided sortOrder or calculate next
     const order = sortOrder ?? (await sql`
         SELECT COALESCE(MAX(sort_order), -1) + 1 AS next_order
-        FROM workout_exercise WHERE workout_id = ${workoutId};
+        FROM workout_exercise
+        WHERE workout_id = ${workoutId};
     `).rows[0].next_order;
 
     const result = await sql`
         INSERT INTO workout_exercise (workout_id, exercise_id, sort_order)
-        VALUES (${workoutId}, ${exerciseId}, ${order})
-        RETURNING id;
+        VALUES (${workoutId}, ${exerciseId}, ${order}) RETURNING id;
     `;
     const id = result.rows[0].id as number;
     await logIdempotency(idempotencyKey, 'workout_exercise', id);
@@ -144,25 +157,26 @@ export async function removeExerciseFromWorkout(workoutExerciseId: number) {
     const userId = await getSessionUserId();
 
     await sql`
-        DELETE FROM workout_exercise we
-        USING workout w
-        WHERE we.id = ${workoutExerciseId} AND we.workout_id = w.id AND w.user_id = ${userId};
+        DELETE
+        FROM workout_exercise we USING workout w
+        WHERE we.id = ${workoutExerciseId}
+          AND we.workout_id = w.id
+          AND w.user_id = ${userId};
     `;
     revalidatePath('/workouts');
 }
 
-export async function reorderWorkoutExercises(orderedIds: number[]) {
+export async function updateWorkoutExerciseSortOrder(workoutExerciseId: number, sortOrder: number) {
     await ProtectRoute();
     const userId = await getSessionUserId();
 
-    for (let i = 0; i < orderedIds.length; i++) {
-        await sql`
-            UPDATE workout_exercise we
-            SET sort_order = ${i}
-            FROM workout w
-            WHERE we.id = ${orderedIds[i]} AND we.workout_id = w.id AND w.user_id = ${userId};
-        `;
-    }
+    await sql`
+        UPDATE workout_exercise we
+        SET sort_order = ${sortOrder} FROM workout w
+        WHERE we.id = ${workoutExerciseId}
+          AND we.workout_id = w.id
+          AND w.user_id = ${userId};
+    `;
     revalidatePath('/workouts');
 }
 
@@ -186,22 +200,25 @@ export async function addSet(
 
     // Verify ownership through workout_exercise → workout → user
     const ownership = await sql`
-        SELECT we.id FROM workout_exercise we
-        JOIN workout w ON w.id = we.workout_id
-        WHERE we.id = ${workoutExerciseId} AND w.user_id = ${userId};
+        SELECT we.id
+        FROM workout_exercise we
+                 JOIN workout w ON w.id = we.workout_id
+        WHERE we.id = ${workoutExerciseId}
+          AND w.user_id = ${userId};
     `;
     if (!ownership.rows[0]) throw new Error('Unauthorized');
 
     // Use provided sortOrder or calculate next
     const order = sortOrder ?? (await sql`
         SELECT COALESCE(MAX(sort_order), -1) + 1 AS next_order
-        FROM exercise_set WHERE workout_exercise_id = ${workoutExerciseId};
+        FROM exercise_set
+        WHERE workout_exercise_id = ${workoutExerciseId};
     `).rows[0].next_order;
 
     const result = await sql`
         INSERT INTO exercise_set (workout_exercise_id, weight, weight_unit, reps, notes, sort_order, set_type)
-        VALUES (${workoutExerciseId}, ${weight}, ${weightUnit}, ${reps}, ${notes ?? null}, ${order}, ${setType})
-        RETURNING id;
+        VALUES (${workoutExerciseId}, ${weight}, ${weightUnit}, ${reps}, ${notes ?? null}, ${order},
+                ${setType}) RETURNING id;
     `;
     const id = result.rows[0].id as number;
     await logIdempotency(idempotencyKey, 'exercise_set', id);
@@ -209,15 +226,22 @@ export async function addSet(
     return id;
 }
 
-export async function updateSet(setId: number, weight: number | null, weightUnit: string, reps: number | null, notes?: string, setType: string = 'working') {
+export async function updateSet(setId: number, weight: number | null, weightUnit: string, reps: number | null, notes?: string, setType: string = 'working', sortOrder: number = 0) {
     await ProtectRoute();
     const userId = await getSessionUserId();
 
     await sql`
         UPDATE exercise_set es
-        SET weight = ${weight}, weight_unit = ${weightUnit}, reps = ${reps}, notes = ${notes ?? null}, set_type = ${setType}
-        FROM workout_exercise we, workout w
-        WHERE es.id = ${setId} AND es.workout_exercise_id = we.id AND we.workout_id = w.id AND w.user_id = ${userId};
+        SET weight      = ${weight},
+            weight_unit = ${weightUnit},
+            reps        = ${reps},
+            notes       = ${notes ?? null},
+            set_type    = ${setType},
+            sort_order  = ${sortOrder} FROM workout_exercise we, workout w
+        WHERE es.id = ${setId}
+          AND es.workout_exercise_id = we.id
+          AND we.workout_id = w.id
+          AND w.user_id = ${userId};
     `;
     revalidatePath('/workouts');
 }
@@ -227,9 +251,12 @@ export async function deleteSet(setId: number) {
     const userId = await getSessionUserId();
 
     await sql`
-        DELETE FROM exercise_set es
-        USING workout_exercise we, workout w
-        WHERE es.id = ${setId} AND es.workout_exercise_id = we.id AND we.workout_id = w.id AND w.user_id = ${userId};
+        DELETE
+        FROM exercise_set es USING workout_exercise we, workout w
+        WHERE es.id = ${setId}
+          AND es.workout_exercise_id = we.id
+          AND we.workout_id = w.id
+          AND w.user_id = ${userId};
     `;
     revalidatePath('/workouts');
 }
