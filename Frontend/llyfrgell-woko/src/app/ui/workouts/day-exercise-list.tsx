@@ -125,7 +125,7 @@ export default function DayExerciseList({date, workoutId, exercises: initialExer
         await localAddExerciseToWorkout(wId, exerciseId);
         await refreshPendingCount();
         setShowAddModal(false);
-        router.refresh();
+        router.push(`/workouts/${date}/${exerciseId}`);
     };
 
     return (
