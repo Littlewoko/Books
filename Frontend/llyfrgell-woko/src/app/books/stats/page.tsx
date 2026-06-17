@@ -1,6 +1,3 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/utils/authOptions";
-import { redirect } from "next/navigation";
 import { getReadingStats } from "@/app/lib/books/stats";
 import StatsOverview from "@/app/ui/books/stats-overview";
 import YearlyChart from "@/app/ui/books/yearly-chart";
@@ -9,10 +6,6 @@ import TopRatedBooks from "@/app/ui/books/top-rated-books";
 import MonthlyBooks from "@/app/ui/books/monthly-books";
 
 export default async function StatsPage() {
-    const session = await getServerSession(authOptions);
-    if (!session || !session.user) {
-        redirect("/api/auth/signin");
-    }
 
     const stats = await getReadingStats();
 

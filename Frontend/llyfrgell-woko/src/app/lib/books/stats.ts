@@ -1,10 +1,8 @@
 'use server';
 
 import { sql } from '@vercel/postgres';
-import ProtectRoute from '@/app/utils/protectRoute';
 
 export async function getReadingStats() {
-    await ProtectRoute();
 
     const currentYear = new Date().getFullYear();
 

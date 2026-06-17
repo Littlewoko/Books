@@ -16,9 +16,10 @@ interface Props {
     book: Book | undefined;
     bookClubNotes?: BookClubNote[];
     returnTo?: string;
+    isAuthenticated?: boolean;
 }
 
-export default function BookView({ book, bookClubNotes = [], returnTo }: Props) {
+export default function BookView({ book, bookClubNotes = [], returnTo, isAuthenticated = false }: Props) {
     if (!book || !book.id) {
         return <div className="text-gray-300">No such book</div>;
     }
@@ -176,7 +177,7 @@ export default function BookView({ book, bookClubNotes = [], returnTo }: Props) 
                     </div>
 
                     {/* Current Page - quick update for in-progress books */}
-                    {!book.dateCompleted && book.dateStartedReading && (
+                    {isAuthenticated && !book.dateCompleted && book.dateStartedReading && (
                         <QuickPageUpdate bookId={book.id.toString()} currentPage={book.currentPage ?? null} />
                     )}
 
@@ -235,7 +236,7 @@ export default function BookView({ book, bookClubNotes = [], returnTo }: Props) 
                     )}
 
                     {/* Quick Complete */}
-                    {!book.dateCompleted && (
+                    {isAuthenticated && !book.dateCompleted && (
                         <div className="flex flex-col items-end">
                             <QuickComplete
                                 bookId={book.id.toString()}
@@ -251,14 +252,16 @@ export default function BookView({ book, bookClubNotes = [], returnTo }: Props) 
             </div>
 
             {/* Edit - subtle, at the bottom */}
-            <div className="mt-8 mb-6 flex justify-center">
-                <Link href={`/books/${book.id}/edit${returnTo ? `?returnTo=${encodeURIComponent(returnTo)}` : ''}`}>
-                    <button className="flex items-center text-stone-600 hover:text-stone-300 transition-colors text-sm gap-1">
-                        <EditIcon sx={{ fontSize: '14px' }} />
-                        Edit
-                    </button>
-                </Link>
-            </div>
+            {isAuthenticated && (
+                <div className="mt-8 mb-6 flex justify-center">
+                    <Link href={`/books/${book.id}/edit${returnTo ? `?returnTo=${encodeURIComponent(returnTo)}` : ''}`}>
+                        <button className="flex items-center text-stone-600 hover:text-stone-300 transition-colors text-sm gap-1">
+                            <EditIcon sx={{ fontSize: '14px' }} />
+                            Edit
+                        </button>
+                    </Link>
+                </div>
+            )}
         </div>
     );
 }
