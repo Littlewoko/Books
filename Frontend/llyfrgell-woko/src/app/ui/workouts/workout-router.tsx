@@ -6,6 +6,7 @@ import WorkoutCalendar from "./workout-calendar";
 import DayView from "./day-view";
 import MovementView from "./movement-view";
 import ExerciseManagerView from "./exercise-manager";
+import MovementDetail from "./movement-detail";
 
 export default function WorkoutRouter() {
     const pathname = usePathname();
@@ -19,13 +20,19 @@ export default function WorkoutRouter() {
     // when service worker serves /workouts shell for a different route
     if (!mounted) return null;
 
-    // /workouts/exercises
-    if (pathname === "/workouts/exercises") {
+    // /workouts/movements/[exerciseId]
+    const movementDetailMatch = pathname.match(/^\/workouts\/movements\/(-?\d+)$/);
+    if (movementDetailMatch) {
+        return <MovementDetail key={movementDetailMatch[1]} exerciseId={parseInt(movementDetailMatch[1])}/>;
+    }
+
+    // /workouts/movements or /workouts/exercises (support both)
+    if (pathname === "/workouts/movements" || pathname === "/workouts/exercises") {
         return (
             <main className="p-4 max-w-2xl mx-auto">
                 <h1 className="text-black text-xl sm:text-2xl mb-4 font-bold"
                     style={{fontFamily: 'var(--font-caveat)'}}>
-                    Exercises
+                    Movements
                 </h1>
                 <ExerciseManagerView/>
             </main>

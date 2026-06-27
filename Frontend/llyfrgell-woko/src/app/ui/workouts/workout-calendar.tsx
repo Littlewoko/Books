@@ -4,6 +4,7 @@ import {useEffect, useState} from "react";
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
 import Link from "next/link";
 import {localGetWorkoutDatesForMonth} from "@/app/lib/workouts/local-data";
 import {getMuscleGroupColour, loadMuscleGroupColours} from "@/app/lib/workouts/muscle-group-colours";
@@ -62,7 +63,9 @@ export default function WorkoutCalendar() {
             await push();
             const days = await localGetWorkoutDatesForMonth(year, month);
             setWorkoutDays(days);
-        } finally { setPushing(false); }
+        } finally {
+            setPushing(false);
+        }
     };
 
     return (
@@ -83,11 +86,15 @@ export default function WorkoutCalendar() {
                         className="text-amber-700 hover:text-amber-800 transition-colors disabled:text-black/20 relative p-2">
                     <CloudUploadIcon sx={{fontSize: 22, color: 'inherit'}} className={pushing ? 'animate-pulse' : ''}/>
                     {pendingSyncs > 0 && (
-                        <span className="absolute top-0.5 right-0.5 bg-amber-600 text-white text-[9px] font-bold rounded-full w-3.5 h-3.5 flex items-center justify-center">
+                        <span
+                            className="absolute top-0.5 right-0.5 bg-amber-600 text-white text-[9px] font-bold rounded-full w-3.5 h-3.5 flex items-center justify-center">
                             {pendingSyncs > 9 ? '9+' : pendingSyncs}
                         </span>
                     )}
                 </button>
+                <Link href="/workouts/movements" className="text-black/40 hover:text-amber-700 transition-colors p-2">
+                    <FitnessCenterIcon sx={{fontSize: 22, color: 'inherit'}}/>
+                </Link>
             </div>
 
             <div className="grid grid-cols-7 gap-1 mb-1">
@@ -142,7 +149,7 @@ export default function WorkoutCalendar() {
                 </div>
             )}
 
-            <WeeklyVolume />
+            <WeeklyVolume/>
         </div>
     );
 }

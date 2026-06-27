@@ -14,6 +14,7 @@ import Link from "next/link";
 import CloseIcon from '@mui/icons-material/Close';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import SettingsIcon from '@mui/icons-material/Settings';
+import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 import AddMovementModal from "./add-movement-modal";
@@ -132,11 +133,15 @@ export default function WorkoutSidebar({isOpen, onClose}: Props) {
                                     else if (synced > 0) setPushResult(`✓ ${synced} pushed`);
                                     else setPushResult('✓ Up to date');
                                     await refresh();
-                                } catch { setPushResult('Error pushing'); }
-                                finally { setPushing(false); }
+                                } catch {
+                                    setPushResult('Error pushing');
+                                } finally {
+                                    setPushing(false);
+                                }
                             }}
                                     className="flex items-center gap-1.5 text-amber-700 hover:text-amber-800 text-sm font-semibold transition-colors disabled:text-black/20">
-                                <CloudUploadIcon sx={{fontSize: 16, color: 'inherit'}} className={pushing ? 'animate-pulse' : ''}/>
+                                <CloudUploadIcon sx={{fontSize: 16, color: 'inherit'}}
+                                                 className={pushing ? 'animate-pulse' : ''}/>
                                 {pushing ? 'Pushing...' : pendingSyncs > 0 ? `Push (${pendingSyncs})` : 'Push'}
                             </button>
                             <button type="button" disabled={pulling || !isOnline} onClick={async () => {
@@ -144,10 +149,13 @@ export default function WorkoutSidebar({isOpen, onClose}: Props) {
                                 try {
                                     await pull();
                                     await refresh();
-                                } finally { setPulling(false); }
+                                } finally {
+                                    setPulling(false);
+                                }
                             }}
                                     className="flex items-center gap-1.5 text-black/50 hover:text-black text-sm font-semibold transition-colors disabled:text-black/20">
-                                <CloudDownloadIcon sx={{fontSize: 16, color: 'inherit'}} className={pulling ? 'animate-pulse' : ''}/>
+                                <CloudDownloadIcon sx={{fontSize: 16, color: 'inherit'}}
+                                                   className={pulling ? 'animate-pulse' : ''}/>
                                 {pulling ? 'Pulling...' : 'Pull'}
                             </button>
                         </div>
@@ -156,6 +164,11 @@ export default function WorkoutSidebar({isOpen, onClose}: Props) {
                     </div>
 
                     <div className="border-t border-black/10 px-3 py-2 flex items-center justify-between">
+                        <Link href="/workouts/movements" onClick={onClose}
+                              className="flex items-center gap-1 text-black/40 hover:text-black text-sm transition-colors">
+                            <FitnessCenterIcon sx={{fontSize: 16, color: 'inherit'}}/>
+                            Movements
+                        </Link>
                         <Link href="/books" onClick={onClose}
                               className="flex items-center gap-1 text-black/40 hover:text-black text-sm transition-colors">
                             <LibraryBooksIcon sx={{fontSize: 16, color: 'inherit'}}/>

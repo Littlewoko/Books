@@ -184,7 +184,13 @@ export async function localGetPbSetIds(exerciseId: number): Promise<Set<number>>
         .filter(s => s.weight != null && s.reps != null)
         .map(s => {
             const workoutId = weToWorkout.get(s.workoutExerciseId);
-            return { id: s.id, weight: s.weight!, reps: s.reps!, date: workoutId ? workoutDateMap.get(workoutId) || '' : '', sortOrder: s.sortOrder };
+            return {
+                id: s.id,
+                weight: s.weight!,
+                reps: s.reps!,
+                date: workoutId ? workoutDateMap.get(workoutId) || '' : '',
+                sortOrder: s.sortOrder
+            };
         });
 
     // Step 1: Find the best weight for each rep count across ALL history
@@ -253,7 +259,10 @@ export async function localGetRecentExercises() {
     return recents;
 }
 
-export async function localGetWeeklyVolume(weekStart: string, weekEnd: string): Promise<{ muscleGroup: string; sets: number }[]> {
+export async function localGetWeeklyVolume(weekStart: string, weekEnd: string): Promise<{
+    muscleGroup: string;
+    sets: number
+}[]> {
     const workouts = await db.workouts
         .where('date').between(weekStart, weekEnd, true, true)
         .toArray();
@@ -299,6 +308,44 @@ export async function localGetDayVolume(date: string): Promise<{ muscleGroup: st
         .sort((a, b) => b.sets - a.sets);
 }
 
+export async function localGetExerciseDetail(exerciseId: number) {
+    const exercise = await db.exercises.get(exerciseId);
+    if (!exercise) return null;
+
+    const wes = await db.workoutExercises.where('exerciseId').equals(exerciseId).toArray();
+    const workoutIds = [...new Set(wes.map(we => we.workoutId))];
+    const workouts = await db.workouts.where('id').anyOf(workoutIds).toArray();
+    const workoutDateMap = new Map(workouts.map(w => [w.id, w.date]));
+    const weToWorkout = new Map(wes.map(we => [we.id, we.workoutId]));
+
+    const weIds = wes.map(we => we.id);
+    const allSets = await db.exerciseSets.where('workoutExerciseId').anyOf(weIds).toArray();
+
+    // Group sets by date
+    const byDate = new Map<string, typeof allSets>();
+    for (const s of allSets) {
+        const workoutId = weToWorkout.get(s.workoutExerciseId);
+        if (!workoutId) continue;
+        const date = workoutDateMap.get(workoutId);
+        if (!date) continue;
+        if (!byDate.has(date)) byDate.set(date, []);
+        byDate.get(date)!.push(s);
+    }
+
+    const sessions = Array.from(byDate.entries())
+        .map(([date, sets]) => {
+            const topSet = sets.reduce<{ weight: number; reps: number } | null>((best, s) => {
+                if (s.weight == null || s.reps == null || s.reps <= 0) return best;
+                if (!best || s.weight > best.weight) return {weight: s.weight, reps: s.reps};
+                return best;
+            }, null);
+            return {date, setCount: sets.length, topSet};
+        })
+        .sort((a, b) => b.date.localeCompare(a.date));
+
+    return {exercise, sessions};
+}
+
 export async function localIsHydrated(): Promise<boolean> {
     const meta = await db.syncMeta.get('lastSync');
     return !!meta;
@@ -310,5 +357,5 @@ export async function localGetSyncMeta(key: string): Promise<string | null> {
 }
 
 export async function localSetSyncMeta(key: string, value: string) {
-    await db.syncMeta.put({ key, value });
+    await db.syncMeta.put({key, value});
 }
