@@ -4,41 +4,41 @@ import { useState } from "react";
 import { useOffline } from "@/app/components/WorkoutOfflineProvider";
 
 export default function SyncButton() {
-    const { sync, pendingSyncs, isOnline } = useOffline();
-    const [syncing, setSyncing] = useState(false);
+    const { push, pendingSyncs, isOnline } = useOffline();
+    const [pushing, setPushing] = useState(false);
     const [result, setResult] = useState<string | null>(null);
 
-    const handleSync = async () => {
-        setSyncing(true);
+    const handlePush = async () => {
+        setPushing(true);
         setResult(null);
         try {
-            const { synced, failed } = await sync();
+            const { synced, failed } = await push();
             if (failed > 0) {
                 setResult(`⚠ ${synced} pushed, ${failed} failed — retry?`);
             } else if (synced > 0) {
                 setResult(`✓ Pushed ${synced} change${synced !== 1 ? 's' : ''}`);
             } else {
-                setResult('✓ Synced — up to date');
+                setResult('✓ Up to date');
             }
         } catch (e) {
-            setResult(`Error: ${e instanceof Error ? e.message : 'Sync failed'}`);
+            setResult(`Error: ${e instanceof Error ? e.message : 'Push failed'}`);
         } finally {
-            setSyncing(false);
+            setPushing(false);
         }
     };
 
-    const label = syncing
-        ? 'Syncing...'
+    const label = pushing
+        ? 'Pushing...'
         : pendingSyncs > 0
-            ? `Sync (${pendingSyncs} pending)`
-            : 'Sync';
+            ? `Push (${pendingSyncs} pending)`
+            : 'Push';
 
     return (
         <div className="flex items-center gap-2">
             <button
                 type="button"
-                onClick={handleSync}
-                disabled={syncing || !isOnline}
+                onClick={handlePush}
+                disabled={pushing || !isOnline}
                 className="text-amber-700 hover:text-amber-800 text-sm font-semibold py-1 transition-colors disabled:text-black/20"
             >
                 {label}

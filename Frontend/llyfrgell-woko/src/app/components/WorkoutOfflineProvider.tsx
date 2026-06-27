@@ -11,7 +11,8 @@ interface OfflineContextType {
     isHydrated: boolean;
     isOnline: boolean;
     pendingSyncs: number;
-    sync: () => Promise<{ synced: number; failed: number }>;
+    push: () => Promise<{ synced: number; failed: number }>;
+    pull: () => Promise<void>;
     fullHydrate: () => Promise<void>;
     refreshPendingCount: () => Promise<void>;
 }
@@ -20,7 +21,9 @@ const OfflineContext = createContext<OfflineContextType>({
     isHydrated: false,
     isOnline: true,
     pendingSyncs: 0,
-    sync: async () => ({synced: 0, failed: 0}),
+    push: async () => ({synced: 0, failed: 0}),
+    pull: async () => {
+    },
     fullHydrate: async () => {
     },
     refreshPendingCount: async () => {
@@ -74,7 +77,7 @@ export default function WorkoutOfflineProvider({children}: { children: ReactNode
         setPendingSyncs(await getPendingSyncCount());
     }, []);
 
-    const sync = useCallback(async (): Promise<{ synced: number; failed: number }> => {
+    const push = useCallback(async (): Promise<{ synced: number; failed: number }> => {
         if (!navigator.onLine) return {synced: 0, failed: 0};
 
         const result = await flushSyncQueue();
@@ -82,6 +85,38 @@ export default function WorkoutOfflineProvider({children}: { children: ReactNode
 
         return result;
     }, [refreshPendingCount]);
+
+    // Pull — fetches all server data in chunks, preserving local unsynced changes.
+    const pull = useCallback(async () => {
+        if (!navigator.onLine) return;
+
+        let beforeDate: string | undefined = undefined;
+        let isFirst = true;
+
+        while (true) {
+            try {
+                const chunk = await getHydrationChunk(beforeDate);
+                await hydrateChunk(chunk, isFirst, false);
+
+                if (isFirst) {
+                    setIsHydrated(true);
+                    isFirst = false;
+                }
+
+                if (!chunk.hasMore) break;
+                beforeDate = chunk.nextBeforeDate;
+            } catch (e) {
+                console.error('Pull chunk failed:', e);
+                break;
+            }
+        }
+
+        if (session?.user?.id) {
+            await localSetSyncMeta('userId', session.user.id);
+        }
+
+        invalidateColourCache();
+    }, [session?.user?.id]);
 
     const fullHydrate = useCallback(async () => {
         if (!navigator.onLine) return;
@@ -124,7 +159,7 @@ export default function WorkoutOfflineProvider({children}: { children: ReactNode
     }, [session?.user?.id, hydrateAll, refreshPendingCount]);
 
     return (
-        <OfflineContext.Provider value={{isHydrated, isOnline, pendingSyncs, sync, fullHydrate, refreshPendingCount}}>
+        <OfflineContext.Provider value={{isHydrated, isOnline, pendingSyncs, push, pull, fullHydrate, refreshPendingCount}}>
             {children}
         </OfflineContext.Provider>
     );

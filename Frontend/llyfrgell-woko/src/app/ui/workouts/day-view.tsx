@@ -10,7 +10,7 @@ import Link from "next/link";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import SyncIcon from '@mui/icons-material/Sync';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import {useRouter} from "next/navigation";
 
 interface Props {
@@ -25,11 +25,11 @@ function shiftDate(date: string, days: number): string {
 
 export default function DayView({date}: Props) {
     const router = useRouter();
-    const {sync, pendingSyncs, isOnline} = useOffline();
+    const {push, pendingSyncs, isOnline} = useOffline();
     const [workoutId, setWorkoutId] = useState<number | null>(null);
     const [exercises, setExercises] = useState<WorkoutExercise[]>([]);
     const [loaded, setLoaded] = useState(false);
-    const [syncing, setSyncing] = useState(false);
+    const [pushing, setPushing] = useState(false);
 
     useEffect(() => {
         setLoaded(false);
@@ -49,14 +49,14 @@ export default function DayView({date}: Props) {
 
     if (!loaded) return null;
 
-    const handleSync = async () => {
-        setSyncing(true);
+    const handlePush = async () => {
+        setPushing(true);
         try {
-            await sync();
+            await push();
             const data = await localGetWorkoutForDate(date);
             setWorkoutId(data?.workout.id ?? null);
             setExercises(data?.exercises ?? []);
-        } finally { setSyncing(false); }
+        } finally { setPushing(false); }
     };
 
     return (
@@ -77,9 +77,9 @@ export default function DayView({date}: Props) {
                         className="text-black/40 hover:text-black transition-colors">
                     <ChevronRightIcon sx={{fontSize: 20, color: 'inherit'}}/>
                 </button>
-                <button type="button" onClick={handleSync} disabled={syncing || !isOnline}
+                <button type="button" onClick={handlePush} disabled={pushing || !isOnline}
                         className="text-amber-700 hover:text-amber-800 transition-colors disabled:text-black/20 relative">
-                    <SyncIcon sx={{fontSize: 20, color: 'inherit'}} className={syncing ? 'animate-spin' : ''}/>
+                    <CloudUploadIcon sx={{fontSize: 20, color: 'inherit'}} className={pushing ? 'animate-pulse' : ''}/>
                     {pendingSyncs > 0 && (
                         <span className="absolute -top-1 -right-1 bg-amber-600 text-white text-[9px] font-bold rounded-full w-3.5 h-3.5 flex items-center justify-center">
                             {pendingSyncs > 9 ? '9+' : pendingSyncs}
