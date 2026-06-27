@@ -70,25 +70,6 @@ export default function WorkoutOfflineProvider({children}: { children: ReactNode
         invalidateColourCache();
     }, [session?.user?.id]);
 
-    // Recent hydration — pulls only the most recent 90 days + reference data.
-    const hydrateRecent = useCallback(async () => {
-        if (!navigator.onLine) return;
-
-        try {
-            const chunk = await getHydrationChunk();
-            await hydrateChunk(chunk, true, false);
-            setIsHydrated(true);
-        } catch (e) {
-            console.error('Recent hydration failed:', e);
-        }
-
-        if (session?.user?.id) {
-            await localSetSyncMeta('userId', session.user.id);
-        }
-
-        invalidateColourCache();
-    }, [session?.user?.id]);
-
     const refreshPendingCount = useCallback(async () => {
         setPendingSyncs(await getPendingSyncCount());
     }, []);
@@ -97,11 +78,10 @@ export default function WorkoutOfflineProvider({children}: { children: ReactNode
         if (!navigator.onLine) return {synced: 0, failed: 0};
 
         const result = await flushSyncQueue();
-        await hydrateRecent();
         await refreshPendingCount();
 
         return result;
-    }, [hydrateRecent, refreshPendingCount]);
+    }, [refreshPendingCount]);
 
     const fullHydrate = useCallback(async () => {
         if (!navigator.onLine) return;
