@@ -9,7 +9,6 @@ import {BreadcrumbProvider} from "./components/BreadcrumbContext";
 import {getServerSession} from "next-auth";
 import {authOptions} from "./utils/authOptions";
 import SessionProvider from "./components/SessionProvider";
-import GradioSpace from "./ui/gradioSpace";
 import PersistStorage from "./components/PersistStorage";
 
 const geistSans = localFont({
@@ -63,7 +62,6 @@ export default async function RootLayout({
             <BreadcrumbProvider>
                 <PersistStorage/>
                 <Navbar/>
-                <GradioSpace/>
                 <Breadcrumbs/>
                 {children}
             </BreadcrumbProvider>
