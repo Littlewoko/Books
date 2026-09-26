@@ -2,6 +2,9 @@
   "name": "llyfrgell-woko",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=24.0.0 <25"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build --webpack",
@@ -21,7 +24,7 @@
     "@mui/material": "^6.1.4",
     "@react-three/drei": "^10.0.6",
     "@react-three/fiber": "^9.5.0",
-    "@serwist/next": "^9.5.7",
+    "@serwist/next": "^9.4.1",
     "@types/three": "^0.169.0",
     "@vercel/postgres": "^0.10.0",
     "dexie": "^4.4.2",
@@ -34,7 +37,7 @@
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
-    "@types/node": "^20",
+    "@types/node": "^24",
     "@types/papaparse": "^5.5.2",
     "@types/react": "^18",
     "@types/react-dom": "^18",
@@ -44,5 +47,9 @@
     "serwist": "^9.5.7",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
+  },
+  "allowScripts": {
+    "bufferutil": false,
+    "unrs-resolver": false
   }
 }
