@@ -3,7 +3,7 @@ import type {SetType} from './types';
 
 export async function localCreateMuscleGroup(name: string): Promise<number> {
     const id = await nextLocalId();
-    await db.muscleGroups.add({id, name, colour: '#737373', idempotencyKey: crypto.randomUUID()});
+    await db.muscleGroups.add({id, name, colour: '#737373', permanentId: crypto.randomUUID()});
     return id;
 }
 
@@ -15,7 +15,7 @@ export async function localCreateExercise(name: string, muscleGroupId: number): 
         name,
         muscleGroupId,
         muscleGroupName: mg?.name || '',
-        idempotencyKey: crypto.randomUUID()
+        permanentId: crypto.randomUUID()
     });
     return id;
 }
@@ -25,7 +25,7 @@ export async function localCreateWorkout(date: string, notes?: string): Promise<
     if (existing) return existing.id;
 
     const id = await nextLocalId();
-    await db.workouts.add({id, date, notes: notes || null, idempotencyKey: crypto.randomUUID()});
+    await db.workouts.add({id, date, notes: notes || null, permanentId: crypto.randomUUID()});
     return id;
 }
 
@@ -44,7 +44,7 @@ export async function localAddExerciseToWorkout(workoutId: number, exerciseId: n
         exerciseName: exercise?.name || '',
         muscleGroupName: exercise?.muscleGroupName || '',
         setCount: 0,
-        idempotencyKey: crypto.randomUUID(),
+        permanentId: crypto.randomUUID(),
     });
     return id;
 }
@@ -89,7 +89,7 @@ export async function localAddSet(
         sortOrder: nextOrder,
         setType,
         dirty: Date.now(),
-        idempotencyKey: crypto.randomUUID(),
+        permanentId: crypto.randomUUID(),
     });
 
     const we = await db.workoutExercises.get(workoutExerciseId);

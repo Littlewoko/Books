@@ -1,55 +1,63 @@
 import {db} from './local-db';
 import {
-    addExerciseToWorkout,
-    addSet,
-    createExercise,
-    createMuscleGroup,
-    createWorkout,
     deleteSet,
     removeExerciseFromWorkout,
     updateSet,
     updateWorkoutExerciseSortOrder,
 } from './actions';
+import {pushWorkoutBatch, resolveWorkoutPermanentIds} from './permanent-id-sync';
+
+interface PermanentIdMapping {
+    localPermanentId: string;
+    permanentId: string;
+    serverId: number;
+}
+
+function hasPermanentId<T extends {permanentId?: string}>(
+    record: T,
+): record is T & {permanentId: string} {
+    return typeof record.permanentId === 'string' && record.permanentId.length > 0;
+}
 
 // Remap a record's ID in IndexedDB: delete old, insert with new ID, update child references
-async function remapMuscleGroup(localId: number, serverId: number) {
+async function remapMuscleGroup(localId: number, serverId: number, permanentId: string) {
     const mg = await db.muscleGroups.get(localId);
     if (!mg) return;
     await db.muscleGroups.delete(localId);
-    await db.muscleGroups.put({...mg, id: serverId});
+    await db.muscleGroups.put({...mg, id: serverId, permanentId});
     const exercises = await db.exercises.where('muscleGroupId').equals(localId).toArray();
     for (const ex of exercises) {
         await db.exercises.update(ex.id, {muscleGroupId: serverId});
     }
 }
 
-async function remapExercise(localId: number, serverId: number) {
+async function remapExercise(localId: number, serverId: number, permanentId: string) {
     const ex = await db.exercises.get(localId);
     if (!ex) return;
     await db.exercises.delete(localId);
-    await db.exercises.put({...ex, id: serverId});
+    await db.exercises.put({...ex, id: serverId, permanentId});
     const wes = await db.workoutExercises.where('exerciseId').equals(localId).toArray();
     for (const we of wes) {
         await db.workoutExercises.update(we.id, {exerciseId: serverId});
     }
 }
 
-async function remapWorkout(localId: number, serverId: number) {
+async function remapWorkout(localId: number, serverId: number, permanentId: string) {
     const w = await db.workouts.get(localId);
     if (!w) return;
     await db.workouts.delete(localId);
-    await db.workouts.put({...w, id: serverId});
+    await db.workouts.put({...w, id: serverId, permanentId});
     const wes = await db.workoutExercises.where('workoutId').equals(localId).toArray();
     for (const we of wes) {
         await db.workoutExercises.update(we.id, {workoutId: serverId});
     }
 }
 
-async function remapWorkoutExercise(localId: number, serverId: number) {
+async function remapWorkoutExercise(localId: number, serverId: number, permanentId: string) {
     const we = await db.workoutExercises.get(localId);
     if (!we) return;
     await db.workoutExercises.delete(localId);
-    await db.workoutExercises.put({...we, id: serverId});
+    await db.workoutExercises.put({...we, id: serverId, permanentId});
     const sets = await db.exerciseSets.where('workoutExerciseId').equals(localId).toArray();
     for (const s of sets) {
         await db.exerciseSets.update(s.id, {workoutExerciseId: serverId});
@@ -59,6 +67,7 @@ async function remapWorkoutExercise(localId: number, serverId: number) {
 async function remapExerciseSet(
     localId: number,
     serverId: number,
+    permanentId: string,
     syncedDirty?: number,
 ) {
     const s = await db.exerciseSets.get(localId);
@@ -66,7 +75,7 @@ async function remapExerciseSet(
 
     const dirty = s.dirty === syncedDirty ? undefined : s.dirty;
     await db.exerciseSets.delete(localId);
-    await db.exerciseSets.put({...s, id: serverId, dirty});
+    await db.exerciseSets.put({...s, id: serverId, permanentId, dirty});
 }
 
 const SYNC_CONCURRENCY = 8;
@@ -100,34 +109,28 @@ async function mapConcurrent<T, R>(
     return results;
 }
 
-async function syncCreatedRecords<T>(
+async function syncResolvedRecords<T extends {id: number; permanentId: string}>(
     records: readonly T[],
-    create: (record: T) => Promise<number>,
-    remap: (record: T, serverId: number) => Promise<void>,
+    mappings: readonly PermanentIdMapping[],
+    remap: (record: T, mapping: PermanentIdMapping) => Promise<void>,
 ): Promise<{synced: number; failed: number}> {
-    const results = await mapConcurrent(records, create);
+    const recordsByPermanentId = new Map(records.map(record => [record.permanentId, record]));
+    const completed = new Set<string>();
     let synced = 0;
-    let failed = 0;
 
-    // Apply local remaps after the server calls finish. Keep these sequential
-    // and finish them before starting the dependent entity phase.
-    for (let i = 0; i < records.length; i++) {
-        const result = results[i];
-
-        if (result.status === 'rejected') {
-            failed++;
-            continue;
-        }
-
+    for (const mapping of mappings) {
+        const record = recordsByPermanentId.get(mapping.localPermanentId);
+        if (!record || completed.has(mapping.localPermanentId)) continue;
         try {
-            await remap(records[i], result.value);
+            await remap(record, mapping);
+            completed.add(mapping.localPermanentId);
             synced++;
         } catch {
-            failed++;
+            // Leave failed records local so a later push can reconcile them again.
         }
     }
 
-    return {synced, failed};
+    return {synced, failed: records.length - completed.size};
 }
 
 async function syncDeletionPhase(
@@ -172,75 +175,129 @@ export async function flushSyncQueue(): Promise<{ synced: number; failed: number
     let failed = 0;
 
     try {
-        // 1. Muscle groups
-        const newMgs = await db.muscleGroups.where('id').below(0).toArray();
-        const mgResult = await syncCreatedRecords(
-            newMgs,
-            mg => createMuscleGroup(mg.name, mg.idempotencyKey),
-            (mg, serverId) => remapMuscleGroup(mg.id, serverId),
-        );
-        synced += mgResult.synced;
-        failed += mgResult.failed;
+        const [newMgs, newExercises, newWorkouts, newWes, newSets] = await Promise.all([
+            db.muscleGroups.where('id').below(0).toArray(),
+            db.exercises.where('id').below(0).toArray(),
+            db.workouts.where('id').below(0).toArray(),
+            db.workoutExercises.where('id').below(0).toArray(),
+            db.exerciseSets.where('id').below(0).toArray(),
+        ]);
+        const mgsToSync = newMgs.filter(hasPermanentId);
+        const workoutsToRemap = newWorkouts.filter(hasPermanentId);
+        failed += newMgs.length - mgsToSync.length;
+        failed += newWorkouts.length - workoutsToRemap.length;
 
-        // 2. Exercises: wait for muscle-group remaps before this phase.
-        const newExercises = await db.exercises.where('id').below(0).toArray();
-        const exercisesWithSyncedParent = newExercises.filter(ex => ex.muscleGroupId >= 0);
-        failed += newExercises.length - exercisesWithSyncedParent.length;
+        const batch: Parameters<typeof pushWorkoutBatch>[0] = {
+            muscleGroups: mgsToSync.map(record => ({
+                permanentId: record.permanentId,
+                name: record.name,
+            })),
+            exercises: [],
+            workouts: workoutsToRemap.map(record => ({
+                permanentId: record.permanentId,
+                date: record.date,
+                notes: record.notes ?? null,
+            })),
+            workoutExercises: [],
+            sets: [],
+        };
+        const exercisesToRemap: (typeof newExercises[number] & {permanentId: string})[] = [];
+        const workoutExercisesToRemap: (typeof newWes[number] & {permanentId: string})[] = [];
+        const setsToRemap: (typeof newSets[number] & {permanentId: string})[] = [];
 
-        const exerciseResult = await syncCreatedRecords(
-            exercisesWithSyncedParent,
-            ex => createExercise(ex.name, ex.muscleGroupId, ex.idempotencyKey),
-            (ex, serverId) => remapExercise(ex.id, serverId),
-        );
-        synced += exerciseResult.synced;
-        failed += exerciseResult.failed;
+        for (const exercise of newExercises) {
+            if (!hasPermanentId(exercise)) {
+                failed++;
+                continue;
+            }
+            const muscleGroup = await db.muscleGroups.get(exercise.muscleGroupId);
+            if (!muscleGroup || !hasPermanentId(muscleGroup)) {
+                failed++;
+                continue;
+            }
+            batch.exercises.push({
+                permanentId: exercise.permanentId,
+                name: exercise.name,
+                muscleGroupPermanentId: muscleGroup.permanentId,
+            });
+            exercisesToRemap.push(exercise);
+        }
 
-        // 3. Workouts
-        const newWorkouts = await db.workouts.where('id').below(0).toArray();
-        const workoutResult = await syncCreatedRecords(
-            newWorkouts,
-            workout => createWorkout(workout.date, workout.notes ?? undefined, workout.idempotencyKey),
-            (workout, serverId) => remapWorkout(workout.id, serverId),
-        );
-        synced += workoutResult.synced;
-        failed += workoutResult.failed;
+        for (const workoutExercise of newWes) {
+            if (!hasPermanentId(workoutExercise)) {
+                failed++;
+                continue;
+            }
+            const [workout, exercise] = await Promise.all([
+                db.workouts.get(workoutExercise.workoutId),
+                db.exercises.get(workoutExercise.exerciseId),
+            ]);
+            if (!workout || !hasPermanentId(workout) || !exercise || !hasPermanentId(exercise)) {
+                failed++;
+                continue;
+            }
+            batch.workoutExercises.push({
+                permanentId: workoutExercise.permanentId,
+                workoutPermanentId: workout.permanentId,
+                exercisePermanentId: exercise.permanentId,
+                sortOrder: workoutExercise.sortOrder,
+            });
+            workoutExercisesToRemap.push(workoutExercise);
+        }
 
-        // 4. Workout exercises: wait for workout and exercise remaps.
-        const newWes = await db.workoutExercises.where('id').below(0).toArray();
-        const wesWithSyncedParents = newWes.filter(
-            we => we.workoutId >= 0 && we.exerciseId >= 0,
-        );
-        failed += newWes.length - wesWithSyncedParents.length;
+        for (const set of newSets) {
+            if (!hasPermanentId(set)) {
+                failed++;
+                continue;
+            }
+            const workoutExercise = await db.workoutExercises.get(set.workoutExerciseId);
+            if (!workoutExercise || !hasPermanentId(workoutExercise)) {
+                failed++;
+                continue;
+            }
+            batch.sets.push({
+                permanentId: set.permanentId,
+                workoutExercisePermanentId: workoutExercise.permanentId,
+                weight: set.weight,
+                weightUnit: set.weightUnit,
+                reps: set.reps,
+                distance: set.distance,
+                distanceUnit: set.distanceUnit,
+                duration: set.duration,
+                tempo: set.tempo,
+                notes: set.notes,
+                sortOrder: set.sortOrder,
+                setType: set.setType,
+            });
+            setsToRemap.push(set);
+        }
 
-        const weResult = await syncCreatedRecords(
-            wesWithSyncedParents,
-            we => addExerciseToWorkout(we.workoutId, we.exerciseId, we.sortOrder, we.idempotencyKey),
-            (we, serverId) => remapWorkoutExercise(we.id, serverId),
-        );
-        synced += weResult.synced;
-        failed += weResult.failed;
+        const batchCount = batch.muscleGroups.length + batch.exercises.length + batch.workouts.length
+            + batch.workoutExercises.length + batch.sets.length;
+        if (batchCount > 0) {
+            try {
+                await pushWorkoutBatch(batch);
+            } catch {
+                // Resolve partial inserts below; uninserted records remain pending for retry.
+            }
 
-        // 5. Sets: wait for workout-exercise remaps.
-        const newSets = await db.exerciseSets.where('id').below(0).toArray();
-        const setsWithSyncedParent = newSets.filter(set => set.workoutExerciseId >= 0);
-        failed += newSets.length - setsWithSyncedParent.length;
+            const mappings = await resolveWorkoutPermanentIds(batch);
+            const mgResult = await syncResolvedRecords(mgsToSync, mappings.muscleGroups,
+                (record, mapping) => remapMuscleGroup(record.id, mapping.serverId, mapping.permanentId));
+            const exerciseResult = await syncResolvedRecords(exercisesToRemap, mappings.exercises,
+                (record, mapping) => remapExercise(record.id, mapping.serverId, mapping.permanentId));
+            const workoutResult = await syncResolvedRecords(workoutsToRemap, mappings.workouts,
+                (record, mapping) => remapWorkout(record.id, mapping.serverId, mapping.permanentId));
+            const workoutExerciseResult = await syncResolvedRecords(workoutExercisesToRemap, mappings.workoutExercises,
+                (record, mapping) => remapWorkoutExercise(record.id, mapping.serverId, mapping.permanentId));
+            const setResult = await syncResolvedRecords(setsToRemap, mappings.sets,
+                (record, mapping) => remapExerciseSet(record.id, mapping.serverId, mapping.permanentId, record.dirty));
 
-        const setResult = await syncCreatedRecords(
-            setsWithSyncedParent,
-            set => addSet(
-                set.workoutExerciseId,
-                set.weight,
-                set.weightUnit,
-                set.reps,
-                set.notes ?? undefined,
-                set.setType,
-                set.sortOrder,
-                set.idempotencyKey,
-            ),
-            (set, serverId) => remapExerciseSet(set.id, serverId, set.dirty),
-        );
-        synced += setResult.synced;
-        failed += setResult.failed;
+            synced += mgResult.synced + exerciseResult.synced + workoutResult.synced
+                + workoutExerciseResult.synced + setResult.synced;
+            failed += mgResult.failed + exerciseResult.failed + workoutResult.failed
+                + workoutExerciseResult.failed + setResult.failed;
+        }
 
         // 6. Update dirty sets. Clear dirty only if the record hasn't changed
         // again since this upload started.
@@ -344,11 +401,12 @@ export async function getPendingSyncCount(): Promise<number> {
 
 // Hydrate local DB from server data
 export async function hydrateChunk(data: {
-    muscleGroups: { id: number; name: string; colour: string }[];
-    exercises: { id: number; name: string; muscleGroupId: number; muscleGroupName: string }[];
-    workouts: { id: number; date: string; notes?: string | null }[];
+    muscleGroups: { id: number; permanentId: string; name: string; colour: string }[];
+    exercises: { id: number; permanentId: string; name: string; muscleGroupId: number; muscleGroupName: string }[];
+    workouts: { id: number; permanentId: string; date: string; notes?: string | null }[];
     workoutExercises: {
         id: number;
+        permanentId: string;
         workoutId: number;
         exerciseId: number;
         sortOrder: number;
@@ -358,6 +416,7 @@ export async function hydrateChunk(data: {
     }[];
     exerciseSets: {
         id: number;
+        permanentId: string;
         workoutExerciseId: number;
         weight: number | null;
         weightUnit: string;

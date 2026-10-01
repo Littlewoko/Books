@@ -4,6 +4,7 @@ export interface LocalMuscleGroup {
     id: number;
     name: string;
     colour: string;
+    permanentId: string;
     idempotencyKey?: string;
 }
 
@@ -12,6 +13,7 @@ export interface LocalExercise {
     name: string;
     muscleGroupId: number;
     muscleGroupName: string;
+    permanentId: string;
     idempotencyKey?: string;
 }
 
@@ -19,6 +21,7 @@ export interface LocalWorkout {
     id: number;
     date: string;
     notes?: string | null;
+    permanentId: string;
     idempotencyKey?: string;
 }
 
@@ -30,6 +33,7 @@ export interface LocalWorkoutExercise {
     exerciseName: string;
     muscleGroupName: string;
     setCount: number;
+    permanentId: string;
     idempotencyKey?: string;
     dirty?: number;
 }
@@ -47,6 +51,7 @@ export interface LocalExerciseSet {
     notes: string | null;
     sortOrder: number;
     setType: string;
+    permanentId: string;
     dirty?: number; // timestamp of local modification, cleared after sync
     idempotencyKey?: string;
 }
@@ -114,6 +119,16 @@ db.version(4).stores({
     workouts: 'id, date',
     workoutExercises: 'id, workoutId, exerciseId, dirty',
     exerciseSets: 'id, workoutExerciseId, dirty',
+    deletions: '++id, table, serverId',
+    syncMeta: 'key',
+});
+
+db.version(5).stores({
+    muscleGroups: 'id, name, permanentId',
+    exercises: 'id, muscleGroupId, name, permanentId',
+    workouts: 'id, date, permanentId',
+    workoutExercises: 'id, workoutId, exerciseId, dirty, permanentId',
+    exerciseSets: 'id, workoutExerciseId, dirty, permanentId',
     deletions: '++id, table, serverId',
     syncMeta: 'key',
 });

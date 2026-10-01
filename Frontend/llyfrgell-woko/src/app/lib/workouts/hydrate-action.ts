@@ -16,24 +16,24 @@ export async function getHydrationChunk(beforeDate?: string) {
     const startDate = startDateObj.toISOString().split('T')[0];
 
     // Reference data only on first chunk
-    let muscleGroups: { id: number; name: string; colour: string }[] = [];
-    let exercises: { id: number; name: string; muscleGroupId: number; muscleGroupName: string }[] = [];
+    let muscleGroups: { id: number; permanentId: string; name: string; colour: string }[] = [];
+    let exercises: { id: number; permanentId: string; name: string; muscleGroupId: number; muscleGroupName: string }[] = [];
 
     if (!beforeDate) {
         const [mgResult, exResult] = await Promise.all([
-            sql`SELECT id, name, COALESCE(colour, '#737373') AS colour FROM muscle_group WHERE user_id = ${userId} ORDER BY name`,
-            sql`SELECT e.id, e.name, e.muscle_group_id, mg.name AS muscle_group_name
+            sql`SELECT id, permanent_id, name, COALESCE(colour, '#737373') AS colour FROM muscle_group WHERE user_id = ${userId} ORDER BY name`,
+            sql`SELECT e.id, e.permanent_id, e.name, e.muscle_group_id, mg.name AS muscle_group_name
                 FROM exercise e JOIN muscle_group mg ON mg.id = e.muscle_group_id
                 WHERE e.user_id = ${userId} ORDER BY e.name`,
         ]);
-        muscleGroups = mgResult.rows.map(r => ({ id: r.id, name: r.name, colour: r.colour }));
+        muscleGroups = mgResult.rows.map(r => ({ id: r.id, permanentId: r.permanent_id, name: r.name, colour: r.colour }));
         exercises = exResult.rows.map(r => ({
-            id: r.id, name: r.name, muscleGroupId: r.muscle_group_id, muscleGroupName: r.muscle_group_name,
+            id: r.id, permanentId: r.permanent_id, name: r.name, muscleGroupId: r.muscle_group_id, muscleGroupName: r.muscle_group_name,
         }));
     }
 
     const wResult = await sql`
-        SELECT id, date::text AS date, notes FROM workout
+        SELECT id, permanent_id, date::text AS date, notes FROM workout
         WHERE user_id = ${userId} AND date >= ${startDate}::date AND date < ${endDate}::date
         ORDER BY date DESC;
     `;
@@ -45,7 +45,7 @@ export async function getHydrationChunk(beforeDate?: string) {
 
     if (workoutIds.length > 0) {
         const weResult = await sql.query(
-            `SELECT we.id, we.workout_id, we.exercise_id, we.sort_order,
+            `SELECT we.id, we.permanent_id, we.workout_id, we.exercise_id, we.sort_order,
                     e.name AS exercise_name, mg.name AS muscle_group_name,
                     COUNT(es.id)::int AS set_count
              FROM workout_exercise we
@@ -62,7 +62,7 @@ export async function getHydrationChunk(beforeDate?: string) {
         const weIds = weRows.map((we: any) => we.id);
         if (weIds.length > 0) {
             const setResult = await sql.query(
-                `SELECT id, workout_exercise_id, weight, weight_unit, reps,
+                `SELECT id, permanent_id, workout_exercise_id, weight, weight_unit, reps,
                         distance, distance_unit, duration, tempo, notes, sort_order,
                         COALESCE(set_type, 'working') AS set_type
                  FROM exercise_set
@@ -77,13 +77,13 @@ export async function getHydrationChunk(beforeDate?: string) {
     return {
         muscleGroups,
         exercises,
-        workouts: wResult.rows.map(r => ({ id: r.id, date: r.date, notes: r.notes })),
+        workouts: wResult.rows.map(r => ({ id: r.id, permanentId: r.permanent_id, date: r.date, notes: r.notes })),
         workoutExercises: weRows.map((r: any) => ({
-            id: r.id, workoutId: r.workout_id, exerciseId: r.exercise_id, sortOrder: r.sort_order,
+            id: r.id, permanentId: r.permanent_id, workoutId: r.workout_id, exerciseId: r.exercise_id, sortOrder: r.sort_order,
             exerciseName: r.exercise_name, muscleGroupName: r.muscle_group_name, setCount: r.set_count,
         })),
         exerciseSets: setRows.map((r: any) => ({
-            id: r.id, workoutExerciseId: r.workout_exercise_id,
+            id: r.id, permanentId: r.permanent_id, workoutExerciseId: r.workout_exercise_id,
             weight: r.weight ? parseFloat(r.weight) : null, weightUnit: r.weight_unit,
             reps: r.reps, distance: r.distance ? parseFloat(r.distance) : null,
             distanceUnit: r.distance_unit, duration: r.duration, tempo: r.tempo,
