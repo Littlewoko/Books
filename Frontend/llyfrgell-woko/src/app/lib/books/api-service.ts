@@ -17,20 +17,20 @@ export async function searchBooksByTitle(title: string, author?: string, isbn?: 
     let query: string;
     
     if (isbn) {
-        query = `isbn:${isbn}`;
+        query = `+isbn:${isbn}`;
     } else if (title && author) {
-        query = `intitle:${title}+inauthor:${author}`;
+        query = `+intitle:${title}+inauthor:${author}`;
     } else if (title) {
-        query = `intitle:${title}`;
+        query = `+intitle:${title}`;
     } else if (author) {
-        query = `inauthor:${author}`;
+        query = `+inauthor:${author}`;
     } else {
         return [];
     }
     
     const url = new URL('https://www.googleapis.com/books/v1/volumes');
     url.searchParams.set('q', query);
-    url.searchParams.set('maxResults', '10');
+    url.searchParams.set('maxResults', '20');
     url.searchParams.set('key', process.env.GOOGLE_BOOKS_KEY || '');
 
     try {
