@@ -1,4 +1,4 @@
-import { sql, QueryResult, QueryResultRow } from "@vercel/postgres";
+import { sql, type QueryResult, type QueryResultRow } from "@/app/lib/db";
 
 export function convertToBook(result: QueryResult<QueryResultRow>) {
     const books = result.rows.map(row => ({

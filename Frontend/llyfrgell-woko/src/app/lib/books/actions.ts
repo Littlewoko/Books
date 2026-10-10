@@ -1,6 +1,6 @@
 'use server';
 
-import { QueryResult, QueryResultRow, sql } from '@vercel/postgres';
+import { sql, type QueryResult, type QueryResultRow } from '@/app/lib/db';
 import { Book } from '../classes/book';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';

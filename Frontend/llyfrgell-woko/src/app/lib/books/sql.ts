@@ -1,4 +1,4 @@
-import { QueryResult, QueryResultRow, sql } from "@vercel/postgres";
+import { sql, type QueryResult, type QueryResultRow } from "@/app/lib/db";
 
 export async function GetBooksRequest(
     offset: number,

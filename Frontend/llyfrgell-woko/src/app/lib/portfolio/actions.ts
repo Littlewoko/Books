@@ -1,6 +1,6 @@
 'use server';
 
-import {sql} from '@vercel/postgres';
+import {sql} from '@/app/lib/db';
 import {revalidatePath} from 'next/cache';
 import {redirect} from 'next/navigation';
 import ProtectRoute from '@/app/utils/protectRoute';

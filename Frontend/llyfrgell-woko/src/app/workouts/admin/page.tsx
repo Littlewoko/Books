@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/utils/authOptions";
 import { redirect } from "next/navigation";
-import { sql } from "@vercel/postgres";
+import { sql } from "@/app/lib/db";
 import { getSessionUserId } from "@/app/utils/getSessionUser";
 import ExerciseAdmin from "@/app/ui/workouts/exercise-admin";
 import CsvImport from "@/app/ui/workouts/csv-import";

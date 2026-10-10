@@ -1,6 +1,6 @@
 'use server';
 
-import {sql} from '@vercel/postgres';
+import {sql} from '@/app/lib/db';
 import {revalidatePath} from 'next/cache';
 import ProtectRoute from '@/app/utils/protectRoute';
 import {getSessionUserId} from '@/app/utils/getSessionUser';

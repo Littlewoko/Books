@@ -1,6 +1,6 @@
 'use server';
 
-import { sql } from '@vercel/postgres';
+import { sql } from '@/app/lib/db';
 import { BookClubNote } from '../classes/book-club-note';
 import ProtectRoute from '@/app/utils/protectRoute';
 import { revalidatePath } from 'next/cache';

@@ -1,6 +1,6 @@
 import GitHubProvider from "next-auth/providers/github";
 import {AuthOptions} from "next-auth";
-import {sql} from "@vercel/postgres";
+import {sql} from "@/app/lib/db";
 import crypto from "crypto";
 
 function hashProviderId(id: string): string {

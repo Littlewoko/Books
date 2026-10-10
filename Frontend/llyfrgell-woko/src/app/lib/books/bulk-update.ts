@@ -1,6 +1,6 @@
 'use server';
 
-import { sql } from '@vercel/postgres';
+import { sql } from '@/app/lib/db';
 import { searchBooksByTitle } from './api-service';
 import { extractDominantColor } from '@/app/utils/extractColor';
 import ProtectRoute from '@/app/utils/protectRoute';

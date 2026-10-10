@@ -1,4 +1,4 @@
-import { QueryResult, QueryResultRow } from "@vercel/postgres";
+import type { QueryResult, QueryResultRow } from "@/app/lib/db";
 import { Portfolio } from "../classes/portfolio";
 
 export function convertToPortfolio(result: QueryResult<QueryResultRow>): Portfolio[] {
