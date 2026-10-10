@@ -1,14 +1,14 @@
 "use client";
 
-import {useEffect, useState} from "react";
+import { useEffect, useState } from "react";
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
 import Link from "next/link";
-import {localGetWorkoutDatesForMonth} from "@/app/lib/workouts/local-data";
-import {getMuscleGroupColour, loadMuscleGroupColours} from "@/app/lib/workouts/muscle-group-colours";
-import {useOffline} from "@/app/components/WorkoutOfflineProvider";
+import { localGetWorkoutDatesForMonth } from "@/app/lib/workouts/local-data";
+import { getMuscleGroupColour, loadMuscleGroupColours } from "@/app/lib/workouts/muscle-group-colours";
+import { useOffline } from "@/app/components/WorkoutOfflineProvider";
 import WeeklyVolume from "./weekly-volume";
 
 const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -19,20 +19,31 @@ interface WorkoutDay {
 }
 
 export default function WorkoutCalendar() {
-    const {push, pendingSyncs, isOnline} = useOffline();
+    const { push, pendingSyncs, isOnline } = useOffline();
     const [today] = useState(() => new Date());
     const [year, setYear] = useState(() => new Date().getFullYear());
     const [month, setMonth] = useState(() => new Date().getMonth() + 1);
     const [workoutDays, setWorkoutDays] = useState<WorkoutDay[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [loadedMonth, setLoadedMonth] = useState<string | null>(null);
     const [pushing, setPushing] = useState(false);
+    const monthKey = `${year}-${month}`;
+    const loading = loadedMonth !== monthKey;
 
     useEffect(() => {
-        setLoading(true);
+        let active = true;
         Promise.all([localGetWorkoutDatesForMonth(year, month), loadMuscleGroupColours()])
-            .then(([days]) => setWorkoutDays(days))
-            .finally(() => setLoading(false));
-    }, [year, month]);
+            .then(([days]) => {
+                if (!active) return;
+                setWorkoutDays(days);
+                setLoadedMonth(monthKey);
+            })
+            .catch(() => {
+                if (!active) return;
+                setWorkoutDays([]);
+                setLoadedMonth(monthKey);
+            });
+        return () => { active = false; };
+    }, [year, month, monthKey]);
 
     const navigate = (newYear: number, newMonth: number) => {
         setYear(newYear);
@@ -54,7 +65,7 @@ export default function WorkoutCalendar() {
     for (let d = 1; d <= daysInMonth; d++) cells.push(d);
     while (cells.length % 7 !== 0) cells.push(null);
 
-    const monthName = firstDay.toLocaleString("default", {month: "long"});
+    const monthName = firstDay.toLocaleString("default", { month: "long" });
     const isCurrentMonth = year === today.getFullYear() && month === today.getMonth() + 1;
 
     const handlePush = async () => {
@@ -72,19 +83,19 @@ export default function WorkoutCalendar() {
         <div className="max-w-lg mx-auto">
             <div className="flex items-center justify-between mb-3">
                 <button type="button" onClick={prevMonth}
-                        className="p-2 text-black hover:text-amber-700 transition-colors">
-                    <ChevronLeftIcon sx={{fontSize: 28, color: 'inherit'}}/>
+                    className="p-2 text-black hover:text-amber-700 transition-colors">
+                    <ChevronLeftIcon sx={{ fontSize: 28, color: 'inherit' }} />
                 </button>
                 <button type="button" onClick={goToToday}>
                     <span className="text-black text-xl sm:text-2xl font-bold">{monthName} {year}</span>
                 </button>
                 <button type="button" onClick={nextMonth}
-                        className="p-2 text-black hover:text-amber-700 transition-colors">
-                    <ChevronRightIcon sx={{fontSize: 28, color: 'inherit'}}/>
+                    className="p-2 text-black hover:text-amber-700 transition-colors">
+                    <ChevronRightIcon sx={{ fontSize: 28, color: 'inherit' }} />
                 </button>
                 <button type="button" onClick={handlePush} disabled={pushing || !isOnline}
-                        className="text-amber-700 hover:text-amber-800 transition-colors disabled:text-black/20 relative p-2">
-                    <CloudUploadIcon sx={{fontSize: 22, color: 'inherit'}} className={pushing ? 'animate-pulse' : ''}/>
+                    className="text-amber-700 hover:text-amber-800 transition-colors disabled:text-black/20 relative p-2">
+                    <CloudUploadIcon sx={{ fontSize: 22, color: 'inherit' }} className={pushing ? 'animate-pulse' : ''} />
                     {pendingSyncs > 0 && (
                         <span
                             className="absolute top-0.5 right-0.5 bg-amber-600 text-white text-[9px] font-bold rounded-full w-3.5 h-3.5 flex items-center justify-center">
@@ -93,7 +104,7 @@ export default function WorkoutCalendar() {
                     )}
                 </button>
                 <Link href="/workouts/movements" className="text-black/40 hover:text-amber-700 transition-colors p-2">
-                    <FitnessCenterIcon sx={{fontSize: 22, color: 'inherit'}}/>
+                    <FitnessCenterIcon sx={{ fontSize: 22, color: 'inherit' }} />
                 </Link>
             </div>
 
@@ -105,7 +116,7 @@ export default function WorkoutCalendar() {
 
             <div className="grid grid-cols-7 gap-1">
                 {cells.map((day, i) => {
-                    if (day === null) return <div key={`empty-${i}`} className="aspect-square"/>;
+                    if (day === null) return <div key={`empty-${i}`} className="aspect-square" />;
 
                     const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                     const muscleGroups = workoutMap.get(dateStr);
@@ -114,22 +125,20 @@ export default function WorkoutCalendar() {
 
                     return (
                         <Link key={dateStr} href={`/workouts/${dateStr}`}
-                              className={`aspect-square flex flex-col items-center justify-center gap-0.5 transition-colors ${
-                                  isToday
-                                      ? 'bg-amber-600 text-white font-bold'
-                                      : hasWorkout
-                                          ? 'bg-amber-50 hover:bg-amber-100'
-                                          : 'hover:bg-amber-50'
-                              }`}
+                            className={`aspect-square flex flex-col items-center justify-center gap-0.5 transition-colors ${isToday
+                                    ? 'bg-amber-600 text-white font-bold'
+                                    : hasWorkout
+                                        ? 'bg-amber-50 hover:bg-amber-100'
+                                        : 'hover:bg-amber-50'
+                                }`}
                         >
-                            <span className={`text-sm ${
-                                isToday ? 'text-white' : hasWorkout ? 'text-black font-semibold' : 'text-black/40'
-                            }`}>{day}</span>
+                            <span className={`text-sm ${isToday ? 'text-white' : hasWorkout ? 'text-black font-semibold' : 'text-black/40'
+                                }`}>{day}</span>
                             {muscleGroups && !isToday && (
                                 <div className="flex gap-0.5 flex-wrap justify-center max-w-[80%]">
                                     {muscleGroups.slice(0, 4).map((mg, j) => (
                                         <div key={j} className="w-1.5 h-1.5 rounded-full"
-                                             style={{backgroundColor: getMuscleGroupColour(mg)}} title={mg}/>
+                                            style={{ backgroundColor: getMuscleGroupColour(mg) }} title={mg} />
                                     ))}
                                 </div>
                             )}
@@ -142,14 +151,14 @@ export default function WorkoutCalendar() {
                 <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1 justify-center">
                     {[...new Set(workoutDays.flatMap(d => d.muscleGroups))].sort().map(mg => (
                         <div key={mg} className="flex items-center gap-1">
-                            <div className="w-2 h-2 rounded-full" style={{backgroundColor: getMuscleGroupColour(mg)}}/>
+                            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: getMuscleGroupColour(mg) }} />
                             <span className="text-black text-xs">{mg}</span>
                         </div>
                     ))}
                 </div>
             )}
 
-            <WeeklyVolume/>
+            <WeeklyVolume />
         </div>
     );
 }

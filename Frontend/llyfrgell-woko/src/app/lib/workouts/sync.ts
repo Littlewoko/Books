@@ -399,6 +399,17 @@ export async function getPendingSyncCount(): Promise<number> {
     return mgs + exercises + workouts + wes + newSets + dirtySets + dirtyWes + deletions;
 }
 
+export async function hydrateReferenceData(data: {
+    muscleGroups: { id: number; permanentId: string; name: string; colour: string; userId: string | null; isDefault: boolean }[];
+    exercises: { id: number; permanentId: string; name: string; muscleGroupId: number; muscleGroupName: string; userId: string | null; isDefault: boolean }[];
+}) {
+    await db.transaction('rw', [db.muscleGroups, db.exercises, db.syncMeta], async () => {
+        if (data.muscleGroups.length > 0) await db.muscleGroups.bulkPut(data.muscleGroups);
+        if (data.exercises.length > 0) await db.exercises.bulkPut(data.exercises);
+        await db.syncMeta.put({key: 'catalogVersion', value: '2'});
+    });
+}
+
 // Hydrate local DB from server data
 export async function hydrateChunk(data: {
     muscleGroups: { id: number; permanentId: string; name: string; colour: string }[];

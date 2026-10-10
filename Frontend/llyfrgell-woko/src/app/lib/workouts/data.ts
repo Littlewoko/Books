@@ -13,14 +13,22 @@ import {
 
 export async function fetchMuscleGroups(userId: string): Promise<MuscleGroup[]> {
     const result = await sql`
-        SELECT id, name, user_id FROM muscle_group
-        WHERE user_id = ${userId}
-        ORDER BY name ASC;
+        SELECT mg.id, COALESCE(pref.name, mg.name) AS name,
+               COALESCE(pref.colour, mg.colour, '#737373') AS colour,
+               mg.user_id, (mg.user_id IS NULL) AS is_default
+        FROM muscle_group mg
+        LEFT JOIN muscle_group_preference pref
+            ON pref.muscle_group_id = mg.id AND pref.user_id = ${userId}
+        WHERE (mg.user_id = ${userId} OR mg.user_id IS NULL)
+          AND NOT COALESCE(pref.is_hidden, false)
+        ORDER BY COALESCE(pref.name, mg.name) ASC;
     `;
     return result.rows.map(row => ({
         id: row.id,
         name: row.name,
-        userId: row.user_id,
+        colour: row.colour,
+        userId: row.user_id ?? null,
+        isDefault: row.is_default,
     }));
 }
 
@@ -28,35 +36,58 @@ export async function fetchMuscleGroups(userId: string): Promise<MuscleGroup[]> 
 
 export async function fetchExercises(userId: string): Promise<Exercise[]> {
     const result = await sql`
-        SELECT e.id, e.name, e.muscle_group_id, e.user_id, mg.name AS muscle_group_name
+        SELECT e.id, COALESCE(pref.name, e.name) AS name,
+               COALESCE(pref.muscle_group_id, e.muscle_group_id) AS muscle_group_id,
+               e.user_id, (e.user_id IS NULL) AS is_default,
+               COALESCE(mg_pref.name, mg.name) AS muscle_group_name
         FROM exercise e
-        JOIN muscle_group mg ON mg.id = e.muscle_group_id
-        WHERE e.user_id = ${userId}
-        ORDER BY mg.name ASC, e.name ASC;
+        LEFT JOIN exercise_preference pref
+            ON pref.exercise_id = e.id AND pref.user_id = ${userId}
+        JOIN muscle_group mg ON mg.id = COALESCE(pref.muscle_group_id, e.muscle_group_id)
+        LEFT JOIN muscle_group_preference mg_pref
+            ON mg_pref.muscle_group_id = mg.id AND mg_pref.user_id = ${userId}
+        WHERE (e.user_id = ${userId} OR e.user_id IS NULL)
+          AND (mg.user_id = ${userId} OR mg.user_id IS NULL)
+          AND NOT COALESCE(pref.is_hidden, false)
+          AND NOT COALESCE(mg_pref.is_hidden, false)
+        ORDER BY COALESCE(mg_pref.name, mg.name), COALESCE(pref.name, e.name);
     `;
     return result.rows.map(row => ({
         id: row.id,
         name: row.name,
         muscleGroupId: row.muscle_group_id,
-        userId: row.user_id,
+        userId: row.user_id ?? null,
         muscleGroupName: row.muscle_group_name,
+        isDefault: row.is_default,
     }));
 }
 
 export async function fetchExercisesByMuscleGroup(userId: string, muscleGroupId: number): Promise<Exercise[]> {
     const result = await sql`
-        SELECT e.id, e.name, e.muscle_group_id, e.user_id, mg.name AS muscle_group_name
+        SELECT e.id, COALESCE(pref.name, e.name) AS name,
+               COALESCE(pref.muscle_group_id, e.muscle_group_id) AS muscle_group_id,
+               e.user_id, (e.user_id IS NULL) AS is_default,
+               COALESCE(mg_pref.name, mg.name) AS muscle_group_name
         FROM exercise e
-        JOIN muscle_group mg ON mg.id = e.muscle_group_id
-        WHERE e.user_id = ${userId} AND e.muscle_group_id = ${muscleGroupId}
-        ORDER BY e.name ASC;
+        LEFT JOIN exercise_preference pref
+            ON pref.exercise_id = e.id AND pref.user_id = ${userId}
+        JOIN muscle_group mg ON mg.id = COALESCE(pref.muscle_group_id, e.muscle_group_id)
+        LEFT JOIN muscle_group_preference mg_pref
+            ON mg_pref.muscle_group_id = mg.id AND mg_pref.user_id = ${userId}
+        WHERE (e.user_id = ${userId} OR e.user_id IS NULL)
+          AND (mg.user_id = ${userId} OR mg.user_id IS NULL)
+          AND COALESCE(pref.muscle_group_id, e.muscle_group_id) = ${muscleGroupId}
+          AND NOT COALESCE(pref.is_hidden, false)
+          AND NOT COALESCE(mg_pref.is_hidden, false)
+        ORDER BY COALESCE(pref.name, e.name);
     `;
     return result.rows.map(row => ({
         id: row.id,
         name: row.name,
         muscleGroupId: row.muscle_group_id,
-        userId: row.user_id,
+        userId: row.user_id ?? null,
         muscleGroupName: row.muscle_group_name,
+        isDefault: row.is_default,
     }));
 }
 
@@ -79,11 +110,16 @@ export async function fetchWorkoutDatesForMonth(userId: string, year: number, mo
     const endDate = `${endYear}-${String(endMonth).padStart(2, '0')}-01`;
 
     const result = await sql`
-        SELECT w.date::text AS date_str, ARRAY_AGG(DISTINCT mg.name) AS muscle_groups
+        SELECT w.date::text AS date_str,
+               ARRAY_AGG(DISTINCT COALESCE(mg_pref.name, mg.name)) AS muscle_groups
         FROM workout w
         JOIN workout_exercise we ON we.workout_id = w.id
         JOIN exercise e ON e.id = we.exercise_id
-        JOIN muscle_group mg ON mg.id = e.muscle_group_id
+        LEFT JOIN exercise_preference e_pref
+            ON e_pref.exercise_id = e.id AND e_pref.user_id = ${userId}
+        JOIN muscle_group mg ON mg.id = COALESCE(e_pref.muscle_group_id, e.muscle_group_id)
+        LEFT JOIN muscle_group_preference mg_pref
+            ON mg_pref.muscle_group_id = mg.id AND mg_pref.user_id = ${userId}
         WHERE w.user_id = ${userId} AND w.date >= ${startDate}::date AND w.date < ${endDate}::date
         GROUP BY w.date
         ORDER BY w.date;
@@ -96,14 +132,19 @@ export async function fetchWorkoutDatesForMonth(userId: string, year: number, mo
 
 // -- Workout Exercises --
 
-export async function fetchWorkoutExercises(workoutId: number): Promise<WorkoutExercise[]> {
+export async function fetchWorkoutExercises(workoutId: number, userId: string): Promise<WorkoutExercise[]> {
     const result = await sql`
         SELECT we.id, we.workout_id, we.exercise_id, we.sort_order,
-               e.name AS exercise_name, mg.name AS muscle_group_name,
+               COALESCE(e_pref.name, e.name) AS exercise_name,
+               COALESCE(mg_pref.name, mg.name) AS muscle_group_name,
                COUNT(es.id)::int AS set_count
         FROM workout_exercise we
         JOIN exercise e ON e.id = we.exercise_id
-        JOIN muscle_group mg ON mg.id = e.muscle_group_id
+        LEFT JOIN exercise_preference e_pref
+            ON e_pref.exercise_id = e.id AND e_pref.user_id = ${userId}
+        JOIN muscle_group mg ON mg.id = COALESCE(e_pref.muscle_group_id, e.muscle_group_id)
+        LEFT JOIN muscle_group_preference mg_pref
+            ON mg_pref.muscle_group_id = mg.id AND mg_pref.user_id = ${userId}
         LEFT JOIN exercise_set es ON es.workout_exercise_id = we.id
         WHERE we.workout_id = ${workoutId}
         GROUP BY we.id, we.workout_id, we.exercise_id, we.sort_order, e.name, mg.name

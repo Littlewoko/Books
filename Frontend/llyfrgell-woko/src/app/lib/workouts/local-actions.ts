@@ -7,6 +7,24 @@ export async function localCreateMuscleGroup(name: string): Promise<number> {
     return id;
 }
 
+export async function localUpdateMuscleGroup(
+    muscleGroupId: number,
+    updates: { name?: string; colour?: string },
+) {
+    const muscleGroup = await db.muscleGroups.get(muscleGroupId);
+    if (!muscleGroup) return;
+
+    await db.muscleGroups.update(muscleGroupId, updates);
+    if (updates.name && updates.name !== muscleGroup.name) {
+        const exercises = await db.exercises.where('muscleGroupId').equals(muscleGroupId).toArray();
+        for (const exercise of exercises) {
+            await db.exercises.update(exercise.id, {muscleGroupName: updates.name});
+            await db.workoutExercises.where('exerciseId').equals(exercise.id)
+                .modify({muscleGroupName: updates.name});
+        }
+    }
+}
+
 export async function localCreateExercise(name: string, muscleGroupId: number): Promise<number> {
     const mg = await db.muscleGroups.get(muscleGroupId);
     const id = await nextLocalId();

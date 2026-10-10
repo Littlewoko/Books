@@ -10,34 +10,57 @@ import FullHydrateButton from "@/app/ui/workouts/full-hydrate-button";
 
 async function getAdminData(userId: string) {
     const [mgResult, exResult] = await Promise.all([
-        sql`SELECT id, name, COALESCE(colour, '#737373') AS colour
-            FROM muscle_group
-            WHERE user_id = ${userId}
-            ORDER BY name`,
+        sql`SELECT mg.id, COALESCE(pref.name, mg.name) AS name,
+                   COALESCE(pref.colour, mg.colour, '#737373') AS colour,
+                   (mg.user_id IS NULL) AS is_default
+            FROM muscle_group mg
+            LEFT JOIN muscle_group_preference pref
+                ON pref.muscle_group_id = mg.id AND pref.user_id = ${userId}
+            WHERE (mg.user_id = ${userId} OR mg.user_id IS NULL)
+              AND NOT COALESCE(pref.is_hidden, false)
+            ORDER BY COALESCE(pref.name, mg.name)`,
         sql`
-            SELECT e.id, e.name, e.muscle_group_id, mg.name AS muscle_group_name,
+            SELECT e.id, COALESCE(e_pref.name, e.name) AS name,
+                   COALESCE(e_pref.muscle_group_id, e.muscle_group_id) AS muscle_group_id,
+                   COALESCE(mg_pref.name, mg.name) AS muscle_group_name,
+                   (e.user_id IS NULL) AS is_default,
                    COALESCE(s.total, 0)::int AS total_sets
             FROM exercise e
-            JOIN muscle_group mg ON mg.id = e.muscle_group_id
+            LEFT JOIN exercise_preference e_pref
+                ON e_pref.exercise_id = e.id AND e_pref.user_id = ${userId}
+            JOIN muscle_group mg ON mg.id = COALESCE(e_pref.muscle_group_id, e.muscle_group_id)
+            LEFT JOIN muscle_group_preference mg_pref
+                ON mg_pref.muscle_group_id = mg.id AND mg_pref.user_id = ${userId}
             LEFT JOIN (
                 SELECT we.exercise_id, COUNT(es.id) AS total
                 FROM workout_exercise we
+                JOIN workout w ON w.id = we.workout_id
                 JOIN exercise_set es ON es.workout_exercise_id = we.id
+                WHERE w.user_id = ${userId}
                 GROUP BY we.exercise_id
             ) s ON s.exercise_id = e.id
-            WHERE e.user_id = ${userId}
-            ORDER BY mg.name, e.name
+            WHERE (e.user_id = ${userId} OR e.user_id IS NULL)
+              AND (mg.user_id = ${userId} OR mg.user_id IS NULL)
+              AND NOT COALESCE(e_pref.is_hidden, false)
+              AND NOT COALESCE(mg_pref.is_hidden, false)
+            ORDER BY COALESCE(mg_pref.name, mg.name), COALESCE(e_pref.name, e.name)
         `,
     ]);
 
     return {
-        muscleGroups: mgResult.rows.map(r => ({ id: r.id as number, name: r.name as string, colour: r.colour as string })),
+        muscleGroups: mgResult.rows.map(r => ({
+            id: r.id as number,
+            name: r.name as string,
+            colour: r.colour as string,
+            isDefault: r.is_default as boolean,
+        })),
         exercises: exResult.rows.map(r => ({
             id: r.id as number,
             name: r.name as string,
             muscleGroupId: r.muscle_group_id as number,
             muscleGroupName: r.muscle_group_name as string,
             totalSets: r.total_sets as number,
+            isDefault: r.is_default as boolean,
         })),
     };
 }

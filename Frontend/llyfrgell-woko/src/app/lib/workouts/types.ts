@@ -1,15 +1,18 @@
 export type MuscleGroup = {
     id?: number;
     name: string;
-    userId: string;
+    userId: string | null;
+    colour?: string;
+    isDefault?: boolean;
 };
 
 export type Exercise = {
     id?: number;
     name: string;
     muscleGroupId: number;
-    userId: string;
+    userId: string | null;
     muscleGroupName?: string;
+    isDefault?: boolean;
 };
 
 export type Workout = {

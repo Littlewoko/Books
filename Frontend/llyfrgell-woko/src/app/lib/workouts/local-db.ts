@@ -5,6 +5,8 @@ export interface LocalMuscleGroup {
     name: string;
     colour: string;
     permanentId: string;
+    userId?: string | null;
+    isDefault?: boolean;
     idempotencyKey?: string;
 }
 
@@ -14,6 +16,8 @@ export interface LocalExercise {
     muscleGroupId: number;
     muscleGroupName: string;
     permanentId: string;
+    userId?: string | null;
+    isDefault?: boolean;
     idempotencyKey?: string;
 }
 

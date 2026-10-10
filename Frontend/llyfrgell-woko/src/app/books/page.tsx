@@ -79,6 +79,8 @@ export default function Page() {
   const cleanParams = new URLSearchParams(searchParams.toString());
   cleanParams.forEach((value, key) => { if (!value) cleanParams.delete(key); });
   const returnTo = cleanParams.toString() ? `/books?${cleanParams.toString()}` : undefined;
+  const isEmptyCatalogue = !query && filters.shortStory == null && filters.audiobook == null
+    && !filters.genre && !filters.status && !filters.year;
 
   return (
     <div className="overflow-x-auto m-2 max-w-3xl mx-auto">
@@ -108,7 +110,7 @@ export default function Page() {
           </div>
         ) : (
           <>
-            <AllTable books={books} returnTo={returnTo} />
+            <AllTable books={books} returnTo={returnTo} isEmptyCatalogue={isEmptyCatalogue} />
             {hasMore && (
               <div className="text-center py-4">
                 <button

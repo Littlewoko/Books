@@ -44,12 +44,52 @@ export async function updateMuscleGroupColour(muscleGroupId: number, colour: str
     await ProtectRoute();
     const userId = await getSessionUserId();
 
-    await sql`
+    const updated = await sql`
         UPDATE muscle_group
         SET colour = ${colour}
         WHERE id = ${muscleGroupId}
-          AND user_id = ${userId};
+          AND user_id = ${userId}
+        RETURNING id;
     `;
+    if (!updated.rows[0]) {
+        const saved = await sql`
+            INSERT INTO muscle_group_preference (user_id, muscle_group_id, colour)
+            SELECT ${userId}, id, ${colour}
+            FROM muscle_group
+            WHERE id = ${muscleGroupId} AND user_id IS NULL
+            ON CONFLICT (user_id, muscle_group_id)
+            DO UPDATE SET colour = EXCLUDED.colour
+            RETURNING muscle_group_id;
+        `;
+        if (!saved.rows[0]) throw new Error('Unauthorized');
+    }
+    revalidatePath('/workouts');
+}
+
+export async function renameMuscleGroup(muscleGroupId: number, name: string) {
+    await ProtectRoute();
+    const userId = await getSessionUserId();
+    const normalizedName = name.trim();
+    if (!normalizedName) throw new Error('Name cannot be blank');
+
+    const updated = await sql`
+        UPDATE muscle_group
+        SET name = ${normalizedName}
+        WHERE id = ${muscleGroupId} AND user_id = ${userId}
+        RETURNING id;
+    `;
+    if (!updated.rows[0]) {
+        const saved = await sql`
+            INSERT INTO muscle_group_preference (user_id, muscle_group_id, name)
+            SELECT ${userId}, id, ${normalizedName}
+            FROM muscle_group
+            WHERE id = ${muscleGroupId} AND user_id IS NULL
+            ON CONFLICT (user_id, muscle_group_id)
+            DO UPDATE SET name = EXCLUDED.name
+            RETURNING muscle_group_id;
+        `;
+        if (!saved.rows[0]) throw new Error('Unauthorized');
+    }
     revalidatePath('/workouts');
 }
 
@@ -61,6 +101,12 @@ export async function createExercise(name: string, muscleGroupId: number, idempo
 
     const existingId = await checkIdempotency(idempotencyKey);
     if (existingId != null) return existingId;
+
+    const muscleGroup = await sql`
+        SELECT id FROM muscle_group
+        WHERE id = ${muscleGroupId} AND (user_id = ${userId} OR user_id IS NULL);
+    `;
+    if (!muscleGroup.rows[0]) throw new Error('Unauthorized');
 
     const result = await sql`
         INSERT INTO exercise (name, muscle_group_id, user_id)
@@ -76,12 +122,30 @@ export async function updateExerciseMuscleGroup(exerciseId: number, muscleGroupI
     await ProtectRoute();
     const userId = await getSessionUserId();
 
-    await sql`
+    const muscleGroup = await sql`
+        SELECT id FROM muscle_group
+        WHERE id = ${muscleGroupId} AND (user_id = ${userId} OR user_id IS NULL);
+    `;
+    if (!muscleGroup.rows[0]) throw new Error('Unauthorized');
+
+    const updated = await sql`
         UPDATE exercise
         SET muscle_group_id = ${muscleGroupId}
-        WHERE id = ${exerciseId}
-          AND user_id = ${userId};
+        WHERE id = ${exerciseId} AND user_id = ${userId}
+        RETURNING id;
     `;
+    if (!updated.rows[0]) {
+        const saved = await sql`
+            INSERT INTO exercise_preference (user_id, exercise_id, muscle_group_id)
+            SELECT ${userId}, id, ${muscleGroupId}
+            FROM exercise
+            WHERE id = ${exerciseId} AND user_id IS NULL
+            ON CONFLICT (user_id, exercise_id)
+            DO UPDATE SET muscle_group_id = EXCLUDED.muscle_group_id
+            RETURNING exercise_id;
+        `;
+        if (!saved.rows[0]) throw new Error('Unauthorized');
+    }
     revalidatePath('/workouts');
 }
 
@@ -89,12 +153,24 @@ export async function renameExercise(exerciseId: number, name: string) {
     await ProtectRoute();
     const userId = await getSessionUserId();
 
-    await sql`
+    const updated = await sql`
         UPDATE exercise
         SET name = ${name}
-        WHERE id = ${exerciseId}
-          AND user_id = ${userId};
+        WHERE id = ${exerciseId} AND user_id = ${userId}
+        RETURNING id;
     `;
+    if (!updated.rows[0]) {
+        const saved = await sql`
+            INSERT INTO exercise_preference (user_id, exercise_id, name)
+            SELECT ${userId}, id, ${name.trim()}
+            FROM exercise
+            WHERE id = ${exerciseId} AND user_id IS NULL
+            ON CONFLICT (user_id, exercise_id)
+            DO UPDATE SET name = EXCLUDED.name
+            RETURNING exercise_id;
+        `;
+        if (!saved.rows[0]) throw new Error('Unauthorized');
+    }
     revalidatePath('/workouts');
 }
 
@@ -134,6 +210,16 @@ export async function addExerciseToWorkout(workoutId: number, exerciseId: number
                               WHERE id = ${workoutId}
                                 AND user_id = ${userId};`;
     if (!workout.rows[0]) throw new Error('Unauthorized');
+
+        const exercise = await sql`
+                SELECT e.id
+                FROM exercise e
+                JOIN muscle_group mg ON mg.id = e.muscle_group_id
+                WHERE e.id = ${exerciseId}
+                    AND (e.user_id = ${userId} OR e.user_id IS NULL)
+                    AND (mg.user_id = ${userId} OR mg.user_id IS NULL);
+        `;
+        if (!exercise.rows[0]) throw new Error('Unauthorized');
 
     // Use provided sortOrder or calculate next
     const order = sortOrder ?? (await sql`

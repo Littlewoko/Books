@@ -4,10 +4,13 @@ import { Book } from "@/app/lib/classes/book";
 import BookSpine from "./book-spine";
 import Link from "next/link";
 import { useRef, useState, useEffect, useCallback } from "react";
+import { useSession } from "next-auth/react";
+import AddIcon from '@mui/icons-material/Add';
 
 interface TableProps {
     books: Book[]
     returnTo?: string
+    isEmptyCatalogue?: boolean
 }
 
 function HorizontalStack({ books, animateFrom, returnTo }: { books: Book[]; animateFrom: number; returnTo?: string }) {
@@ -130,9 +133,10 @@ export function Shelf({ books, animateFrom, returnTo }: { books: Book[]; animate
     );
 }
 
-const Table: React.FC<TableProps> = ({ books, returnTo }) => {
+const Table: React.FC<TableProps> = ({ books, returnTo, isEmptyCatalogue = false }) => {
     const prevCountRef = useRef(0);
     const [animateFrom, setAnimateFrom] = useState(0);
+    const {data: session} = useSession();
 
     useEffect(() => {
         if (books.length === prevCountRef.current) return;
@@ -147,6 +151,38 @@ const Table: React.FC<TableProps> = ({ books, returnTo }) => {
     // Calculate how many in-progress books came before the animate threshold
     const inProgressAnimateFrom = Math.max(0, Math.min(animateFrom, inProgress.length));
     const shelvedAnimateFrom = Math.max(0, animateFrom - inProgress.length);
+
+    if (books.length === 0) {
+        if (!isEmptyCatalogue) {
+            return <p className="py-10 text-center text-stone-400 text-sm">No books match these filters.</p>;
+        }
+
+        return (
+            <section className="mx-2 sm:mx-0" aria-label="Empty bookshelf">
+                <div className="h-[10px] bg-gradient-to-b from-stone-600/50 via-stone-700/60 to-stone-800/70 shadow-md shadow-black/30" />
+                <div className="relative min-h-[230px] overflow-hidden bg-stone-900/70 flex flex-col items-center justify-center px-5 py-10 text-center">
+                    <div className="absolute left-1/2 top-0 h-full w-px bg-white/[0.025]" />
+                    <h2 className="relative text-amber-100/90 text-2xl sm:text-3xl" style={{fontFamily: 'var(--font-caveat)'}}>
+                        Room for a new story
+                    </h2>
+                    <p className="relative mt-2 max-w-xs text-stone-400 text-sm">
+                        Your reading shelf is ready when you are.
+                    </p>
+                    {session?.user && (
+                        <Link
+                            href="/books/create"
+                            className="relative mt-5 inline-flex items-center gap-2 border border-amber-700/60 px-4 py-2 text-amber-200 hover:bg-amber-900/30 transition-colors"
+                            style={{fontFamily: 'var(--font-caveat)', fontSize: '20px'}}
+                        >
+                            <AddIcon sx={{fontSize: 19}} />
+                            Add your first book
+                        </Link>
+                    )}
+                </div>
+                <div className="h-[12px] bg-gradient-to-b from-stone-700/60 via-stone-800/70 to-stone-900/80 shadow-md shadow-black/30" />
+            </section>
+        );
+    }
 
     return (
         <div className="flex flex-col">

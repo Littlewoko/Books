@@ -109,7 +109,8 @@ export async function pushWorkoutBatch(batch: WorkoutBatch): Promise<void> {
         const muscleGroupKeys = [...new Set(batch.exercises.map(record => record.muscleGroupPermanentId))];
         const muscleGroups = await sql.query(
             `SELECT id, permanent_id FROM muscle_group
-             WHERE user_id = $1 AND permanent_id = ANY($2::uuid[])`,
+                         WHERE (user_id = $1 OR user_id IS NULL)
+                             AND permanent_id = ANY($2::uuid[])`,
             [userId, muscleGroupKeys],
         );
         const muscleGroupIds = mapRequiredIds(muscleGroupKeys, muscleGroups.rows as IdRow[], 'muscle group');
@@ -177,7 +178,8 @@ export async function pushWorkoutBatch(batch: WorkoutBatch): Promise<void> {
         const exerciseKeys = [...new Set(batch.workoutExercises.map(record => record.exercisePermanentId))];
         const exerciseRows = await sql.query(
             `SELECT id, permanent_id FROM exercise
-             WHERE user_id = $1 AND permanent_id = ANY($2::uuid[])`,
+                         WHERE (user_id = $1 OR user_id IS NULL)
+                             AND permanent_id = ANY($2::uuid[])`,
             [userId, exerciseKeys],
         );
         const exerciseIds = mapRequiredIds(exerciseKeys, exerciseRows.rows as IdRow[], 'exercise');

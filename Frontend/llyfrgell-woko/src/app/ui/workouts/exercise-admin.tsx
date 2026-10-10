@@ -1,7 +1,9 @@
 "use client";
 
 import {useState} from "react";
-import {updateExerciseMuscleGroup, renameExercise, createMuscleGroup, updateMuscleGroupColour} from "@/app/lib/workouts/actions";
+import {updateExerciseMuscleGroup, renameExercise, createMuscleGroup, renameMuscleGroup, updateMuscleGroupColour} from "@/app/lib/workouts/actions";
+import {localUpdateMuscleGroup} from "@/app/lib/workouts/local-actions";
+import {invalidateColourCache} from "@/app/lib/workouts/muscle-group-colours";
 import EditIcon from '@mui/icons-material/Edit';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
@@ -12,12 +14,14 @@ interface ExerciseRow {
     muscleGroupId: number;
     muscleGroupName: string;
     totalSets: number;
+    isDefault: boolean;
 }
 
 interface MuscleGroup {
     id: number;
     name: string;
     colour: string;
+    isDefault: boolean;
 }
 
 interface Props {
@@ -36,20 +40,38 @@ export default function ExerciseAdmin({exercises: initial, muscleGroups: initial
     const [newMgName, setNewMgName] = useState("");
     const [addingMg, setAddingMg] = useState(false);
     const [showMgEditor, setShowMgEditor] = useState(false);
+    const [editingMgId, setEditingMgId] = useState<number | null>(null);
+    const [editMgName, setEditMgName] = useState("");
 
     const handleAddMuscleGroup = async () => {
         const name = newMgName.trim();
         if (!name || mgs.some(m => m.name.toLowerCase() === name.toLowerCase())) return;
         setAddingMg(true);
         const id = await createMuscleGroup(name);
-        setMgs(prev => [...prev, {id, name, colour: '#737373'}].sort((a, b) => a.name.localeCompare(b.name)));
+        setMgs(prev => [...prev, {id, name, colour: '#737373', isDefault: false}].sort((a, b) => a.name.localeCompare(b.name)));
         setNewMgName("");
         setAddingMg(false);
     };
 
     const handleColourChange = async (mgId: number, colour: string) => {
-        setMgs(prev => prev.map(m => m.id === mgId ? {...m, colour} : m));
         await updateMuscleGroupColour(mgId, colour);
+        setMgs(prev => prev.map(m => m.id === mgId ? {...m, colour} : m));
+        await localUpdateMuscleGroup(mgId, {colour});
+        invalidateColourCache();
+    };
+
+    const handleMuscleGroupRename = async () => {
+        const name = editMgName.trim();
+        if (editingMgId === null || !name) return;
+        const muscleGroupId = editingMgId;
+        await renameMuscleGroup(muscleGroupId, name);
+        setMgs(prev => prev.map(m => m.id === muscleGroupId ? {...m, name} : m));
+        setExercises(prev => prev.map(ex => ex.muscleGroupId === muscleGroupId
+            ? {...ex, muscleGroupName: name}
+            : ex));
+        await localUpdateMuscleGroup(muscleGroupId, {name});
+        invalidateColourCache();
+        setEditingMgId(null);
     };
 
     const filtered = exercises.filter(ex => {
@@ -104,7 +126,34 @@ export default function ExerciseAdmin({exercises: initial, muscleGroups: initial
                                     onChange={e => handleColourChange(mg.id, e.target.value)}
                                     className="w-6 h-6 border-0 bg-transparent cursor-pointer p-0"
                                 />
-                                <span className="text-black text-xs">{mg.name}</span>
+                                {editingMgId === mg.id ? (
+                                    <div className="flex items-center gap-1 min-w-0">
+                                        <input
+                                            value={editMgName}
+                                            onChange={e => setEditMgName(e.target.value)}
+                                            onKeyDown={e => e.key === 'Enter' && handleMuscleGroupRename()}
+                                            className="min-w-0 w-28 bg-transparent border-b border-black/20 text-black text-xs focus:outline-none focus:border-amber-600"
+                                            aria-label={`Rename ${mg.name}`}
+                                        />
+                                        <button type="button" onClick={handleMuscleGroupRename} className="text-green-700" aria-label="Save body part name">
+                                            <CheckIcon sx={{fontSize: 16}}/>
+                                        </button>
+                                        <button type="button" onClick={() => setEditingMgId(null)} className="text-black/40" aria-label="Cancel rename">
+                                            <CloseIcon sx={{fontSize: 16}}/>
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <>
+                                        <span className="text-black text-xs">{mg.name}</span>
+                                        {mg.isDefault && <span className="text-black/35 text-[9px]">Default</span>}
+                                        <button type="button" onClick={() => {
+                                            setEditingMgId(mg.id);
+                                            setEditMgName(mg.name);
+                                        }} className="text-black/25 hover:text-amber-700" aria-label={`Rename ${mg.name}`}>
+                                            <EditIcon sx={{fontSize: 13}}/>
+                                        </button>
+                                    </>
+                                )}
                             </div>
                         ))}
                     </div>
@@ -185,6 +234,7 @@ export default function ExerciseAdmin({exercises: initial, muscleGroups: initial
                                 ) : (
                                     <div className="flex items-center gap-1">
                                         <span className="text-black">{ex.name}</span>
+                                        {ex.isDefault && <span className="text-black/35 text-[9px]">Default</span>}
                                         <button type="button" onClick={() => startRename(ex)}
                                                 className="text-black/20 hover:text-amber-700 p-0.5">
                                             <EditIcon sx={{fontSize: 14, color: 'inherit'}}/>
